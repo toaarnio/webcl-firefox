@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -206,15 +206,11 @@ nsresult WebCL_createVersionObject (JSContext *cx, nsIVariant** aResultOut)
   val.setNumber ((double)WEBCL_VERSION_RELEASE);
   JS_SetElement (cx, jsArr, 2, &val);
 //  nsCString buildDate = WEBCL_BUILD_DATE;
-  val = STRING_TO_JSVAL (JS_NewStringCopyZ (cx, WEBCL_BUILD_DATE));
+  val = STRING_TO_JSVAL (JS_NewStringCopyZ (cx, (char const*)WEBCL_BUILD_DATE));
   JS_SetElement (cx, jsArr, 3, &val);
 
   JS_LeaveLocalRootScope (cx);
   JS_EndRequest(cx);
-  if (NS_FAILED (rv))
-  {
-    return rv;
-  }
 
   nsCOMPtr<nsIVariant> value;
   js::Value jsValue;
@@ -225,16 +221,6 @@ nsresult WebCL_createVersionObject (JSContext *cx, nsIVariant** aResultOut)
   NS_ADDREF (*aResultOut = value);
 
   return NS_OK;
-  /*
-  nsTArray<int> version;
-  version.SetCapacity (4);
-  version.AppendElement (WEBCL_VERSION_MAJOR);
-  version.AppendElement (WEBCL_VERSION_MINOR);
-  version.AppendElement (WEBCL_VERSION_RELEASE);
-  version.AppendElement (WEBCL_BUILD_DATE);
-
-  return WebCL_convertVectorToJSArrayInVariant<int> (cx, version, types::INT_V, aResultOut, 0);
-  */
 }
 
 

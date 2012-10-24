@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -203,7 +203,7 @@ NS_IMETHODIMP WebCL::GetVersion(JSContext *cx, nsIVariant **aVersion NS_OUTPARAM
   NS_ENSURE_ARG_POINTER (aVersion);
   if (!mVersion)
  {
-    nsresult rv = WebCL_createVersionObject (0, getter_AddRefs (mVersion));
+    nsresult rv = WebCL_createVersionObject (cx, getter_AddRefs (mVersion));
     NS_ENSURE_SUCCESS (rv, rv);
   }
   NS_ADDREF (*aVersion = mVersion);
