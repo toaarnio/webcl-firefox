@@ -1,6 +1,6 @@
 diff -r 0507d387617c browser/components/Makefile.in
 --- a/browser/components/Makefile.in	Wed Oct 10 14:22:29 2012 -0700
-+++ b/browser/components/Makefile.in	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/Makefile.in	Thu Oct 25 12:46:20 2012 +0300
 @@ -41,6 +41,7 @@
    tabview \
    thumbnails \
@@ -11,7 +11,7 @@ diff -r 0507d387617c browser/components/Makefile.in
  ifdef MOZ_SAFE_BROWSING
 diff -r 0507d387617c browser/components/build/Makefile.in
 --- a/browser/components/build/Makefile.in	Wed Oct 10 14:22:29 2012 -0700
-+++ b/browser/components/build/Makefile.in	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/build/Makefile.in	Thu Oct 25 12:46:20 2012 +0300
 @@ -33,6 +33,7 @@
  	-I$(srcdir)/../privatebrowsing/src \
  	-I$(srcdir)/../about \
@@ -30,7 +30,7 @@ diff -r 0507d387617c browser/components/build/Makefile.in
  ifneq (,$(filter windows cocoa gtk2, $(MOZ_WIDGET_TOOLKIT)))
 diff -r 0507d387617c browser/components/build/nsModule.cpp
 --- a/browser/components/build/nsModule.cpp	Wed Oct 10 14:22:29 2012 -0700
-+++ b/browser/components/build/nsModule.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/build/nsModule.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -7,6 +7,7 @@
  
  #include "nsBrowserCompsCID.h"
@@ -128,7 +128,7 @@ diff -r 0507d387617c browser/components/build/nsModule.cpp
  
 diff -r 0507d387617c browser/components/webcl/Makefile.in
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/Makefile.in	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/Makefile.in	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,11 @@
 +DEPTH		= ../../..
 +topsrcdir	= @top_srcdir@
@@ -143,7 +143,7 @@ diff -r 0507d387617c browser/components/webcl/Makefile.in
 +include $(topsrcdir)/config/rules.mk
 diff -r 0507d387617c browser/components/webcl/public/IWebCL.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCL.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCL.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,394 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -541,7 +541,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCL.idl
 +
 diff -r 0507d387617c browser/components/webcl/public/IWebCLCommandQueue.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLCommandQueue.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLCommandQueue.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,394 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -939,7 +939,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLCommandQueue.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/IWebCLContext.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLContext.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLContext.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,164 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1107,7 +1107,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLContext.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/IWebCLDevice.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLDevice.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLDevice.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,36 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1147,7 +1147,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLDevice.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/IWebCLEvent.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLEvent.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLEvent.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,62 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1213,7 +1213,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLEvent.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/IWebCLKernel.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLKernel.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLKernel.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,77 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1294,7 +1294,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLKernel.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/IWebCLMemoryObject.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLMemoryObject.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLMemoryObject.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,63 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1361,7 +1361,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLMemoryObject.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/IWebCLPlatform.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLPlatform.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLPlatform.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,47 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1412,7 +1412,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLPlatform.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/IWebCLProgram.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLProgram.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLProgram.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,83 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1499,7 +1499,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLProgram.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/IWebCLSampler.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/IWebCLSampler.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/IWebCLSampler.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,42 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1545,7 +1545,7 @@ diff -r 0507d387617c browser/components/webcl/public/IWebCLSampler.idl
 +};
 diff -r 0507d387617c browser/components/webcl/public/Makefile.in
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/Makefile.in	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/Makefile.in	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,15 @@
 +DEPTH   = ../../../..
 +topsrcdir = @top_srcdir@
@@ -1564,7 +1564,7 @@ diff -r 0507d387617c browser/components/webcl/public/Makefile.in
 +include $(topsrcdir)/config/rules.mk
 diff -r 0507d387617c browser/components/webcl/public/WebCL.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/WebCL.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/WebCL.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,35 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1603,7 +1603,7 @@ diff -r 0507d387617c browser/components/webcl/public/WebCL.idl
 +#include "IWebCLSampler.idl"
 diff -r 0507d387617c browser/components/webcl/public/WebCL_types.idl
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/public/WebCL_types.idl	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/public/WebCL_types.idl	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,55 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -1662,7 +1662,7 @@ diff -r 0507d387617c browser/components/webcl/public/WebCL_types.idl
 +typedef T_WebCLEnum             T_WebCLSamplerInfo;
 diff -r 0507d387617c browser/components/webcl/src/CL/cl.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/CL/cl.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/CL/cl.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,998 @@
 +/*******************************************************************************
 + * Copyright (c) 2008-2010 The Khronos Group Inc.
@@ -2664,7 +2664,7 @@ diff -r 0507d387617c browser/components/webcl/src/CL/cl.h
 +
 diff -r 0507d387617c browser/components/webcl/src/CL/cl_ext.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/CL/cl_ext.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/CL/cl_ext.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,213 @@
 +/*******************************************************************************
 + * Copyright (c) 2008-2010 The Khronos Group Inc.
@@ -2881,7 +2881,7 @@ diff -r 0507d387617c browser/components/webcl/src/CL/cl_ext.h
 +#endif /* __CL_EXT_H */
 diff -r 0507d387617c browser/components/webcl/src/CL/cl_gl.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/CL/cl_gl.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/CL/cl_gl.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,155 @@
 +/**********************************************************************************
 + * Copyright (c) 2008-2010 The Khronos Group Inc.
@@ -3040,7 +3040,7 @@ diff -r 0507d387617c browser/components/webcl/src/CL/cl_gl.h
 +#endif  /* __OPENCL_CL_GL_H  */
 diff -r 0507d387617c browser/components/webcl/src/CL/cl_gl_ext.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/CL/cl_gl_ext.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/CL/cl_gl_ext.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,69 @@
 +/**********************************************************************************
 + * Copyright (c) 2008-2010 The Khronos Group Inc.
@@ -3113,7 +3113,7 @@ diff -r 0507d387617c browser/components/webcl/src/CL/cl_gl_ext.h
 +#endif	/* __OPENCL_CL_GL_EXT_H  */
 diff -r 0507d387617c browser/components/webcl/src/CL/cl_platform.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/CL/cl_platform.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/CL/cl_platform.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,1198 @@
 +/**********************************************************************************
 + * Copyright (c) 2008-2010 The Khronos Group Inc.
@@ -4315,7 +4315,7 @@ diff -r 0507d387617c browser/components/webcl/src/CL/cl_platform.h
 +#endif  /* __CL_PLATFORM_H  */
 diff -r 0507d387617c browser/components/webcl/src/CL/opencl.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/CL/opencl.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/CL/opencl.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,54 @@
 +/*******************************************************************************
 + * Copyright (c) 2008-2010 The Khronos Group Inc.
@@ -4373,7 +4373,7 @@ diff -r 0507d387617c browser/components/webcl/src/CL/opencl.h
 +
 diff -r 0507d387617c browser/components/webcl/src/Makefile.in
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/Makefile.in	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/Makefile.in	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,37 @@
 +DEPTH		= ../../../..
 +topsrcdir	= @top_srcdir@
@@ -4414,14 +4414,14 @@ diff -r 0507d387617c browser/components/webcl/src/Makefile.in
 +include $(topsrcdir)/config/rules.mk
 diff -r 0507d387617c browser/components/webcl/src/WebCL.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCL.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,909 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
 + *
 + * This Source Code Form is subject to the terms of the
-+ * Mozilla Public License, v. 2.0. If a copy of the MPL 
-+ * was not distributed with this file, You can obtain 
++ * Mozilla Public License, v. 2.0. If a copy of the MPL
++ * was not distributed with this file, You can obtain
 + * one at http://mozilla.org/MPL/2.0/.
 + *
 + * The Original Contributor of this Source Code Form is
@@ -4621,7 +4621,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL.cpp
 +  NS_ENSURE_ARG_POINTER (aVersion);
 +  if (!mVersion)
 + {
-+    nsresult rv = WebCL_createVersionObject (0, getter_AddRefs (mVersion));
++    nsresult rv = WebCL_createVersionObject (cx, getter_AddRefs (mVersion));
 +    NS_ENSURE_SUCCESS (rv, rv);
 +  }
 +  NS_ADDREF (*aVersion = mVersion);
@@ -5327,7 +5327,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL.cpp
 +
 diff -r 0507d387617c browser/components/webcl/src/WebCL.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCL.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,67 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -5398,7 +5398,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL.h
 +#endif // _WEBCL_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLCommandQueue.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLCommandQueue.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLCommandQueue.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,1542 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -6945,7 +6945,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLCommandQueue.cpp
 \ No newline at end of file
 diff -r 0507d387617c browser/components/webcl/src/WebCLCommandQueue.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLCommandQueue.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLCommandQueue.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -7002,7 +7002,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLCommandQueue.h
 +#endif //_WEBCLCOMMANDQUEUE_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLCommon.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLCommon.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLCommon.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,48 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -7054,7 +7054,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLCommon.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLCommon.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLCommon.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLCommon.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,233 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -7291,7 +7291,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLCommon.h
 +#endif /* _WEBCLCOMMON_H_ */
 diff -r 0507d387617c browser/components/webcl/src/WebCLContext.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLContext.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLContext.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,343 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -7638,7 +7638,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLContext.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLContext.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLContext.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLContext.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -7695,7 +7695,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLContext.h
 +#endif //_WEBCLCONTEXT_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLDevice.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLDevice.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLDevice.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,168 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -7867,7 +7867,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLDevice.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLDevice.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLDevice.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLDevice.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -7924,7 +7924,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLDevice.h
 +#endif //_WEBCLDEVICE_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLEvent.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLEvent.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLEvent.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,192 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -8120,7 +8120,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLEvent.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLEvent.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLEvent.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLEvent.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -8177,7 +8177,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLEvent.h
 +#endif //_WEBCLEVENT_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLKernel.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLKernel.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLKernel.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,605 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -8786,7 +8786,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLKernel.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLKernel.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLKernel.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLKernel.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -8843,7 +8843,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLKernel.h
 +#endif //_WEBCLKERNEL_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLLogger.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLLogger.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLLogger.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,191 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -9038,7 +9038,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLLogger.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLLogger.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLLogger.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLLogger.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,138 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -9180,7 +9180,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLLogger.h
 +#endif //_WEBCLLOGGER_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLMemoryObject.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLMemoryObject.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLMemoryObject.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,279 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -9463,7 +9463,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLMemoryObject.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLMemoryObject.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLMemoryObject.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLMemoryObject.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -9520,7 +9520,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLMemoryObject.h
 +#endif // _WEBCL_MEMORYOBJECT_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLObserver.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLObserver.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLObserver.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,47 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -9571,7 +9571,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLObserver.cpp
 +
 diff -r 0507d387617c browser/components/webcl/src/WebCLObserver.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLObserver.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLObserver.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,36 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -9611,7 +9611,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLObserver.h
 +#endif // WEBCLOBSERVER_H
 diff -r 0507d387617c browser/components/webcl/src/WebCLPlatform.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLPlatform.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLPlatform.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,151 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -9766,7 +9766,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLPlatform.cpp
 +
 diff -r 0507d387617c browser/components/webcl/src/WebCLPlatform.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLPlatform.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLPlatform.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -9823,7 +9823,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLPlatform.h
 +#endif //_WEBCLPLATFORM_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLProgram.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLProgram.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLProgram.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,308 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -10135,7 +10135,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLProgram.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLProgram.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLProgram.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLProgram.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -10192,7 +10192,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLProgram.h
 +#endif //_WEBCLPROGRAM_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCLSampler.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLSampler.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLSampler.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,142 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -10338,7 +10338,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLSampler.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCLSampler.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCLSampler.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCLSampler.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,53 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -10395,7 +10395,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCLSampler.h
 +#endif //_WEBCLSAMPLER_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCL_clsymbols.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL_clsymbols.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCL_clsymbols.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,117 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -10516,7 +10516,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_clsymbols.h
 +#endif //_WEBCL_CLSYMBOLS_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCL_clwrapper.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL_clwrapper.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCL_clwrapper.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,1496 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -12016,7 +12016,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_clwrapper.cpp
 +
 diff -r 0507d387617c browser/components/webcl/src/WebCL_clwrapper.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL_clwrapper.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCL_clwrapper.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,961 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -12981,14 +12981,14 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_clwrapper.h
 +#endif //_WEBCL_CLWRAPPER_H_
 diff -r 0507d387617c browser/components/webcl/src/WebCL_internal.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL_internal.cpp	Wed Oct 17 06:28:12 2012 +0300
-@@ -0,0 +1,944 @@
++++ b/browser/components/webcl/src/WebCL_internal.cpp	Thu Oct 25 12:46:20 2012 +0300
+@@ -0,0 +1,930 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
 + *
 + * This Source Code Form is subject to the terms of the
-+ * Mozilla Public License, v. 2.0. If a copy of the MPL 
-+ * was not distributed with this file, You can obtain 
++ * Mozilla Public License, v. 2.0. If a copy of the MPL
++ * was not distributed with this file, You can obtain
 + * one at http://mozilla.org/MPL/2.0/.
 + *
 + * The Original Contributor of this Source Code Form is
@@ -13191,15 +13191,11 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_internal.cpp
 +  val.setNumber ((double)WEBCL_VERSION_RELEASE);
 +  JS_SetElement (cx, jsArr, 2, &val);
 +//  nsCString buildDate = WEBCL_BUILD_DATE;
-+  val = STRING_TO_JSVAL (JS_NewStringCopyZ (cx, WEBCL_BUILD_DATE));
++  val = STRING_TO_JSVAL (JS_NewStringCopyZ (cx, (char const*)WEBCL_BUILD_DATE));
 +  JS_SetElement (cx, jsArr, 3, &val);
 +
 +  JS_LeaveLocalRootScope (cx);
 +  JS_EndRequest(cx);
-+  if (NS_FAILED (rv))
-+  {
-+    return rv;
-+  }
 +
 +  nsCOMPtr<nsIVariant> value;
 +  js::Value jsValue;
@@ -13210,16 +13206,6 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_internal.cpp
 +  NS_ADDREF (*aResultOut = value);
 +
 +  return NS_OK;
-+  /*
-+  nsTArray<int> version;
-+  version.SetCapacity (4);
-+  version.AppendElement (WEBCL_VERSION_MAJOR);
-+  version.AppendElement (WEBCL_VERSION_MINOR);
-+  version.AppendElement (WEBCL_VERSION_RELEASE);
-+  version.AppendElement (WEBCL_BUILD_DATE);
-+
-+  return WebCL_convertVectorToJSArrayInVariant<int> (cx, version, types::INT_V, aResultOut, 0);
-+  */
 +}
 +
 +
@@ -13929,7 +13915,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_internal.cpp
 +
 diff -r 0507d387617c browser/components/webcl/src/WebCL_internal.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL_internal.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCL_internal.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,1181 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -15114,7 +15100,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_internal.h
 +
 diff -r 0507d387617c browser/components/webcl/src/WebCL_libcl.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL_libcl.cpp	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCL_libcl.cpp	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,298 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -15416,7 +15402,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_libcl.cpp
 +}
 diff -r 0507d387617c browser/components/webcl/src/WebCL_libcl.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/WebCL_libcl.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/WebCL_libcl.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,46 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -15466,7 +15452,7 @@ diff -r 0507d387617c browser/components/webcl/src/WebCL_libcl.h
 +#endif //_WEBCL_LIBCL_H_
 diff -r 0507d387617c browser/components/webcl/src/instance_registry.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/webcl/src/instance_registry.h	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/components/webcl/src/instance_registry.h	Thu Oct 25 12:46:20 2012 +0300
 @@ -0,0 +1,71 @@
 +/*
 + * This file is part of WebCL – Web Computing Language.
@@ -15541,7 +15527,7 @@ diff -r 0507d387617c browser/components/webcl/src/instance_registry.h
 +#endif // _INSTANCE_REGISTRY_H_
 diff -r 0507d387617c browser/installer/package-manifest.in
 --- a/browser/installer/package-manifest.in	Wed Oct 10 14:22:29 2012 -0700
-+++ b/browser/installer/package-manifest.in	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/installer/package-manifest.in	Thu Oct 25 12:46:20 2012 +0300
 @@ -314,6 +314,9 @@
  @BINPATH@/components/zipwriter.xpt
  @BINPATH@/components/telemetry.xpt
@@ -15554,7 +15540,7 @@ diff -r 0507d387617c browser/installer/package-manifest.in
  @BINPATH@/components/ConsoleAPI.js
 diff -r 0507d387617c browser/makefiles.sh
 --- a/browser/makefiles.sh	Wed Oct 10 14:22:29 2012 -0700
-+++ b/browser/makefiles.sh	Wed Oct 17 06:28:12 2012 +0300
++++ b/browser/makefiles.sh	Thu Oct 25 12:46:20 2012 +0300
 @@ -37,6 +37,9 @@
  browser/components/shell/src/Makefile
  browser/components/tabview/Makefile
