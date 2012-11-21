@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -108,7 +108,7 @@ int WebCLCommandQueue::getTypeForInfoName (int aName)
 
 
 /* nsIVariant getCommandQueueInfo (in long aName); */
-NS_IMETHODIMP WebCLCommandQueue::GetCommandQueueInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::GetCommandQueueInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
 
@@ -137,7 +137,7 @@ NS_IMETHODIMP WebCLCommandQueue::GetCommandQueueInfo(PRInt32 aName, JSContext *c
 
 
 /* IWebCLEvent enqueueNDRangeKernel (in nsISupports aKernel, in unsigned long aWorkDim, in nsIVariant aGlobalWorkOffset, in nsIVariant aGlobalWorkSize, in nsIVariant aLocalWorkSize, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueNDRangeKernel(nsISupports *aKernel, PRUint32 aWorkDim, nsIVariant *aGlobalWorkOffset, nsIVariant *aGlobalWorkSize, nsIVariant *aLocalWorkSize, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueNDRangeKernel(nsISupports *aKernel, PRUint32 aWorkDim, nsIVariant *aGlobalWorkOffset, nsIVariant *aGlobalWorkSize, nsIVariant *aLocalWorkSize, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aKernel);
@@ -259,7 +259,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueNDRangeKernel(nsISupports *aKernel, PRUi
 
 
 /* IWebCLEvent enqueueTask (in nsISupports aKernel, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueTask(nsISupports *aKernel, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueTask(nsISupports *aKernel, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aKernel);
@@ -453,7 +453,7 @@ static nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayV
 
 
 /* IWebCLEvent enqueueWriteBuffer (in nsISupports aBuffer, in boolean aBlockingWrite, in T_WebCLSize aOffset, in T_WebCLSize aSize, in nsIVariant aData, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBuffer(nsISupports *aBuffer, bool aBlockingWrite, T_WebCLSize aOffset, T_WebCLSize aSize, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBuffer(nsISupports *aBuffer, bool aBlockingWrite, T_WebCLSize aOffset, T_WebCLSize aSize, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aBuffer);
@@ -547,7 +547,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBuffer(nsISupports *aBuffer, bool a
 
 
 /* IWebCLEvent enqueueReadBuffer (in nsISupports aBuffer, in boolean aBlockingRead, in T_WebCLSize aOffset, in T_WebCLSize aSize, in nsIVariant aData, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBuffer(nsISupports *aBuffer, bool aBlockingRead, T_WebCLSize aOffset, T_WebCLSize aSize, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBuffer(nsISupports *aBuffer, bool aBlockingRead, T_WebCLSize aOffset, T_WebCLSize aSize, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aBuffer);
@@ -634,7 +634,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBuffer(nsISupports *aBuffer, bool aB
 
 
 /* IWebCLEvent enqueueWriteBufferRect (in nsISupports aBuffer, in boolean aBlockingWrite, in nsIVariant aBufferOrigin, in nsIVariant aHostOrigin, in nsIVariant aRegion, in T_WebCLSize aBufferRowPitch, in T_WebCLSize aBufferSlicePitch, in T_WebCLSize aHostRowPitch, in T_WebCLSize aHostSlicePitch, in nsIVariant aData, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBufferRect(nsISupports *aBuffer, bool aBlockingWrite, nsIVariant *aBufferOrigin, nsIVariant *aHostOrigin, nsIVariant *aRegion, T_WebCLSize aBufferRowPitch, T_WebCLSize aBufferSlicePitch, T_WebCLSize aHostRowPitch, T_WebCLSize aHostSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBufferRect(nsISupports *aBuffer, bool aBlockingWrite, nsIVariant *aBufferOrigin, nsIVariant *aHostOrigin, nsIVariant *aRegion, T_WebCLSize aBufferRowPitch, T_WebCLSize aBufferSlicePitch, T_WebCLSize aHostRowPitch, T_WebCLSize aHostSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aBuffer);
@@ -772,7 +772,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBufferRect(nsISupports *aBuffer, bo
 
 
 /* IWebCLEvent enqueueReadBufferRect (in nsISupports aBuffer, in boolean aBlockingRead, in nsIVariant aBufferOrigin, in nsIVariant aHostOrigin, in nsIVariant aRegion, in T_WebCLSize aBufferRowPitch, in T_WebCLSize aBufferSlicePitch, in T_WebCLSize aHostRowPitch, in T_WebCLSize aHostSlicePitch, in nsIVariant aData, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBufferRect(nsISupports *aBuffer, bool aBlockingRead, nsIVariant *aBufferOrigin, nsIVariant *aHostOrigin, nsIVariant *aRegion, T_WebCLSize aBufferRowPitch, T_WebCLSize aBufferSlicePitch, T_WebCLSize aHostRowPitch, T_WebCLSize aHostSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBufferRect(nsISupports *aBuffer, bool aBlockingRead, nsIVariant *aBufferOrigin, nsIVariant *aHostOrigin, nsIVariant *aRegion, T_WebCLSize aBufferRowPitch, T_WebCLSize aBufferSlicePitch, T_WebCLSize aHostRowPitch, T_WebCLSize aHostSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aBuffer);
@@ -910,7 +910,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBufferRect(nsISupports *aBuffer, boo
 
 
 /* IWebCLEvent enqueueWriteImage (in nsISupports aImage, in boolean aBlockingWrite, in nsIVariant aOrigin, in nsIVariant aRegion, in T_WebCLSize aInputRowPitch, in T_WebCLSize aInputSlicePitch, in nsIVariant aData, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteImage(nsISupports *aImage, bool aBlockingWrite, nsIVariant *aOrigin, nsIVariant *aRegion, T_WebCLSize aInputRowPitch, T_WebCLSize aInputSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteImage(nsISupports *aImage, bool aBlockingWrite, nsIVariant *aOrigin, nsIVariant *aRegion, T_WebCLSize aInputRowPitch, T_WebCLSize aInputSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aImage);
@@ -1048,7 +1048,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteImage(nsISupports *aImage, bool aBl
 
 
 /* IWebCLEvent enqueueReadImage (in nsISupports aImage, in boolean aBlockingRead, in nsIVariant aOrigin, in nsIVariant aRegion, in T_WebCLSize aRowPitch, in T_WebCLSize aSlicePitch, in nsIVariant aData, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueReadImage(nsISupports *aImage, bool aBlockingRead, nsIVariant *aOrigin, nsIVariant *aRegion, T_WebCLSize aRowPitch, T_WebCLSize aSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueReadImage(nsISupports *aImage, bool aBlockingRead, nsIVariant *aOrigin, nsIVariant *aRegion, T_WebCLSize aRowPitch, T_WebCLSize aSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aImage);
@@ -1186,7 +1186,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadImage(nsISupports *aImage, bool aBlo
 
 
 /* IWebCLEvent enqueueCopyImage (in nsISupports aSrcImage, in nsISupports aDstImage, in nsIVariant aSrcOrigin, in nsIVariant aDstOrigin, in nsIVariant aRegion, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImage(nsISupports *aSrcImage, nsISupports *aDstImage, nsIVariant *aSrcOrigin, nsIVariant *aDstOrigin, nsIVariant *aRegion, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImage(nsISupports *aSrcImage, nsISupports *aDstImage, nsIVariant *aSrcOrigin, nsIVariant *aDstOrigin, nsIVariant *aRegion, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aSrcImage);
@@ -1263,7 +1263,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImage(nsISupports *aSrcImage, nsISup
 
 
 /* IWebCLEvent enqueueCopyImageToBuffer (in nsISupports aSrcImage, in nsISupports aDstBuffer, in nsIVariant aSrcOrigin, in nsIVariant aRegion, in T_WebCLSize aDstOffset, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImageToBuffer(nsISupports *aSrcImage, nsISupports *aDstBuffer, nsIVariant *aSrcOrigin, nsIVariant *aRegion, T_WebCLSize aDstOffset, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImageToBuffer(nsISupports *aSrcImage, nsISupports *aDstBuffer, nsIVariant *aSrcOrigin, nsIVariant *aRegion, T_WebCLSize aDstOffset, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aSrcImage);
@@ -1331,7 +1331,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImageToBuffer(nsISupports *aSrcImage
 
 
 /* IWebCLEvent enqueueCopyBufferToImage (in nsISupports aSrcBuffer, in nsISupports aDstImage, in T_WebCLSize aSrcOffset, in nsIVariant aDstOrigin, in nsIVariant aRegion, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyBufferToImage(nsISupports *aSrcBuffer, nsISupports *aDstImage, T_WebCLSize aSrcOffset, nsIVariant *aDstOrigin, nsIVariant *aRegion, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyBufferToImage(nsISupports *aSrcBuffer, nsISupports *aDstImage, T_WebCLSize aSrcOffset, nsIVariant *aDstOrigin, nsIVariant *aRegion, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aSrcBuffer);
@@ -1400,7 +1400,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyBufferToImage(nsISupports *aSrcBuffe
 
 
 /* IWebCLEvent enqueueMapBuffer (in nsISupports aBuffer, in boolean aBlockingMap, in T_WebCLMapFlags aMapFlags, in T_WebCLSize aOffset, in T_WebCLSize aSize, in nsIVariant aEventWaitList, in nsIVariant aData); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueMapBuffer(nsISupports *aBuffer, bool aBlockingMap, T_WebCLMapFlags aMapFlags, T_WebCLSize aOffset, T_WebCLSize aSize, nsIVariant *aEventWaitList, nsIVariant *aData, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueMapBuffer(nsISupports *aBuffer, bool aBlockingMap, T_WebCLMapFlags aMapFlags, T_WebCLSize aOffset, T_WebCLSize aSize, nsIVariant *aEventWaitList, nsIVariant *aData, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1417,7 +1417,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueMapBuffer(nsISupports *aBuffer, bool aBl
 
 
 /* IWebCLEvent enqueueMapImage (in nsISupports aImage, in boolean aBlockingMap, in T_WebCLMapFlags aMapFlags, in nsIVariant aOrigin, in nsIVariant aRegion, in nsIVariant aEventWaitList, in nsIVariant aData); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueMapImage(nsISupports *aImage, bool aBlockingMap, T_WebCLMapFlags aMapFlags, nsIVariant *aOrigin, nsIVariant *aRegion, nsIVariant *aEventWaitList, nsIVariant *aData, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueMapImage(nsISupports *aImage, bool aBlockingMap, T_WebCLMapFlags aMapFlags, nsIVariant *aOrigin, nsIVariant *aRegion, nsIVariant *aEventWaitList, nsIVariant *aData, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   // NOTE: see EnqueueMapBuffer
@@ -1427,7 +1427,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueMapImage(nsISupports *aImage, bool aBloc
 
 
 /* IWebCLEvent enqueueUnmapMemObject (in nsISupports aMemObject, in nsIVariant aMappedData, [optional] in nsIVariant aEventWaitList); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueUnmapMemObject(nsISupports *aMemObject, nsIVariant *aMappedData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueUnmapMemObject(nsISupports *aMemObject, nsIVariant *aMappedData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   // NOTE: see EnqueueMapBuffer
@@ -1437,7 +1437,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueUnmapMemObject(nsISupports *aMemObject, 
 
 
 /* IWebCLEvent enqueueMarker (); */
-NS_IMETHODIMP WebCLCommandQueue::EnqueueMarker(JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLCommandQueue::EnqueueMarker(JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (cx);

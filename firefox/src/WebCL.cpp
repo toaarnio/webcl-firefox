@@ -183,7 +183,7 @@ WebCL::~WebCL()
 }
 
 
-NS_IMETHODIMP WebCL::GetTypes(JSContext *cx, nsIVariant **aTypes NS_OUTPARAM)
+NS_IMETHODIMP WebCL::GetTypes(JSContext *cx, nsIVariant **aTypes)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aTypes);
@@ -197,7 +197,7 @@ NS_IMETHODIMP WebCL::GetTypes(JSContext *cx, nsIVariant **aTypes NS_OUTPARAM)
 }
 
 
-NS_IMETHODIMP WebCL::GetVersion(JSContext *cx, nsIVariant **aVersion NS_OUTPARAM)
+NS_IMETHODIMP WebCL::GetVersion(JSContext *cx, nsIVariant **aVersion)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aVersion);
@@ -212,13 +212,13 @@ NS_IMETHODIMP WebCL::GetVersion(JSContext *cx, nsIVariant **aVersion NS_OUTPARAM
 
 
 /* nsIVariant getPlatformIDs (); */
-NS_IMETHODIMP WebCL::GetPlatformIDs(JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCL::GetPlatformIDs(JSContext *cx, nsIVariant **_retval)
 {
   return GetPlatforms (cx, _retval);
 }
 
 /* nsIVariant getPlatforms (); */
-NS_IMETHODIMP WebCL::GetPlatforms(JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCL::GetPlatforms(JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
 
@@ -469,7 +469,7 @@ static nsresult ensureContextDevicesCompatibility (JSContext *cx, WebCL_LibCLWra
 
 
 /* IWebCLContext createContext (in nsIVariant aProperties, in nsIVariant aDevices); */
-NS_IMETHODIMP WebCL::CreateContext(nsIVariant *aProperties, nsIVariant *aDevices, JSContext *cx, IWebCLContext **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCL::CreateContext(nsIVariant *aProperties, nsIVariant *aDevices, JSContext *cx, IWebCLContext **_retval)
 {
   D_METHOD_START;
   WEBCL_ENSURE_USE_PERMITTED;
@@ -583,7 +583,7 @@ NS_IMETHODIMP WebCL::CreateContext(nsIVariant *aProperties, nsIVariant *aDevices
 
 
 /* IWebCLContext createContextFromType (in nsIArray aProperties, in T_WebCLDeviceType aDeviceType); */
-NS_IMETHODIMP WebCL::CreateContextFromType(nsIVariant *aProperties, T_WebCLDeviceType aDeviceType, JSContext *cx, IWebCLContext **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCL::CreateContextFromType(nsIVariant *aProperties, T_WebCLDeviceType aDeviceType, JSContext *cx, IWebCLContext **_retval)
 {
   D_METHOD_START;
   WEBCL_ENSURE_USE_PERMITTED;

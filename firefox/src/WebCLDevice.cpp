@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -140,7 +140,7 @@ int WebCLDevice::getTypeForInfoName (int aName)
 
 
 /* nsIVariant getDeviceInfo (in long aName); */
-NS_IMETHODIMP WebCLDevice::GetDeviceInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLDevice::GetDeviceInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
 

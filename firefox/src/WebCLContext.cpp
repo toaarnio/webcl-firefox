@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -96,7 +96,7 @@ int WebCLContext::getTypeForInfoName (int aName) {
 
 
 /* nsIVariant getContextInfo (in long aName); */
-NS_IMETHODIMP WebCLContext::GetContextInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::GetContextInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (_retval);
@@ -125,7 +125,7 @@ NS_IMETHODIMP WebCLContext::GetContextInfo(PRInt32 aName, JSContext *cx, nsIVari
 
 
 /* IWebCLProgram createProgramWithSource (in string aSource); */
-NS_IMETHODIMP WebCLContext::CreateProgramWithSource(const char *aSource, JSContext *cx, IWebCLProgram **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::CreateProgramWithSource(const char *aSource, JSContext *cx, IWebCLProgram **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aSource);
@@ -150,7 +150,7 @@ NS_IMETHODIMP WebCLContext::CreateProgramWithSource(const char *aSource, JSConte
 
 
 /* IWebCLCommandQueue createCommandQueue (in IWebCLDevice aDevice, in T_WebCLCommandQueueProperties aProperties); */
-NS_IMETHODIMP WebCLContext::CreateCommandQueue(nsISupports *aDevice, T_WebCLCommandQueueProperties aProperties, JSContext *cx, IWebCLCommandQueue **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::CreateCommandQueue(nsISupports *aDevice, T_WebCLCommandQueueProperties aProperties, JSContext *cx, IWebCLCommandQueue **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (cx);
@@ -177,7 +177,7 @@ NS_IMETHODIMP WebCLContext::CreateCommandQueue(nsISupports *aDevice, T_WebCLComm
 
 
 /* IWebCLMemoryObject createBuffer (in T_WebCLMemFlags aFlags, in T_WebCLSize aSize); */
-NS_IMETHODIMP WebCLContext::CreateBuffer(T_WebCLMemFlags aFlags, T_WebCLSize aSize, JSContext *cx, IWebCLMemoryObject **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::CreateBuffer(T_WebCLMemFlags aFlags, T_WebCLSize aSize, JSContext *cx, IWebCLMemoryObject **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (cx);
@@ -200,7 +200,7 @@ NS_IMETHODIMP WebCLContext::CreateBuffer(T_WebCLMemFlags aFlags, T_WebCLSize aSi
 
 
 /* IWebCLMemoryObject createImage2D (in T_WebCLMemFlags aFlags, in nsIVariant aImageFormat, in T_WebCLSize aWidth, in T_WebCLSize aHeight, in T_WebCLSize aRowPitch); */
-NS_IMETHODIMP WebCLContext::CreateImage2D(T_WebCLMemFlags aFlags, nsIVariant *aImageFormat, T_WebCLSize aWidth, T_WebCLSize aHeight, T_WebCLSize aRowPitch, JSContext *cx, IWebCLMemoryObject **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::CreateImage2D(T_WebCLMemFlags aFlags, nsIVariant *aImageFormat, T_WebCLSize aWidth, T_WebCLSize aHeight, T_WebCLSize aRowPitch, JSContext *cx, IWebCLMemoryObject **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (cx);
@@ -228,7 +228,7 @@ NS_IMETHODIMP WebCLContext::CreateImage2D(T_WebCLMemFlags aFlags, nsIVariant *aI
 
 
 /* IWebCLMemoryObject createImage3D (in T_WebCLMemFlags aFlags, in nsIVariant aImageFormat, in T_WebCLSize aWidth, in T_WebCLSize aHeight, in T_WebCLSize aDepth, in T_WebCLSize aRowPitch, in T_WebCLSize aSlicePitch); */
-NS_IMETHODIMP WebCLContext::CreateImage3D(T_WebCLMemFlags aFlags, nsIVariant *aImageFormat, T_WebCLSize aWidth, T_WebCLSize aHeight, T_WebCLSize aDepth, T_WebCLSize aRowPitch, T_WebCLSize aSlicePitch, JSContext *cx, IWebCLMemoryObject **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::CreateImage3D(T_WebCLMemFlags aFlags, nsIVariant *aImageFormat, T_WebCLSize aWidth, T_WebCLSize aHeight, T_WebCLSize aDepth, T_WebCLSize aRowPitch, T_WebCLSize aSlicePitch, JSContext *cx, IWebCLMemoryObject **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (cx);
@@ -257,7 +257,7 @@ NS_IMETHODIMP WebCLContext::CreateImage3D(T_WebCLMemFlags aFlags, nsIVariant *aI
 
 
 /* IWebCLSampler createSampler (in boolean aNormalizedCoords, in T_WebCLAddressingMode aAddressingMode, in T_WebCLFilterMode aFilterMode); */
-NS_IMETHODIMP WebCLContext::CreateSampler(bool aNormalizedCoords, T_WebCLAddressingMode aAddressingMode, T_WebCLFilterMode aFilterMode, JSContext *cx, IWebCLSampler **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::CreateSampler(bool aNormalizedCoords, T_WebCLAddressingMode aAddressingMode, T_WebCLFilterMode aFilterMode, JSContext *cx, IWebCLSampler **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (cx);
@@ -281,7 +281,7 @@ NS_IMETHODIMP WebCLContext::CreateSampler(bool aNormalizedCoords, T_WebCLAddress
 
 
 /* nsIVariant getSupportedImageFormats (in T_WebCLMemFlags aFlags, in T_WebCLMemObjectType aImageType); */
-NS_IMETHODIMP WebCLContext::GetSupportedImageFormats(T_WebCLMemFlags aFlags, T_WebCLMemObjectType aImageType, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::GetSupportedImageFormats(T_WebCLMemFlags aFlags, T_WebCLMemObjectType aImageType, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (cx);
@@ -305,7 +305,7 @@ NS_IMETHODIMP WebCLContext::GetSupportedImageFormats(T_WebCLMemFlags aFlags, T_W
 
 
 /* IWebCLEvent createUserEvent (); */
-NS_IMETHODIMP WebCLContext::CreateUserEvent(JSContext *cx, IWebCLEvent **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLContext::CreateUserEvent(JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (cx);

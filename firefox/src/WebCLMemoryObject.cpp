@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -122,7 +122,7 @@ int WebCLMemoryObject::getTypeForInfoName (int aName)
 
 
 /* nsIVariant getMemObjectInfo (in long aName); */
-NS_IMETHODIMP WebCLMemoryObject::GetMemObjectInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLMemoryObject::GetMemObjectInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
 
@@ -151,7 +151,7 @@ NS_IMETHODIMP WebCLMemoryObject::GetMemObjectInfo(PRInt32 aName, JSContext *cx, 
 
 
 /* nsIVariant getImageInfo (in long aName); */
-NS_IMETHODIMP WebCLMemoryObject::GetImageInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLMemoryObject::GetImageInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
 
@@ -180,7 +180,7 @@ NS_IMETHODIMP WebCLMemoryObject::GetImageInfo(PRInt32 aName, JSContext *cx, nsIV
 
 
 /* IWebCLMemoryObject createSubBuffer (in T_WebCLMemFlags aFlags, in nsIVariant aBufferRegion); */
-NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVariant *aBufferRegion, JSContext *cx, IWebCLMemoryObject **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVariant *aBufferRegion, JSContext *cx, IWebCLMemoryObject **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (aBufferRegion);

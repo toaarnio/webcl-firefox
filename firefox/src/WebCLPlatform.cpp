@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -92,7 +92,7 @@ int WebCLPlatform::getTypeForInfoName (int aName)
 }
 
 /* nsIVariant getPlatformInfo (in long aName); */
-NS_IMETHODIMP WebCLPlatform::GetPlatformInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLPlatform::GetPlatformInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
 
@@ -121,14 +121,14 @@ NS_IMETHODIMP WebCLPlatform::GetPlatformInfo(PRInt32 aName, JSContext *cx, nsIVa
 
 
 /* nsIVariant getDeviceIDs (in T_WebCLDeviceType aType); */
-NS_IMETHODIMP WebCLPlatform::GetDeviceIDs(T_WebCLDeviceType aType, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLPlatform::GetDeviceIDs(T_WebCLDeviceType aType, JSContext *cx, nsIVariant **_retval)
 {
   return GetDevices (aType, cx, _retval);
 }
 
 
 /* nsIVariant getDevices (in T_WebCLDeviceType aType); */
-NS_IMETHODIMP WebCLPlatform::GetDevices(T_WebCLDeviceType aType, JSContext *cx, nsIVariant **_retval NS_OUTPARAM)
+NS_IMETHODIMP WebCLPlatform::GetDevices(T_WebCLDeviceType aType, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
   NS_ENSURE_ARG_POINTER (_retval);
