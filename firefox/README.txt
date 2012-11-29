@@ -56,6 +56,9 @@ On Unix-like systems, e.g. Linux:
 
   * Xulrunner SDK
     http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/<VERSION>/sdk
+    
+    Example:
+    wget http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/17.0/sdk/xulrunner-17.0.en-US.linux-i686.sdk.tar.bz2    
 
   * OpenCL SDK
     An SDK is available from e.g. AMD, NVIDIA and INTEL for use with
@@ -63,6 +66,9 @@ On Unix-like systems, e.g. Linux:
 
   * Mozilla Firefox browser
     http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/
+
+    Example:
+    wget http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/linux-i686/en-US/firefox-17.0.tar.bz2
 
 
 On Windows:
