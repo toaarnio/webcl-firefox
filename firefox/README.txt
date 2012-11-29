@@ -33,8 +33,8 @@ Contact: Tomi Aarnio  tomi.aarnio@nokia.com
 
 Developers:
     Janne Pietiäinen
-    Jari Nikara
     Tomi Aarnio
+    Jari Nikara
     Eero Aho
 
 
@@ -56,19 +56,16 @@ On Unix-like systems, e.g. Linux:
 
   The following library and software dependencies must be fulfilled.
 
-  * Xulrunner SDK
-    http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/<VERSION>/sdk
+  * Xulrunner SDK: http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/<VERSION>/sdk
     # wget http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/17.0/sdk/xulrunner-17.0.en-US.linux-i686.sdk.tar.bz2    
 
-  * OpenCL SDK
-    An SDK is available from e.g. AMD, NVIDIA and INTEL for use with their respective hardware.
+  * OpenCL SDK: Available from AMD, NVIDIA, Intel and others
     # wget http://registrationcenter.intel.com/irc_nas/2563/intel_sdk_for_ocl_applications_2012_x64.tgz
     # gunzip intel_sdk_for_ocl_applications_2012_x64.tgz
     # tar xvf intel_sdk_for_ocl_applications_2012_x64.tar
     # sudo yum install intel_ocl_sdk_2012_x64.rpm
 
-  * Mozilla Firefox browser
-    http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/
+  * Mozilla Firefox browser: http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/
     # wget http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/linux-i686/en-US/firefox-17.0.tar.bz2
 
 
