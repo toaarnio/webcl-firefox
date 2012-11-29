@@ -58,20 +58,23 @@ On Unix-like systems, e.g. Linux:
     http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/<VERSION>/sdk
     
     Example:
-    wget http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/17.0/sdk/xulrunner-17.0.en-US.linux-i686.sdk.tar.bz2    
+    # wget http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/17.0/sdk/xulrunner-17.0.en-US.linux-i686.sdk.tar.bz2    
 
   * OpenCL SDK
     An SDK is available from e.g. AMD, NVIDIA and INTEL for use with
     their respective hardware.
 
     Example:
-    wget http://registrationcenter.intel.com/irc_nas/2563/intel_sdk_for_ocl_applications_2012_x64.tgz
+    # wget http://registrationcenter.intel.com/irc_nas/2563/intel_sdk_for_ocl_applications_2012_x64.tgz
+    # gunzip intel_sdk_for_ocl_applications_2012_x64.tgz
+    # tar xvf intel_sdk_for_ocl_applications_2012_x64.tar
+    # sudo yum install intel_ocl_sdk_2012_x64.rpm
 
   * Mozilla Firefox browser
     http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/
 
     Example:
-    wget http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/linux-i686/en-US/firefox-17.0.tar.bz2
+    # wget http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/linux-i686/en-US/firefox-17.0.tar.bz2
 
 
 On Windows:
