@@ -64,6 +64,9 @@ On Unix-like systems, e.g. Linux:
     An SDK is available from e.g. AMD, NVIDIA and INTEL for use with
     their respective hardware.
 
+    Example:
+    wget http://registrationcenter.intel.com/irc_nas/2563/intel_sdk_for_ocl_applications_2012_x64.tgz
+
   * Mozilla Firefox browser
     http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/
 
