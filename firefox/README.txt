@@ -46,8 +46,10 @@ On Unix-like systems, e.g. Linux:
   The following tools are required:
 
   * The g++ compiler
+    # sudo yum install gcc-c++
 
   * GNU Make
+    # sudo yum install make
 
   * Doxygen for generating documentation from sources.
     http://www.doxygen.org/
@@ -56,15 +58,10 @@ On Unix-like systems, e.g. Linux:
 
   * Xulrunner SDK
     http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/<VERSION>/sdk
-    
-    Example:
     # wget http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/17.0/sdk/xulrunner-17.0.en-US.linux-i686.sdk.tar.bz2    
 
   * OpenCL SDK
-    An SDK is available from e.g. AMD, NVIDIA and INTEL for use with
-    their respective hardware.
-
-    Example:
+    An SDK is available from e.g. AMD, NVIDIA and INTEL for use with their respective hardware.
     # wget http://registrationcenter.intel.com/irc_nas/2563/intel_sdk_for_ocl_applications_2012_x64.tgz
     # gunzip intel_sdk_for_ocl_applications_2012_x64.tgz
     # tar xvf intel_sdk_for_ocl_applications_2012_x64.tar
@@ -72,8 +69,6 @@ On Unix-like systems, e.g. Linux:
 
   * Mozilla Firefox browser
     http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/
-
-    Example:
     # wget http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/linux-i686/en-US/firefox-17.0.tar.bz2
 
 
