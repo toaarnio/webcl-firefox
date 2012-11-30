@@ -38,11 +38,11 @@ Developers:
     Eero Aho
 
 
-
 PREREQUISITIES
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 On Unix-like systems, e.g. Linux:
+
   The following tools are required:
 
   * The g++ compiler
@@ -51,10 +51,13 @@ On Unix-like systems, e.g. Linux:
   * GNU Make
     # sudo yum install make
 
-  * Doxygen for generating documentation from sources.
-    http://www.doxygen.org/
+  * Doxygen for generating documentation from sources: http://www.doxygen.org/
+    # sudo yum install doxygen
 
-  The following library and software dependencies must be fulfilled.
+  * Info-ZIP or compatible, for creating the Firefox extension package (XPI):
+    # sudo yum install zip unzip
+
+  The following library and software dependencies must be fulfilled:
 
   * Mozilla Firefox browser: http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/
     # wget http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/linux-i686/en-US/firefox-17.0.tar.bz2
@@ -109,7 +112,7 @@ BUILDING
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 On Unix-like systems, e.g. Linux:
-  * Enter the firefox directory
+  * Enter the webcl-firefox/firefox directory
 
   * Make sure the settings on buildconfig.inc are set properly and modify
     them if necessary. Configure at least the path to Xulrunner SDK
