@@ -51,25 +51,25 @@ On Unix-like systems, e.g. Linux:
   * GNU Make
     # sudo yum install make
 
-  * Doxygen for generating documentation from sources: http://www.doxygen.org/
-    # sudo yum install doxygen
-
   * Info-ZIP or compatible, for creating the Firefox extension package (XPI):
     # sudo yum install zip unzip
 
+  * Doxygen and Graphviz for generating documentation:
+    # sudo yum install doxygen graphviz
+
   The following library and software dependencies must be fulfilled:
 
-  * Mozilla Firefox browser: http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/
+  * Mozilla Firefox browser (http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/)
     # wget http://releases.mozilla.org/pub/mozilla.org/firefox/releases/latest/linux-i686/en-US/firefox-17.0.tar.bz2
     # bunzip2 firefox-17.0.tar.bz2
     # tar xvf firefox-17.0.tar
 
-  * Xulrunner SDK: http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/<VERSION>/sdk
+  * Xulrunner SDK (http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/<VERSION>/sdk)
     # wget http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/17.0/sdk/xulrunner-17.0.en-US.linux-i686.sdk.tar.bz2
     # bunzip2 xulrunner-17.0.en-US.linux-i686.sdk.tar.bz2
     # tar xvf xulrunner-17.0.en-US.linux-i686.sdk.tar
 
-  * OpenCL SDK: Available from AMD, NVIDIA, Intel and others
+  * OpenCL SDK (available from AMD, NVIDIA, Intel and others)
     # wget http://registrationcenter.intel.com/irc_nas/2563/intel_sdk_for_ocl_applications_2012_x64.tgz
     # gunzip intel_sdk_for_ocl_applications_2012_x64.tgz
     # tar xvf intel_sdk_for_ocl_applications_2012_x64.tar
