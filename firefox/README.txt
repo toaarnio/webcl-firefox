@@ -21,7 +21,7 @@ modify it under the terms of the Mozilla Public License, v. 2.0. See included
 COPYING file for full license. If a copy of the MPL was not distributed with
 the sources, You can obtain one at http://mozilla.org/MPL/2.0/. 
 
-Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 
 OpenCL is a trademark of Apple Inc.
 
