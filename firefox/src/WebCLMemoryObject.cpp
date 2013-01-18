@@ -47,11 +47,11 @@ nsresult WebCLMemoryObject::getInstance (cl_mem aInternal, WebCLMemoryObject** a
   }
   else
   {
-    nsCOMPtr<WebCLMemoryObject> obj = do_CreateInstance (WEBCL_MEMORYOBJECT_CONTRACTID, &rv);
-    if (NS_FAILED (rv))
+    nsCOMPtr<WebCLMemoryObject> obj ( new WebCLMemoryObject () );
+    if (!obj)
     {
       D_LOG (LOG_LEVEL_ERROR, "Failed to create instance. rv=%d.", rv);
-      return rv;
+      return NS_ERROR_OUT_OF_MEMORY;
     }
     D_LOG (LOG_LEVEL_DEBUG, "No existing instance, created %p", (WebCLMemoryObject*)obj);
 

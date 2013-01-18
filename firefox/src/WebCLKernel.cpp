@@ -42,11 +42,11 @@ nsresult WebCLKernel::getInstance (cl_kernel aInternal, WebCLKernel** aResultOut
   }
   else
   {
-    nsCOMPtr<WebCLKernel> obj = do_CreateInstance (WEBCL_KERNEL_CONTRACTID, &rv);
-    if (NS_FAILED (rv))
+    nsCOMPtr<WebCLKernel> obj ( new WebCLKernel () );
+    if (!obj)
     {
       D_LOG (LOG_LEVEL_ERROR, "Failed to create instance. rv=%d.", rv);
-      return rv;
+      return NS_ERROR_OUT_OF_MEMORY;
     }
 
     obj->setWrapper (aLibWrapper);

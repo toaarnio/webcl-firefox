@@ -41,11 +41,11 @@ nsresult WebCLContext::getInstance (cl_context aInternal, WebCLContext** aResult
   }
   else
   {
-    nsCOMPtr<WebCLContext> obj = do_CreateInstance (WEBCL_CONTEXT_CONTRACTID, &rv);
-    if (NS_FAILED (rv))
+    nsCOMPtr<WebCLContext> obj ( new WebCLContext () );
+    if (!obj)
     {
       D_LOG (LOG_LEVEL_ERROR, "Failed to create instance. rv=%d.", rv);
-      return rv;
+      return NS_ERROR_OUT_OF_MEMORY;
     }
 
     obj->setWrapper (aLibWrapper);

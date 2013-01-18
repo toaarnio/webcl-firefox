@@ -41,11 +41,11 @@ nsresult WebCLDevice::getInstance (cl_device_id aInternal, WebCLDevice** aResult
   }
   else
   {
-    nsCOMPtr<WebCLDevice> obj = do_CreateInstance (WEBCL_DEVICE_CONTRACTID, &rv);
-    if (NS_FAILED (rv))
+    nsCOMPtr<WebCLDevice> obj ( new WebCLDevice () );
+    if (!obj)
     {
       D_LOG (LOG_LEVEL_ERROR, "Failed to create instance. rv=%d.", rv);
-      return rv;
+      return NS_ERROR_OUT_OF_MEMORY;
     }
 
     obj->setWrapper (aLibWrapper);

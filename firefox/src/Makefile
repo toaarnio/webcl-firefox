@@ -19,8 +19,8 @@ endif
 
 
 # Gecko
-GECKO_DEFINES = -DXPCOM_GLUE -DXPCOM_GLUE_USE_NSPR -DJS_NO_JSVAL_JSID_STRUCT_TYPES
-GECKO_INCLUDES = -I$(REAL_SDK_PATH)/include
+GECKO_DEFINES = -DXPCOM_GLUE -DXPCOM_GLUE_USE_NSPR -DJS_NO_JSVAL_JSID_STRUCT_TYPES -D__STDC_LIMIT_MACROS
+GECKO_INCLUDES = -I$(REAL_SDK_PATH)/include -I$(REAL_SDK_PATH)/include/nspr
 GECKO_CXXFLAGS = -Os -shared -fPIC \
  -fno-exceptions -fno-strict-aliasing \
  -freorder-blocks -fno-reorder-functions \
@@ -28,10 +28,10 @@ GECKO_CXXFLAGS = -Os -shared -fPIC \
  -Wno-invalid-offsetof \
  -std=gnu++0x
 GECKO_LDFLAGS = -L$(REAL_SDK_PATH)/lib \
- -shared -fPIC -pthread -pipe \
- -Wl,-Bsymbolic -Wl,-z,defs \
- -lxul -lxpcom -lxpcomglue_s_nomozalloc -lnspr4 \
- -ldl -lm
+  -shared -fPIC -pthread -pipe \
+  -Wl,-Bsymbolic -Wl,-z,defs \
+  -lxul -lxpcom -lxpcomglue_s_nomozalloc -lnspr4 \
+  -ldl -lm
 
 
 # WebCL

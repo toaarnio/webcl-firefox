@@ -51,11 +51,11 @@ nsresult WebCLCommandQueue::getInstance (cl_command_queue aInternal, WebCLComman
   }
   else
   {
-    nsCOMPtr<WebCLCommandQueue> obj = do_CreateInstance (WEBCL_COMMANDQUEUE_CONTRACTID, &rv);
-    if (NS_FAILED (rv))
+    nsCOMPtr<WebCLCommandQueue> obj ( new WebCLCommandQueue () );
+    if (!obj)
     {
       D_LOG (LOG_LEVEL_ERROR, "Failed to create instance. rv=%d.", rv);
-      return rv;
+      return NS_ERROR_OUT_OF_MEMORY;
     }
 
     obj->setWrapper (aLibWrapper);

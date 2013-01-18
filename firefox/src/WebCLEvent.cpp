@@ -41,11 +41,11 @@ nsresult WebCLEvent::getInstance (cl_event aInternal, WebCLEvent** aResultOut,
   }
   else
   {
-    nsCOMPtr<WebCLEvent> obj = do_CreateInstance (WEBCL_EVENT_CONTRACTID, &rv);
-    if (NS_FAILED (rv))
+    nsCOMPtr<WebCLEvent> obj ( new WebCLEvent () );
+    if (!obj)
     {
       D_LOG (LOG_LEVEL_ERROR, "Failed to create instance. rv=%d.", rv);
-      return rv;
+      return NS_ERROR_OUT_OF_MEMORY;
     }
 
     obj->setWrapper (aLibWrapper);

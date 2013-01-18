@@ -41,11 +41,11 @@ nsresult WebCLSampler::getInstance (cl_sampler aInternal, WebCLSampler** aResult
   }
   else
   {
-    nsCOMPtr<WebCLSampler> obj = do_CreateInstance (WEBCL_SAMPLER_CONTRACTID, &rv);
-    if (NS_FAILED (rv))
+    nsCOMPtr<WebCLSampler> obj ( new WebCLSampler () );
+    if (!obj)
     {
       D_LOG (LOG_LEVEL_ERROR, "Failed to create instance. rv=%d.", rv);
-      return rv;
+      return NS_ERROR_OUT_OF_MEMORY;
     }
 
     obj->setWrapper (aLibWrapper);
