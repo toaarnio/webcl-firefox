@@ -14,8 +14,7 @@
 #ifndef _WEBCL_CLSYMBOLS_H_
 #define _WEBCL_CLSYMBOLS_H_
 
-#include "CL/opencl.h"
-
+#include <CL/opencl.h>
 
 #define WEBCL_LIB_CL_ENTRY(retval_t,name,...) \
 typedef retval_t (CL_API_CALL * _##name##_t)(__VA_ARGS__); \
@@ -108,8 +107,9 @@ struct WebCL_CLSymbols
   WEBCL_LIB_CL_ENTRY(cl_int, clGetGLTextureInfo, cl_mem, cl_gl_texture_info, size_t, void*, size_t*);
   WEBCL_LIB_CL_ENTRY(cl_int, clEnqueueAcquireGLObjects, cl_command_queue, cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*);
   WEBCL_LIB_CL_ENTRY(cl_int, clEnqueueReleaseGLObjects, cl_command_queue, cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*);
-  WEBCL_LIB_CL_ENTRY(cl_int, clGetGLContextInfoKHR, const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*);
-
+  #ifndef __APPLE__
+    WEBCL_LIB_CL_ENTRY(cl_int, clGetGLContextInfoKHR, const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*);
+  #endif
   // Loader impl. specific!
   void* libHandle;
 };
