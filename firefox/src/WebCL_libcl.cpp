@@ -113,7 +113,7 @@ bool WebCL_LibCL::load (char const* aLibName, WebCL_LibCL** aInstanceOut,
   #ifdef __APPLE__
     systemName = "/System/Library/Frameworks/OpenCL.framework/OpenCL";
   #else
-    PR_GetLibraryName (NULL, cleanedLibName);
+    systemName = PR_GetLibraryName (NULL, cleanedLibName);
   #endif
   D_LOG (LOG_LEVEL_DEBUG, "system name for library %s: %s", cleanedLibName, systemName);
 
