@@ -108,18 +108,26 @@ bool WebCL_LibCL::load (char const* aLibName, WebCL_LibCL** aInstanceOut,
       *aErrorMessageOut = "Invalid library name: \"\"";
     return false;
   }
-
-  char* systemName = PR_GetLibraryName (NULL, cleanedLibName);
+    
+  char* systemName = 0;
+  #ifdef __APPLE__
+    systemName = "/System/Library/Frameworks/OpenCL.framework/OpenCL";
+  #else
+    systemName = PR_GetLibraryName (NULL, cleanedLibName);
+  #endif
   D_LOG (LOG_LEVEL_DEBUG, "system name for library %s: %s", cleanedLibName, systemName);
 
   nsCOMPtr<WebCL_LibCL> instance (new (std::nothrow) WebCL_LibCL);
   instance->m_libName = strdup (systemName);
 
   PRLibrary* libHndl = PR_LoadLibrary (systemName);
-  PR_FreeLibraryName (systemName);
 
+  #ifndef __APPLE__
+    PR_FreeLibraryName (systemName);
+  #endif
+    
   char* errText = 0;
-
+    
   if (!libHndl)
   {
     // Perhaps PR_GetLibraryName failed?
@@ -292,7 +300,9 @@ static bool loadCLLibrary (WebCL_LibCL* instance, PRLibrary* libHndl)
   LOAD_CL_SYM (clGetGLTextureInfo, false)
   LOAD_CL_SYM (clEnqueueAcquireGLObjects, false)
   LOAD_CL_SYM (clEnqueueReleaseGLObjects, false)
-  LOAD_CL_SYM (clGetGLContextInfoKHR, false)
-
+  
+  #ifndef __APPLE__
+    LOAD_CL_SYM (clGetGLContextInfoKHR, false)
+  #endif
   return rv;
 }

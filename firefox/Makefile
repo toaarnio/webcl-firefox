@@ -64,6 +64,7 @@ $(info Platform: $(WCL_PLATFORM))
 ifeq ($(WCL_PLATFORM), MINGW32)
  $(info Windows platform detected.)
  export WCL_WINDOWS_BUILD = 1
+ export WCL_MACOSX_BUILD = 0
 
  # Fix path names so that they work with Mozilla Build shell on Windows.
  # realpath gives us paths starting with /c/ which needs to be changed
@@ -86,9 +87,15 @@ ifeq ($(WCL_PLATFORM), MINGW32)
   $(error Unable to detect MSVC version. Please use Mozilla Build shell on Windows.)
  endif
 
+else ifeq ($(WCL_PLATFORM), Darwin)
+ $(info Macosx platform detected.)
+ export WCL_WINDOWS_BUILD = 0
+ export WCL_MACOSX_BUILD = 1
+ 
 else
  $(info Assuming unix build (g++))
  export WCL_WINDOWS_BUILD = 0
+ export WCL_MACOSX_BUILD = 0
 endif
 
 
@@ -102,6 +109,8 @@ public:
 src:
 ifeq ($(WCL_WINDOWS_BUILD), 1)
 	cd src && $(SUBMAKE) $(SUBMFLAGS) -f Makefile.windows
+else ifeq ($(WCL_MACOSX_BUILD), 1)
+	cd src && $(SUBMAKE) $(SUBMFLAGS) -f Makefile.macosx
 else
 	cd src && $(SUBMAKE) $(SUBMFLAGS)
 endif
@@ -125,6 +134,9 @@ xpi: $(PACKAGE)
 ifeq ($(WCL_WINDOWS_BUILD), 1)
 TARGET_LIB = $(COMPONENT_NAME).dll
 TARGET_PATH = $(RELEASE)
+else ifeq ($(WCL_MACOSX_BUILD), 1)
+TARGET_LIB = lib$(COMPONENT_NAME).dylib
+TARGET_PATH = src
 else
 TARGET_LIB = lib$(COMPONENT_NAME).so
 TARGET_PATH = src
@@ -144,7 +156,7 @@ content:
 	@mkdir -p content
 
 $(SRC_PACKAGE): install.rdf.in chrome.manifest Makefile buildconfig.inc content \
- public/Makefile public/*.idl src/Makefile src/Makefile.windows \
+ public/Makefile public/*.idl src/Makefile src/Makefile.macosx src/Makefile.windows \
  src/*.h src/*.cpp README.txt COPYING \
  doxygen-api.conf doxygen-full.conf docs/doxymain.txt
 	rm -f $@
@@ -160,6 +172,8 @@ clean:
 	@cd public && $(SUBMAKE) $(SUBMFLAGS) $@ ; true
 ifeq ($(WCL_WINDOWS_BUILD), 1)
 	@cd src && $(SUBMAKE) $(SUBMFLAGS) -f Makefile.windows $@ ; true
+else ifeq ($(WCL_MACOSX_BUILD), 1)
+	@cd src && $(SUBMAKE) $(SUBMFLAGS) -f Makefile.macosx $@ ; true
 else
 	@cd src && $(SUBMAKE) $(SUBMFLAGS) $@ ; true
 endif
@@ -175,6 +189,8 @@ ultra-clean: clean
 	@rm -f ./*~ public/*~ docs/*~ 2>/dev/null ; true
 ifeq ($(WCL_WINDOWS_BUILD), 1)
 	@cd src && $(SUBMAKE) $(SUBMFLAGS) -f Makefile.windows $@ ; true
+else ifeq ($(WCL_MACOSX_BUILD), 1)
+	@cd src && $(SUBMAKE) $(SUBMFLAGS) -f Makefile.macosx $@ ; true
 else
 	@cd src && $(SUBMAKE) $(SUBMFLAGS) $@ ; true
 endif
