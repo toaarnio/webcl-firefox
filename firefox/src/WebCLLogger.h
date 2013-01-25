@@ -71,6 +71,9 @@ bool webcl_log_check_level (int level);
 # ifdef WIN32
 #  define D_PRINT(...) do{D_PRINT_RAW(" # # # [%s:%-4d] ", __FILE__, __LINE__, __VA_ARGS__); \
 D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");}while(0)
+# elif __APPLE__
+#  define D_PRINT(...) do{D_PRINT_RAW(" # # # [%s:%-4d] ", __FILE__, __LINE__, __VA_ARGS__); \
+D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");}while(0)
 # else
 #  define D_PRINT(fmt, ...) D_PRINT_RAW(" # # # [%s:%-4d] " fmt "\n", \
 __FILE__, __LINE__, ##__VA_ARGS__)
@@ -89,6 +92,10 @@ __FILE__, __LINE__, ##__VA_ARGS__)
  * \see printf
  */
 #  ifdef WIN32
+#   define D_LOG(lev, ...) do{if(webcl_log_check_level(lev)){ \
+D_PRINT_RAW(" ##LOG## [%s:%-4d %s] ", __FILE__, __LINE__,__FUNCTION__); \
+D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");}}while(0)
+#  elif __APPLE__
 #   define D_LOG(lev, ...) do{if(webcl_log_check_level(lev)){ \
 D_PRINT_RAW(" ##LOG## [%s:%-4d %s] ", __FILE__, __LINE__,__FUNCTION__); \
 D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");}}while(0)
