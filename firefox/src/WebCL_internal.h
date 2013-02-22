@@ -207,25 +207,16 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx,
   NS_ENSURE_ARG_POINTER (aResultOut);
   nsresult rv;
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
 
   JS_BeginRequest (cx);
-  JSBool ignored = JS_EnterLocalRootScope (cx);
-  (void)ignored; // ignored is there to avoid gcc warnings..
 
   JSObject* jsArr = JS_NewArrayObject (cx, aVector.Length (), NULL);
   if (!jsArr)
   {
-    JS_LeaveLocalRootScope (cx);
     JS_EndRequest(cx);
     return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -287,7 +278,6 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx,
       break;
   }
 
-  JS_LeaveLocalRootScope (cx);
   JS_EndRequest(cx);
   if (NS_FAILED (rv))
     return rv;

@@ -305,6 +305,7 @@ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIRUNNABLE
   HolderReleaserRunnable (nsIXPConnectJSObjectHolder* target) : m_target(target) { }
+  virtual ~HolderReleaserRunnable () { if (m_target) NS_RELEASE (m_target); }
 private:
   nsIXPConnectJSObjectHolder* m_target;
 };
@@ -314,6 +315,7 @@ NS_IMPL_THREADSAFE_ISUPPORTS1 (HolderReleaserRunnable, nsIRunnable);
 NS_IMETHODIMP HolderReleaserRunnable::Run ()
 {
   NS_RELEASE (m_target);
+  m_target = 0;
   return NS_OK;
 }
 
@@ -397,13 +399,7 @@ static nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayV
       return NS_ERROR_INVALID_ARG;
   }
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
@@ -419,14 +415,14 @@ static nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayV
     jsObj = js::UnwrapObject (jsObj);
   }
 
-  if (!jsObj || !JS_IsTypedArrayObject (jsObj, cx))
+  if (!jsObj || !JS_IsTypedArrayObject (jsObj))
   {
     WebCL_reportJSError (cx, "%s: Invalid typed array argument (not typed array).",
                          __FUNCTION__);
     return NS_ERROR_INVALID_ARG;
   }
 
-  data = JS_GetArrayBufferViewData (jsObj, cx);
+  data = JS_GetArrayBufferViewData (jsObj);
   D_LOG (LOG_LEVEL_DEBUG, "TypedArray data pointer: %p", data);
   if (!data)
   {
@@ -434,7 +430,7 @@ static nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayV
     WebCL_reportJSError (cx, "WebCLCommandQueue::enqueueWriteBuffer: Typed array has no data.");
     return NS_ERROR_INVALID_ARG;
   }
-  length = JS_GetArrayBufferViewByteLength (jsObj, cx);
+  length = JS_GetArrayBufferViewByteLength (jsObj);
   D_LOG (LOG_LEVEL_DEBUG, "TypedArray data length: %d bytes", length);
 
   if (aHolderOut)

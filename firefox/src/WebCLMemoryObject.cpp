@@ -197,13 +197,8 @@ NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVari
     return WEBCL_XPCOM_ERROR; //NS_ERROR_INVALID_ARG;
   }
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
+
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;

@@ -26,7 +26,7 @@
 
 #include <cstdlib>
 #include <cstdio>
-#include <cstdint>
+#include <mozilla/StandardInteger.h>
 #include <cstdarg>
 #include <sstream>
 
@@ -120,19 +120,12 @@ nsresult WebCL_createTypesObject (JSContext *cx, nsIVariant** aResultOut)
     { "SAMPLER_V", types::SAMPLER_V }
   };
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
+
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
 
   JS_BeginRequest (cx);
-  JSBool ignored = JS_EnterLocalRootScope (cx);
-  (void)ignored; // ignored is there to avoid gcc warnings..
 
   JSObject* jsObj = JS_NewObject (cx, NULL, NULL, NULL);
 
@@ -161,7 +154,6 @@ nsresult WebCL_createTypesObject (JSContext *cx, nsIVariant** aResultOut)
     rv = NS_ERROR_FAILURE;
   }
 
-  JS_LeaveLocalRootScope (cx);
   JS_EndRequest(cx);
 
   NS_ENSURE_SUCCESS (rv, rv);
@@ -186,13 +178,10 @@ nsresult WebCL_createVersionObject (JSContext *cx, nsIVariant** aResultOut)
   NS_ENSURE_SUCCESS (rv, rv);
 
   JS_BeginRequest (cx);
-  JSBool ignored = JS_EnterLocalRootScope (cx);
-  (void)ignored; // ignored is there to avoid gcc warnings..
 
   JSObject* jsArr = JS_NewArrayObject (cx, 4, NULL);
   if (!jsArr)
   {
-    JS_LeaveLocalRootScope (cx);
     JS_EndRequest(cx);
     return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -209,7 +198,6 @@ nsresult WebCL_createVersionObject (JSContext *cx, nsIVariant** aResultOut)
   val = STRING_TO_JSVAL (JS_NewStringCopyZ (cx, (char const*)WEBCL_BUILD_DATE));
   JS_SetElement (cx, jsArr, 3, &val);
 
-  JS_LeaveLocalRootScope (cx);
   JS_EndRequest(cx);
 
   nsCOMPtr<nsIVariant> value;
@@ -275,21 +263,13 @@ nsresult WebCL_reportJSError (JSContext* cx, char const* aMsg, ...)
   }
 
   nsCOMPtr<nsIXPConnect> xpc;
-  JSBool ignored = JS_TRUE;
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack;
-    stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    if (NS_FAILED(rv)) goto done;
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
+
   xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   if (NS_FAILED(rv)) goto done;
 
   JS_BeginRequest (cx);
-  ignored = JS_EnterLocalRootScope (cx);
-  (void)ignored;
 
   D_LOG (LOG_LEVEL_ERROR, "Reporting error to JS: \"%s\"", msgBuf);
 #if 1
@@ -319,7 +299,6 @@ nsresult WebCL_reportJSError (JSContext* cx, char const* aMsg, ...)
   // JS error console.
 #endif
 
-  JS_LeaveLocalRootScope (cx);
   JS_EndRequest(cx);
 
 done:
@@ -395,13 +374,8 @@ nsresult WebCL_getVariantsFromJSArray (JSContext *cx, nsIVariant* aVariant,
       return NS_ERROR_INVALID_ARG;
   }
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
+
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
 
@@ -515,25 +489,16 @@ nsresult WebCL_convertVectorToJSArrayInVariant_string(JSContext *cx,
     }
   }
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
 
   JS_BeginRequest (cx);
-  JSBool ignored = JS_EnterLocalRootScope (cx);
-  (void)ignored; // ignored is there to avoid gcc warnings..
 
   JSObject* jsArr = JS_NewArrayObject (cx, aVector.Length (), NULL);
   if (!jsArr)
   {
-    JS_LeaveLocalRootScope (cx);
     JS_EndRequest(cx);
     return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -545,7 +510,6 @@ nsresult WebCL_convertVectorToJSArrayInVariant_string(JSContext *cx,
     JS_SetElement (cx, jsArr, cnt++, &val);
   }
 
-  JS_LeaveLocalRootScope (cx);
   JS_EndRequest(cx);
 
   // Wrap the JSArray in an nsIVariant
@@ -572,20 +536,12 @@ nsresult WebCL_convertVectorToJSArrayInVariant_##C (JSContext *cx,nsTArray<T> co
   D_METHOD_START; \
   NS_ENSURE_ARG_POINTER (aResultOut); \
   nsresult rv; \
-  if (!cx) { \
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv); \
-    NS_ENSURE_SUCCESS (rv, rv); \
-    cx = stack->GetSafeJSContext (); \
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE); \
-  } \
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE); \
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv); \
   NS_ENSURE_SUCCESS (rv, rv); \
   JS_BeginRequest (cx); \
-  JSBool ignored = JS_EnterLocalRootScope (cx); \
-  (void)ignored; /* ignored is there to avoid gcc warnings.. */ \
   JSObject* jsArr = JS_NewArrayObject (cx, aVector.Length (), NULL); \
   if (!jsArr) { \
-    JS_LeaveLocalRootScope (cx); \
     JS_EndRequest(cx); \
     return NS_ERROR_OUT_OF_MEMORY; \
   } \
@@ -603,7 +559,6 @@ nsresult WebCL_convertVectorToJSArrayInVariant_##C (JSContext *cx,nsTArray<T> co
       break; \
     JS_SetElement (cx, jsArr, cnt++, &val); \
   } \
-  JS_LeaveLocalRootScope (cx); \
   JS_EndRequest(cx); \
   if (NS_FAILED (rv)) \
     return rv; \
@@ -635,25 +590,16 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx, nsTArray<cl_image_
   NS_ENSURE_ARG_POINTER (aResultOut);
   nsresult rv;
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
 
   JS_BeginRequest (cx);
-  JSBool ignored = JS_EnterLocalRootScope (cx);
-  (void)ignored; // ignored is there to avoid gcc warnings..
 
   JSObject* jsArr = JS_NewArrayObject (cx, aVector.Length (), NULL);
   if (!jsArr)
   {
-    JS_LeaveLocalRootScope (cx);
     JS_EndRequest(cx);
     return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -679,7 +625,6 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx, nsTArray<cl_image_
     }
   }
 
-  JS_LeaveLocalRootScope (cx);
   JS_EndRequest(cx);
   if (NS_FAILED (rv))
     return rv;
@@ -713,13 +658,7 @@ nsresult WebCL_variantToJSObject (JSContext* aCx, nsIVariant* aVariant, JSObject
     return NS_ERROR_INVALID_ARG;
   }
 
-  if (!aCx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    aCx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (aCx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (aCx, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
@@ -755,13 +694,8 @@ nsresult WebCL_variantToImageFormat (JSContext *cx, nsIVariant* aVariant, cl_ima
     return NS_ERROR_INVALID_ARG;
   }
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
+
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;
@@ -813,19 +747,12 @@ nsresult WebCL_imageFormatToVariant (JSContext *cx, cl_image_format const& aImag
   nsresult rv = NS_OK;
   nsCOMPtr<nsIVariant> res;
 
-  if (!cx)
-  {
-    nsCOMPtr<nsIThreadJSContextStack> stack = do_GetService ("@mozilla.org/js/xpc/ContextStack;1", &rv);
-    NS_ENSURE_SUCCESS (rv, rv);
-    cx = stack->GetSafeJSContext ();
-    NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-  }
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
+
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
 
   JS_BeginRequest (cx);
-  JSBool ignored = JS_EnterLocalRootScope (cx);
-  (void)ignored; // ignored is there to avoid gcc warnings..
 
   JSObject* jsObj = JS_NewObject (cx, NULL, NULL, NULL);
 
@@ -859,7 +786,6 @@ nsresult WebCL_imageFormatToVariant (JSContext *cx, cl_image_format const& aImag
     rv = NS_ERROR_FAILURE;
   }
 
-  JS_LeaveLocalRootScope (cx);
   JS_EndRequest(cx);
 
   NS_ENSURE_SUCCESS (rv, rv);
