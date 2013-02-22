@@ -20,7 +20,7 @@ endif
 
 # Gecko
 GECKO_DEFINES = -DXPCOM_GLUE -DXPCOM_GLUE_USE_NSPR -DJS_NO_JSVAL_JSID_STRUCT_TYPES -D__STDC_LIMIT_MACROS
-GECKO_INCLUDES = -I$(REAL_SDK_PATH)/include -I$(REAL_SDK_PATH)/include/nspr -I../externs/include
+GECKO_INCLUDES = -I$(REAL_SDK_PATH)/include -I$(REAL_SDK_PATH)/include/nspr
 GECKO_CXXFLAGS = -Wformat -Os -shared -fPIC \
  -fno-exceptions -fno-strict-aliasing \
  -freorder-blocks -fno-reorder-functions \
@@ -41,7 +41,7 @@ GECKO_LDFLAGS = -L$(REAL_SDK_PATH)/lib \
 WEBCL_DEFINES = \
  -DWEBCL_VERSION_MAJOR=$(VERSION_MAJOR) -DWEBCL_VERSION_MINOR=$(VERSION_MINOR) \
  -DWEBCL_VERSION_RELEASE=$(VERSION_RELEASE) -DWEBCL_BUILD_DATE="\"$(BUILD_DATE)\""
-WEBCL_INCLUDES = -I../public -I.
+WEBCL_INCLUDES = -I../public -I../externs/include -I.
 WEBCL_CXXFLAGS =
 WEBCL_LDFLAGS = 
 ifeq ($(ENABLE_DEBUG), 1)
