@@ -138,7 +138,12 @@ else ifeq ($(WCL_MACOSX_BUILD), 1)
 TARGET_LIB = lib$(COMPONENT_NAME).dylib
 TARGET_PATH = src
 else
-TARGET_LIB = lib$(COMPONENT_NAME).so
+# Detect 64-bit OS
+ifeq ($(shell uname -m), x86_64)
+export TARGET_LIB=lib$(COMPONENT_NAME)64.so
+else
+export TARGET_LIB=lib$(COMPONENT_NAME).so
+endif
 TARGET_PATH = src
 endif
 
