@@ -4,8 +4,8 @@
 # Variable CXX and LD can be used to override the default C++ compiler
 # (Linux: g++, Windows: CL.exe) and linker (Linux: g++, Windows: link.exe).
 # Leave these commented to use environment defaults
-export CXX =
-export LD =
+export CXX = 
+export LD = 
 
 
 # User/environment specific build flags.
@@ -19,7 +19,7 @@ export LDFLAGS +=
 
 
 # Name used as base of the filename for XPCOM component DLL.
-# E.g. lib$(COMPONENT_NAME).so for Linux and $(COMPONENT_NAME).dll for Windows.
+# E.g. lib$(COMPONENT_NAME).so for Linux, lib$(COMPONENT_NAME).dylib for OSX and $(COMPONENT_NAME).dll for Windows.
 export COMPONENT_NAME=webcl
 
 
