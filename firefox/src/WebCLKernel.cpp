@@ -19,8 +19,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsISecurityCheckedComponent.h"
 #include "nsStringAPI.h"
-
-
+                                         
 NS_IMPL_ISUPPORTS2 (WebCLKernel, IWebCLKernel, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLKernel)
 
@@ -196,7 +195,6 @@ VARIANT_TO_CL_TYPE(cl_half, PRUint16, GetAsUint16, variantToCLHalf) // NOTE: cl_
 VARIANT_TO_CL_TYPE(cl_float, float, GetAsFloat, variantToCLFloat)
 VARIANT_TO_CL_TYPE(cl_double, double, GetAsDouble, variantToCLDouble)
 
-
 /* void setKernelArg (in long aIndex, in nsIVariant aValue, [optional] in long aType); */
 NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRInt32 aType, JSContext *cx)
 {
@@ -249,7 +247,7 @@ NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRIn
         // None found, intentional leak to default
       }
 
-      case nsIDataType::VTYPE_ARRAY:
+      case nsIDataType::VTYPE_ARRAY: 
       case nsIDataType::VTYPE_EMPTY_ARRAY:
         D_LOG (LOG_LEVEL_ERROR, "Array support not implemented.");
         WebCL_reportJSError (cx, "WebCLKernel::setKernelArg: Array support not implemented.");
@@ -396,6 +394,35 @@ NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRIn
     case types::SIZE_T_V:
     case types::HALF_V:
     case types::FLOAT_V:
+    {
+      PRUint16 variantType = 0;
+      rv = aValue->GetDataType (&variantType);
+
+      nsTArray<nsIVariant*> variants;
+
+      rv = WebCL_getVariantsFromJSArray (cx, aValue, variants);
+      NS_ENSURE_SUCCESS (rv, rv);
+
+      float* wrapped = (float*)malloc (sze = sizeof (float) * variants.Length());
+
+      for (nsTArray<size_t>::index_type i = 0; i < variants.Length(); ++i) 
+      {
+        float val;
+        rv = variants[i]->GetAsFloat(&val);
+        if (NS_FAILED (rv))
+        {
+          WebCL_reportJSError (cx, "%s: Failed to convert 3rd argument to an array of float.",__FUNCTION__);
+          break;
+        }
+        wrapped[i] = val;
+      }
+
+      cl_int wrErr = mWrapper->setKernelArg (mInternal, aIndex, sizeof(float) * variants.Length(),(void*)&wrapped);
+      ENSURE_LIB_WRAPPER_SUCCESS (mWrapper);
+      ENSURE_CL_OP_SUCCESS (wrErr);
+      return NS_OK;
+    }
+    
     case types::DOUBLE_V:
     case types::STRING_V:
       D_LOG (LOG_LEVEL_ERROR, "Array types are not supported.");
