@@ -30,7 +30,7 @@ GECKO_CXXFLAGS = -Os -shared -fPIC \
 GECKO_LDFLAGS = -L$(REAL_SDK_PATH)/lib \
   -shared -fPIC -pthread -pipe \
   -Wl,-Bsymbolic -Wl,-z,defs \
-  -lxul -lxpcom -lxpcomglue_s_nomozalloc -lnspr4 \
+  -lxul -lxpcomglue_s_nomozalloc -lnspr4 \
   -ldl -lm
 
 
