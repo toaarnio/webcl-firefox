@@ -149,6 +149,94 @@ NS_IMETHODIMP WebCLContext::CreateProgramWithSource(const char *aSource, JSConte
 }
 
 
+/* IWebCLProgram createProgramWithBinary (in nsIVariant aDeviceArray, in nsIVariant aBinaryArray); */
+NS_IMETHODIMP WebCLContext::CreateProgramWithBinary(nsIVariant *aDeviceArray, nsIVariant *aBinaryArray, JSContext *cx, IWebCLProgram **_retval)
+{
+  D_METHOD_START;
+  NS_ENSURE_ARG_POINTER (aDeviceArray);
+  NS_ENSURE_ARG_POINTER (aBinaryArray);
+  NS_ENSURE_ARG_POINTER (cx);
+  NS_ENSURE_ARG_POINTER (_retval);
+  nsresult rv;
+
+  nsTArray<cl_device_id> devices;
+  nsTArray<size_t> binaryLengths; // TODO
+  nsTArray<unsigned char const*> binaries; // TODO
+  nsTArray<cl_int> binaryStatusOut;
+
+  // Temporary place for variants we unpack from agruments
+  nsTArray<nsIVariant*> variants;
+
+
+  // Build the device list
+
+  rv = WebCL_getVariantsFromJSArray (cx, aDeviceArray, variants);
+  NS_ENSURE_SUCCESS (rv, rv);
+
+  rv = WebCL_convertVariantVectorToInternalVector<WebCLDevice, cl_device_id> (variants,
+                                                                              devices);
+  WebCL_releaseVariantVector (variants);
+  NS_ENSURE_SUCCESS (rv, rv);
+
+
+  // Build the binary list
+
+  rv = WebCL_getVariantsFromJSArray (cx, aBinaryArray, variants);
+  NS_ENSURE_SUCCESS (rv, rv);
+  binaryLengths.SetCapacity (variants.Length());
+  binaries.SetCapacity (variants.Length());
+  for (nsTArray<unsigned char const*>::index_type i = 0; i < variants.Length(); ++i)
+  {
+    uint32_t str_length;
+    char* str;
+    rv = variants[i]->GetAsStringWithSize (&str_length, &str);
+    if (NS_FAILED (rv))
+    {
+      WebCL_reportJSError (cx, "%s: Expecting kernel binary in string format (at index %d).",
+                           __FUNCTION__, i+1);
+      break;
+    }
+    // Free str with nsMemory::Free
+
+    // Store binary length
+    binaryLengths.AppendElement (str_length);
+    // Store the kernel binary
+    binaries.AppendElement ((unsigned char const*)str);
+  }
+  if (NS_FAILED (rv))
+  {
+    // Error reported by WebCL_reportJSError above.
+    return WEBCL_XPCOM_ERROR;
+  }
+
+
+  cl_int err = CL_SUCCESS;
+  cl_program program = mWrapper->createProgramWithBinary (mInternal,
+                                                          devices,
+                                                          binaryLengths,
+                                                          binaries,
+                                                          binaryStatusOut,
+                                                          &err);
+
+  for (nsTArray<unsigned char const*>::index_type i = 0; i < binaries.Length(); ++i)
+  {
+    nsMemory::Free ((void*)(binaries[i]));
+  }
+  binaries.Clear ();
+
+  ENSURE_LIB_WRAPPER_SUCCESS (mWrapper);
+  ENSURE_CL_OP_SUCCESS (err);
+
+  nsCOMPtr<WebCLProgram> xpcObj;
+  rv = WebCLProgram::getInstance (program, getter_AddRefs(xpcObj), mWrapper);
+  NS_ENSURE_SUCCESS (rv, rv);
+
+  NS_ADDREF (*_retval = xpcObj);
+
+  return NS_OK;
+}
+
+
 /* IWebCLCommandQueue createCommandQueue (in IWebCLDevice aDevice, in T_WebCLCommandQueueProperties aProperties); */
 NS_IMETHODIMP WebCLContext::CreateCommandQueue(nsISupports *aDevice, T_WebCLCommandQueueProperties aProperties, JSContext *cx, IWebCLCommandQueue **_retval)
 {

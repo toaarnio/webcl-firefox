@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -1121,14 +1121,23 @@ cl_program WebCL_LibCLWrapper::createProgramWithBinary (cl_context aContext,
   nsTArray<cl_int> binaryStatus;
   binaryStatus.SetLength (aDevices.Length());
 
+
   cl_program program = mLibCL->symbols->clCreateProgramWithBinary (
                                              aContext,
                                              aDevices.Length(),
                                              aDevices.Elements(),
                                              aBinaryLengths.Elements(),
                                              (unsigned char const**)aBinaries.Elements(),
-                                             binaryStatus.Elements(),
+                                             (cl_int*)binaryStatus.Elements(),
                                              &err);
+
+  // TODO: store and deliver binarystatus array
+  /*
+  for (unsigned i = 0; i < binaryStatus.Length(); ++i) {
+    printf("       device %u: %d\n", i, ((cl_int*)binaryStatus.Elements())[i]);
+  }
+  */
+
   if (CL_FAILED (err))
   {
     D_LOG (LOG_LEVEL_ERROR, "clCreateProgramWithBinary failed with error %d.", err);
