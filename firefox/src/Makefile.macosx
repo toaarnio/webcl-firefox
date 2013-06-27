@@ -27,13 +27,12 @@ GECKO_CXXFLAGS = -Wformat -Os -shared -fPIC \
  -pthread -pipe -fshort-wchar \
  -Wno-invalid-offsetof \
  -std=gnu++0x
-GECKO_LDFLAGS = -L$(REAL_SDK_PATH)/lib \
+GECKO_LDFLAGS = -F$(REAL_SDK_PATH)/bin -L$(REAL_SDK_PATH)/lib \
+  -framework XUL \
   -shared -fPIC -pthread -pipe \
-  -lxpcom -lxpcomglue_s_nomozalloc -lnspr4 \
-  -framework XUL
+  -lnss3 -lxpcomglue -lxpcomglue_s_nomozalloc \
   
 #-Wl,-Bsymbolic -Wl,-z,defs \
-
 #-ldl -lm
 
 
