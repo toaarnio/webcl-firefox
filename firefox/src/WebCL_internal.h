@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -28,9 +28,8 @@
 #include <CL/opencl.h>
 
 #include "nsError.h"
-#include "jsapi.h"  // NOTE: need to include this _before_ nsIJSContextStack.h !
+#include "jsapi.h"
 #include "nsServiceManagerUtils.h"
-#include "nsIJSContextStack.h"
 #include "nsIXPConnect.h"
 #include "nsIVariant.h"
 #include "nsStringAPI.h" /*#include "nsStringGlue.h"*/

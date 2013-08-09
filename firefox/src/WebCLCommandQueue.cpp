@@ -412,7 +412,7 @@ static nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayV
   JSObject* jsObj = jsVal.toObjectOrNull();
   if (jsObj && js::IsObjectProxy (jsObj))
   {
-    jsObj = js::UnwrapObject (jsObj);
+    jsObj = js::GetProxyTargetObject (jsObj);
   }
 
   if (!jsObj || !JS_IsTypedArrayObject (jsObj))

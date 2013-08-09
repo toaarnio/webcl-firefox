@@ -215,7 +215,7 @@ NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVari
   JSObject* jsObj = jsVal.toObjectOrNull ();
   if (jsObj && js::IsObjectProxy (jsObj))
   {
-    jsObj = js::UnwrapObject (jsObj);
+    jsObj = js::GetProxyTargetObject (jsObj);
   }
 
   if (!jsObj)

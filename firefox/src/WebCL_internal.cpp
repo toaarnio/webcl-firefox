@@ -392,7 +392,7 @@ nsresult WebCL_getVariantsFromJSArray (JSContext *cx, nsIVariant* aVariant,
   JSObject* jsArrObj = jsVal.toObjectOrNull ();
   if (jsArrObj && js::IsObjectProxy (jsArrObj))
   {
-    jsArrObj = js::UnwrapObject (jsArrObj);
+    jsArrObj = js::GetProxyTargetObject (jsArrObj);
   }
 
   if (!jsArrObj || !JS_IsArrayObject (cx, jsArrObj))
@@ -671,7 +671,7 @@ nsresult WebCL_variantToJSObject (JSContext* aCx, nsIVariant* aVariant, JSObject
   res = jsVal.toObjectOrNull ();
   if (res && js::IsObjectProxy (res))
   {
-    res = js::UnwrapObject (res);
+    res = js::GetProxyTargetObject (res);
   }
   NS_ENSURE_TRUE (res, NS_ERROR_INVALID_ARG);
 
@@ -707,7 +707,7 @@ nsresult WebCL_variantToImageFormat (JSContext *cx, nsIVariant* aVariant, cl_ima
   JSObject* jsObj = jsVal.toObjectOrNull ();;
   if (jsObj && js::IsObjectProxy (jsObj))
   {
-    jsObj = js::UnwrapObject (jsObj);
+    jsObj = js::GetProxyTargetObject (jsObj);
   }
   if (!jsObj)
   {

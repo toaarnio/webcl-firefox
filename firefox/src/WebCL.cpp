@@ -41,7 +41,6 @@
 #include "nsIVariant.h"
 
 #include "nsIJSRuntimeService.h"
-#include "nsIJSContextStack.h"
 #include "nsIXPConnect.h"
 #include "nsServiceManagerUtils.h"
 
