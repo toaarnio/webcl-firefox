@@ -110,7 +110,7 @@ cl_int WebCLLibWrapperDetail::getInfoImpl_ImageFormat (clobject aInstance, int a
     if (sizeof(buf) != sze)
     {
         D_LOG (LOG_LEVEL_ERROR,
-             "getInfo returned a value of unexpected size %u, expected (%u bytes)",
+             "getInfo returned a value of unexpected size %lu, expected (%lu bytes)",
              sze, sizeof(buf));
         return CL_INVALID_VALUE;
     }
@@ -133,7 +133,7 @@ cl_int WebCLLibWrapperDetail::getInfoImpl_##name (clobject aInstance, int aName,
     } \
     if (sze != sizeof(clType)) { \
         D_LOG (LOG_LEVEL_ERROR, \
-             "getInfo returned a value of unexpected size %u, expected (%u bytes)", \
+             "getInfo returned a value of unexpected size %lu, expected (%lu bytes)", \
              sze, sizeof(clType)); \
         return CL_INVALID_VALUE; \
     } \
@@ -269,7 +269,7 @@ cl_int WebCLLibWrapperDetail::getInfoImpl_##name (clobject aInstance, clobject a
     } \
     if (sze != sizeof(clType)) { \
         D_LOG (LOG_LEVEL_ERROR, \
-             "getInfo returned a value of unexpected size %u, expected (%u bytes)", \
+             "getInfo returned a value of unexpected size %lu, expected (%lu bytes)", \
              sze, sizeof(clType)); \
         return CL_INVALID_VALUE; \
     } \

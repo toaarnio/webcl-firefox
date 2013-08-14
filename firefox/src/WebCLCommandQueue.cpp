@@ -431,7 +431,7 @@ static nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayV
     return NS_ERROR_INVALID_ARG;
   }
   length = JS_GetArrayBufferViewByteLength (jsObj);
-  D_LOG (LOG_LEVEL_DEBUG, "TypedArray data length: %d bytes", length);
+  D_LOG (LOG_LEVEL_DEBUG, "TypedArray data length: %lu bytes", length);
 
   if (aHolderOut)
   {
@@ -472,7 +472,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBuffer(nsISupports *aBuffer, bool a
   NS_ENSURE_SUCCESS (rv, WEBCL_XPCOM_ERROR);
   if (aSize > length)
   {
-    D_LOG (LOG_LEVEL_ERROR, "aSize %d exceeds data buffer length %d.", aSize, length);
+    D_LOG (LOG_LEVEL_ERROR, "aSize %d exceeds data buffer length %lu.", aSize, length);
     WebCL_reportJSError (cx, "aSize exceeds data buffer length.");
     return WEBCL_XPCOM_ERROR; //NS_ERROR_INVALID_ARG;
   }
@@ -566,7 +566,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBuffer(nsISupports *aBuffer, bool aB
   // incoming data. If this is not the case, then we'll throw an error.
   if (aSize > length)
   {
-    D_LOG (LOG_LEVEL_ERROR, "aSize %d exceeds data buffer length %d.", aSize, length);
+    D_LOG (LOG_LEVEL_ERROR, "aSize %d exceeds data buffer length %lu.", aSize, length);
     WebCL_reportJSError (cx, "%s: aSize exceeds data buffer length.", __FUNCTION__);
     return WEBCL_XPCOM_ERROR; //NS_ERROR_INVALID_ARG;
   }
@@ -698,7 +698,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBufferRect(nsISupports *aBuffer, bo
   {
     D_LOG (LOG_LEVEL_ERROR,
            "Data buffer too small for region. "
-           "(buffer size: %u, required: %u)", length, reqSize);
+           "(buffer size: %lu, required: %lu)", length, reqSize);
     WebCL_reportJSError (cx, "%s: Data buffer too small for region.", __FUNCTION__);
     return WEBCL_XPCOM_ERROR; //NS_ERROR_FAILURE;
   }
@@ -836,7 +836,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBufferRect(nsISupports *aBuffer, boo
   {
     D_LOG (LOG_LEVEL_ERROR,
            "Data buffer too small for region. "
-           "(buffer size: %u, required: %u)", length, reqSize);
+           "(buffer size: %lu, required: %lu)", length, reqSize);
     WebCL_reportJSError (cx, "%s: Data buffer too small for region.", __FUNCTION__);
     return WEBCL_XPCOM_ERROR; //NS_ERROR_FAILURE;
   }
@@ -976,7 +976,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteImage(nsISupports *aImage, bool aBl
   {
     D_LOG (LOG_LEVEL_ERROR,
            "Data buffer too small for region. "
-           "(buffer size: %u, required: %u)", length, reqSize);
+           "(buffer size: %lu, required: %lu)", length, reqSize);
     WebCL_reportJSError (cx, "%s: Data buffer too small for region.", __FUNCTION__);
     return WEBCL_XPCOM_ERROR; //NS_ERROR_FAILURE;
   }
@@ -1114,7 +1114,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadImage(nsISupports *aImage, bool aBlo
   {
     D_LOG (LOG_LEVEL_ERROR,
            "Data buffer too small for region. "
-           "(buffer size: %u, required: %u)", length, reqSize);
+           "(buffer size: %lu, required: %lu)", length, reqSize);
     WebCL_reportJSError (cx, "%s: Data buffer too small for region.", __FUNCTION__);
     return WEBCL_XPCOM_ERROR; //NS_ERROR_FAILURE;
   }

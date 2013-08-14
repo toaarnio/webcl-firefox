@@ -302,7 +302,7 @@ static nsresult convertContextProperties (JSContext *cx, nsIVariant *aProperties
     {
       if (!elements[i])
       {
-        D_LOG (LOG_LEVEL_ERROR, "Invalid non-variant element at position %d.", cnt+1);
+        D_LOG (LOG_LEVEL_ERROR, "Invalid non-variant element at position %lu.", cnt+1);
         rv = NS_ERROR_FAILURE;
         break;
       }

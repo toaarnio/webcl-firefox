@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -56,7 +56,7 @@ bool webcl_log_check_level (int level);
  * A variadic macro for printing arbitrary text to log output. In operation
  * only if logging is enabled.
  */
-#  define D_PRINT_RAW(...) do{ \
+# define D_PRINT_RAW(...) do{ \
   webcl_init_logging(); \
   fprintf(webcl_log_file, __VA_ARGS__);fflush(webcl_log_file);\
   /*webcl_log_to_browser_console_v (__VA_ARGS__);*/ \
@@ -68,16 +68,10 @@ bool webcl_log_check_level (int level);
  * \param fmt Format argument similar to printf.
  * \see printf
  */
-# ifdef WIN32
-#  define D_PRINT(...) do{D_PRINT_RAW(" # # # [%s:%-4d] ", __FILE__, __LINE__, __VA_ARGS__); \
-D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");}while(0)
-# elif __APPLE__
-#  define D_PRINT(...) do{D_PRINT_RAW(" # # # [%s:%-4d] ", __FILE__, __LINE__, __VA_ARGS__); \
-D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");}while(0)
-# else
-#  define D_PRINT(fmt, ...) D_PRINT_RAW(" # # # [%s:%-4d] " fmt "\n", \
-__FILE__, __LINE__, ##__VA_ARGS__)
-# endif /* WIN32 */
+# define D_PRINT(...) do{ \
+  D_PRINT_RAW(" # # # [%s:%-4d] ", __FILE__, __LINE__); \
+  D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n"); \
+}while(0)
 
 
 /** \fn D_LOG(lev, fmt, ...)
@@ -91,25 +85,19 @@ __FILE__, __LINE__, ##__VA_ARGS__)
  * \see webcl_log_level
  * \see printf
  */
-#  ifdef WIN32
-#   define D_LOG(lev, ...) do{if(webcl_log_check_level(lev)){ \
-D_PRINT_RAW(" ##LOG## [%s:%-4d %s] ", __FILE__, __LINE__,__FUNCTION__); \
-D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");}}while(0)
-#  elif __APPLE__
-#   define D_LOG(lev, ...) do{if(webcl_log_check_level(lev)){ \
-D_PRINT_RAW(" ##LOG## [%s:%-4d %s] ", __FILE__, __LINE__,__FUNCTION__); \
-D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");}}while(0)
-#  else
-#   define D_LOG(lev, fmt, ...) do{if(webcl_log_check_level(lev)){ \
-D_PRINT_RAW(" ##LOG## [%s:%-4d %s] "\
-fmt "\n", __FILE__, __LINE__,\
-__FUNCTION__, ##__VA_ARGS__);}}while(0)
-#  endif /* WIN32 */
+# define D_LOG(lev, ...) do{ \
+  if(webcl_log_check_level(lev)){ \
+  D_PRINT_RAW(" ##LOG## [%s:%-4d %s] ", __FILE__, __LINE__,__FUNCTION__); \
+  D_PRINT_RAW(__VA_ARGS__); D_PRINT_RAW("\n");} \
+}while(0)
+
 
 #else //WEBCL_ENABLE_LOG
+
 # define D_PRINT_RAW(...) do{}while(0)
 # define D_PRINT(...) do{}while(0)
 # define D_LOG(...) do{}while(0)
+
 #endif //WEBCL_ENABLE_LOG
 
 

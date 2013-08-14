@@ -2,8 +2,8 @@
  * This file is part of WebCL – Web Computing Language.
  *
  * This Source Code Form is subject to the terms of the
- * Mozilla Public License, v. 2.0. If a copy of the MPL 
- * was not distributed with this file, You can obtain 
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  *
  * The Original Contributor of this Source Code Form is
@@ -126,7 +126,7 @@ namespace WebCLLibWrapperDetail {
         if (sze != sizeof(T))
         {
             D_LOG (LOG_LEVEL_ERROR,
-                  "getInfo returned a value of unexpected size %u, expected (%u bytes)",
+                  "getInfo returned a value of unexpected size %lu, expected (%lu bytes)",
                   sze, sizeof(T));
             D_LOG (LOG_LEVEL_WARNING, "Returning synthetic error value.");
             return CL_INVALID_VALUE;
@@ -344,7 +344,7 @@ namespace WebCLLibWrapperDetail {
         }
         if (sze != sizeof(T)) {
             D_LOG (LOG_LEVEL_ERROR,
-                    "getInfo returned a value of unexpected size %u, expected (%u bytes)",
+                    "getInfo returned a value of unexpected size %lu, expected (%lu bytes)",
                     sze, sizeof(T));
             D_LOG (LOG_LEVEL_WARNING, "Returning synthetic error value.");
             return CL_INVALID_VALUE;
