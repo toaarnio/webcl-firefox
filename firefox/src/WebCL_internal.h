@@ -630,15 +630,28 @@ nsresult WEBCL_variantToOffset (JSContext* cx, nsIVariant* aVariant,
  * \param cltype An internal OpenCL type of the resulting value.
  * \param Twebcl Respective WebCL* class of the resulting value.
  * Other params are similar to previous macros.
+ * NOTE: Returns null object to JS if internal value equals to NULL.
  */
 #define GETINFO_MEDIATOR_FUN_OBJECT(cltype,Twebcl,name,lib,infoFunc,internal,variant,err,rv) { \
       cltype val = 0; \
       err = lib->infoFunc (internal, name, val); \
       if (CL_SUCCEEDED (err)) { \
-        nsCOMPtr<Twebcl> xpcObj; \
-        rv = Twebcl::getInstance (val, getter_AddRefs(xpcObj), lib); \
-        if (NS_FAILED (rv)) break; \
-        rv = variant->SetAsInterface (NS_GET_IID (I##Twebcl), xpcObj); \
+        if (val == NULL) { \
+          js::Value jsValue = OBJECT_TO_JSVAL (0); \
+          nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv); \
+          if (NS_SUCCEEDED (rv)) { \
+            nsCOMPtr<nsIVariant> v; \
+            rv = xpc->JSValToVariant(cx, &jsValue, getter_AddRefs(v)); \
+            if (NS_SUCCEEDED (rv)) { \
+              rv = variant->SetFromVariant (v); \
+            } \
+          } \
+        } else { \
+          nsCOMPtr<Twebcl> xpcObj; \
+          rv = Twebcl::getInstance (val, getter_AddRefs(xpcObj), lib); \
+          if (NS_FAILED (rv)) break; \
+          rv = variant->SetAsInterface (NS_GET_IID (I##Twebcl), xpcObj); \
+        } \
       } \
     }
 

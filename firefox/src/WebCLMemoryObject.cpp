@@ -53,7 +53,8 @@ nsresult WebCLMemoryObject::getInstance (cl_mem aInternal, WebCLMemoryObject** a
       D_LOG (LOG_LEVEL_ERROR, "Failed to create instance. rv=%d.", rv);
       return NS_ERROR_OUT_OF_MEMORY;
     }
-    D_LOG (LOG_LEVEL_DEBUG, "No existing instance, created %p", (WebCLMemoryObject*)obj);
+    D_LOG (LOG_LEVEL_DEBUG, "No existing instance, created %p (internal=%p)",
+           (WebCLMemoryObject*)obj, (void*)aInternal);
 
     obj->setWrapper (aLibWrapper);
     obj->mInternal = aInternal;
@@ -78,9 +79,9 @@ WebCLMemoryObject::WebCLMemoryObject()
 WebCLMemoryObject::~WebCLMemoryObject()
 {
   D_METHOD_START;
+  instanceRegistry.remove (mInternal);
   if (mInternal)
   {
-    instanceRegistry.remove (mInternal);
     if (mWrapper)
       mWrapper->releaseMemObject (mInternal);
     mInternal = 0;
