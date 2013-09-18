@@ -203,7 +203,7 @@ NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVari
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS_GetGlobalObject(cx), aBufferRegion, &jsVal);
+  rv = xpc->VariantToJS(cx, JS_GetGlobalForScopeChain(cx), aBufferRegion, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   if (!jsVal.isObject())

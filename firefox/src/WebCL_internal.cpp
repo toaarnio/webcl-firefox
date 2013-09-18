@@ -380,7 +380,7 @@ nsresult WebCL_getVariantsFromJSArray (JSContext *cx, nsIVariant* aVariant,
   NS_ENSURE_SUCCESS (rv, rv);
 
   js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS_GetGlobalObject(cx), aVariant, &jsVal);
+  rv = xpc->VariantToJS(cx, JS_GetGlobalForScopeChain(cx), aVariant, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   if ( !jsVal.isObject ())
@@ -554,7 +554,7 @@ nsresult WebCL_convertVectorToJSArrayInVariant_##C (JSContext *cx,nsTArray<T> co
       break; \
     jsval val; \
     const nsIID iid = NS_GET_IID (I##C); \
-    rv = xpc->WrapNativeToJSVal (cx, JS_GetGlobalObject(cx), xpcObj, 0, &iid, JS_TRUE, &val, 0); \
+    rv = xpc->WrapNativeToJSVal (cx, JS_GetGlobalForScopeChain(cx), xpcObj, 0, &iid, JS_TRUE, &val, 0); \
     if (NS_FAILED (rv)) \
       break; \
     JS_SetElement (cx, jsArr, cnt++, &val); \
@@ -663,7 +663,7 @@ nsresult WebCL_variantToJSObject (JSContext* aCx, nsIVariant* aVariant, JSObject
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;
-  rv = xpc->VariantToJS(aCx, JS_GetGlobalObject(aCx), aVariant, &jsVal);
+  rv = xpc->VariantToJS(aCx, JS_GetGlobalForScopeChain(aCx), aVariant, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ENSURE_TRUE (jsVal.isObject(), NS_ERROR_INVALID_ARG);
@@ -699,7 +699,7 @@ nsresult WebCL_variantToImageFormat (JSContext *cx, nsIVariant* aVariant, cl_ima
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS_GetGlobalObject(cx), aVariant, &jsVal);
+  rv = xpc->VariantToJS(cx, JS_GetGlobalForScopeChain(cx), aVariant, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ENSURE_TRUE (jsVal.isObject (), NS_ERROR_INVALID_ARG);

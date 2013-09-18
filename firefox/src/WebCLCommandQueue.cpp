@@ -404,7 +404,7 @@ static nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayV
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS_GetGlobalObject(cx), aTypedArrayVariant, &jsVal);
+  rv = xpc->VariantToJS(cx, JS_GetGlobalForScopeChain(cx), aTypedArrayVariant, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ENSURE_TRUE (jsVal.isObject(), NS_ERROR_INVALID_ARG);
