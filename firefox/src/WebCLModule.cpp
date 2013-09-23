@@ -56,7 +56,7 @@ static const mozilla::Module::ContractIDEntry webclContracts[] = {
  * category.
  */
 static const mozilla::Module::CategoryEntry webclCategories[] = {
-  { "JavaScript global property", "WebCL", WEBCL_CONTRACTID },
+  { "JavaScript global property", "NokiaWebCLInternal", WEBCL_CONTRACTID },
   { NULL }
 };
 

@@ -696,7 +696,7 @@ WebCL::CanCreateWrapper (const nsIID* aIID,
                             char** _retval)
 {
   D_METHOD_START;
-  WEBCL_ENSURE_USE_PERMITTED;
+//  WEBCL_ENSURE_USE_PERMITTED;
   *_retval = NS_strdup (C_COM_SECURITY_ALL_ACCESS);
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
@@ -717,7 +717,6 @@ WebCL::CanGetProperty (const nsIID* aIID, const PRUnichar* aPropertyName,
                           char** _retval)
 {
   D_METHOD_START;
-  WEBCL_ENSURE_USE_PERMITTED;
   NS_ENSURE_TRUE (_retval, NS_ERROR_NULL_POINTER);
   *_retval = NS_strdup (C_COM_SECURITY_ALL_ACCESS);
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
@@ -728,7 +727,7 @@ WebCL::CanSetProperty (const nsIID* aIID, const PRUnichar* aPropertyName,
                           char** _retval)
 {
   D_METHOD_START;
-  WEBCL_ENSURE_USE_PERMITTED;
+//  WEBCL_ENSURE_USE_PERMITTED;
   NS_ENSURE_TRUE (_retval, NS_ERROR_NULL_POINTER);
   *_retval = NS_strdup (C_COM_SECURITY_NO_ACCESS);
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;

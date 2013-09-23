@@ -26,6 +26,7 @@
 
 NS_IMPL_ISUPPORTS2 (WebCLMemoryObject, IWebCLMemoryObject, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLMemoryObject)
+WEBCL_ATTACHMENT_IMPL (WebCLMemoryObject)
 
 
 /* static */

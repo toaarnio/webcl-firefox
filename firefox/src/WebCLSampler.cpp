@@ -22,6 +22,7 @@
 
 NS_IMPL_ISUPPORTS2 (WebCLSampler, IWebCLSampler, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLSampler)
+WEBCL_ATTACHMENT_IMPL (WebCLSampler)
 
 
 /* static */

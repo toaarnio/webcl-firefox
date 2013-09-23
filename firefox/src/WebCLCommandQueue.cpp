@@ -32,6 +32,7 @@
 
 NS_IMPL_ISUPPORTS2 (WebCLCommandQueue, IWebCLCommandQueue, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLCommandQueue)
+WEBCL_ATTACHMENT_IMPL (WebCLCommandQueue)
 
 
 /* static */

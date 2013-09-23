@@ -22,6 +22,7 @@
 
 NS_IMPL_ISUPPORTS2 (WebCLEvent, IWebCLEvent, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLEvent)
+WEBCL_ATTACHMENT_IMPL (WebCLEvent)
 
 
 /* static */

@@ -12,4 +12,10 @@ binary-component components/libwebcl.so ABI=Linux_x86-gcc3
 binary-component components/libwebcl64.so ABI=Linux_x86_64-gcc3
 binary-component components/webcl.dll ABI=WINNT_x86-msvc
 binary-component components/libwebcl.dylib ABI=Darwin_x86_64-gcc3
-category JavaScript-global-property WebCL @webcl.nokiaresearch.com/WebCL;1
+category JavaScript-global-property NokiaWebCLInternal @webcl.nokiaresearch.com/WebCL;1
+
+component {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2} js/webcljswrapperloader.js
+contract @webcl.nokiaresearch.com/WebCLJSWrapperLoader;1 {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2}
+category profile-after-change WebCLJSWrapperLoader @webcl.nokiaresearch.com/WebCLJSWrapperLoader;1
+
+content webcljswrapperloader content/

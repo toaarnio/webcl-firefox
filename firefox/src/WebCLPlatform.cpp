@@ -23,6 +23,7 @@
 
 NS_IMPL_ISUPPORTS2 (WebCLPlatform, IWebCLPlatform, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLPlatform)
+WEBCL_ATTACHMENT_IMPL (WebCLPlatform)
 
 /* static */
 InstanceRegistry<cl_platform_id, WebCLPlatform*> WebCLPlatform::instanceRegistry;

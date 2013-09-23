@@ -91,7 +91,7 @@ else ifeq ($(WCL_PLATFORM), Darwin)
  $(info Macosx platform detected.)
  export WCL_WINDOWS_BUILD = 0
  export WCL_MACOSX_BUILD = 1
- 
+
 else
  $(info Assuming unix build (g++))
  export WCL_WINDOWS_BUILD = 0
@@ -155,14 +155,14 @@ $(PACKAGE): $(TARGET_PATH)/$(TARGET_LIB) install.rdf.in chrome.manifest
 	cp -a public/*.xpt components/
 	cp -a $< components/
 	echo "$(TARGET_LIB)" > components/components.list
-	zip -r $@ install.rdf chrome.manifest components content COPYING -x content/.svn/\*
+	zip -r $@ install.rdf chrome.manifest components js content COPYING -x content/.svn/\*
 
 content:
 	@mkdir -p content
 
-$(SRC_PACKAGE): install.rdf.in chrome.manifest Makefile buildconfig.inc content \
+$(SRC_PACKAGE): install.rdf.in chrome.manifest Makefile buildconfig.inc js content \
  public/Makefile public/*.idl src/Makefile src/Makefile.macosx src/Makefile.windows \
- src/*.h src/*.cpp README.txt COPYING \
+ src/*.h src/*.cpp js/*.js README.txt COPYING \
  doxygen-api.conf doxygen-full.conf docs/doxymain.txt
 	rm -f $@
 	zip $@ $^
@@ -191,7 +191,7 @@ endif
 
 # Get rid of file backups as well.
 ultra-clean: clean
-	@rm -f ./*~ public/*~ docs/*~ 2>/dev/null ; true
+	@rm -f ./*~ public/*~ docs/*~ content/*~ js/*~ 2>/dev/null ; true
 ifeq ($(WCL_WINDOWS_BUILD), 1)
 	@cd src && $(SUBMAKE) $(SUBMFLAGS) -f Makefile.windows $@ ; true
 else ifeq ($(WCL_MACOSX_BUILD), 1)

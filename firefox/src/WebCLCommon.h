@@ -19,6 +19,7 @@
 #include "xpcom-config.h"
 #include "nsCRT.h"  //NS_strdup
 #include "nsCOMPtr.h"
+#include "nsIVariant.h"
 
 
 // Version number fallbacks. Actual values should come from Makefiles but if
@@ -162,6 +163,7 @@ public:
 
 protected:
   nsCOMPtr<WebCL_LibCLWrapper> mWrapper;
+  nsCOMPtr<nsIVariant> mAttachment;
 
 private:
   // Prevent copying and assignment
@@ -227,5 +229,35 @@ WEBCL_SECURITY_CHECKED_CANCALLMETHOD_IMPL (cname) \
 WEBCL_SECURITY_CHECKED_CANGETPROPERTY_IMPL (cname) \
 WEBCL_SECURITY_CHECKED_CANSETPROPERTY_IMPL (cname)
 
+
+#define WEBCL_ATTACHMENT_IMPL(cname) \
+  /* [implicit_jscontext] void setAttachment (in nsIVariant aValue); */ \
+  NS_IMETHODIMP cname::SetAttachment(nsIVariant *aValue, JSContext* cx) \
+  { \
+    if (!aValue) return NS_OK; \
+    NS_IF_RELEASE (mAttachment); \
+    mAttachment = aValue; \
+    return NS_OK; \
+  } \
+  \
+  /* [implicit_jscontext] nsIVariant getAttachment (); */ \
+  NS_IMETHODIMP cname::GetAttachment(JSContext* cx, nsIVariant** _retval) \
+  { \
+    if (_retval) { \
+      if (mAttachment) { \
+        NS_ADDREF (*_retval = mAttachment); \
+      } else { \
+        nsCOMPtr<nsIVariant> tmp; \
+        js::Value val; \
+        val.setObjectOrNull (0); \
+        nsresult rv = NS_OK; \
+        nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv); \
+        NS_ENSURE_SUCCESS (rv, rv); \
+        rv = xpc->JSToVariant (cx, val, getter_AddRefs (tmp)); \
+        NS_ADDREF (*_retval = tmp); \
+      } \
+    } \
+    return NS_OK; \
+  }
 
 #endif /* _WEBCLCOMMON_H_ */

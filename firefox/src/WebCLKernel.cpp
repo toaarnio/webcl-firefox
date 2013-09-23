@@ -19,9 +19,10 @@
 #include "nsComponentManagerUtils.h"
 #include "nsISecurityCheckedComponent.h"
 #include "nsStringAPI.h"
-                                         
+
 NS_IMPL_ISUPPORTS2 (WebCLKernel, IWebCLKernel, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLKernel)
+WEBCL_ATTACHMENT_IMPL (WebCLKernel)
 
 
 /* static */
@@ -247,7 +248,7 @@ NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRIn
         // None found, intentional leak to default
       }
 
-      case nsIDataType::VTYPE_ARRAY: 
+      case nsIDataType::VTYPE_ARRAY:
       case nsIDataType::VTYPE_EMPTY_ARRAY:
         D_LOG (LOG_LEVEL_ERROR, "Array support not implemented.");
         WebCL_reportJSError (cx, "WebCLKernel::setKernelArg: Array support not implemented.");
@@ -405,7 +406,7 @@ NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRIn
 
       float* wrapped = (float*)malloc (sze = sizeof (float) * variants.Length());
 
-      for (nsTArray<size_t>::index_type i = 0; i < variants.Length(); ++i) 
+      for (nsTArray<size_t>::index_type i = 0; i < variants.Length(); ++i)
       {
         float val;
         rv = variants[i]->GetAsFloat(&val);
@@ -422,7 +423,7 @@ NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRIn
       ENSURE_CL_OP_SUCCESS (wrErr);
       return NS_OK;
     }
-    
+
     case types::DOUBLE_V:
     case types::STRING_V:
       D_LOG (LOG_LEVEL_ERROR, "Array types are not supported.");

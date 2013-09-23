@@ -169,4 +169,7 @@ interface IWebCLContext : nsISecurityCheckedComponent
    * this function.
    */
   void releaseCLResources ();
+
+  [implicit_jscontext] void setAttachment (in nsIVariant aValue);
+  [implicit_jscontext] nsIVariant getAttachment ();
 };

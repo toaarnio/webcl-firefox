@@ -22,6 +22,7 @@
 
 NS_IMPL_ISUPPORTS2 (WebCLContext, IWebCLContext, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLContext)
+WEBCL_ATTACHMENT_IMPL (WebCLContext)
 
 
 /* static */

@@ -22,6 +22,7 @@
 
 NS_IMPL_ISUPPORTS2 (WebCLDevice, IWebCLDevice, nsISecurityCheckedComponent)
 WEBCL_SECURITY_CHECKED_IMPL (WebCLDevice)
+WEBCL_ATTACHMENT_IMPL (WebCLDevice)
 
 
 /* static */
