@@ -260,4 +260,8 @@ WEBCL_SECURITY_CHECKED_CANSETPROPERTY_IMPL (cname)
     return NS_OK; \
   }
 
+#define WEBCL_IF_RELEASE_ATTACHMENT() \
+  do{ NS_IF_RELEASE(mAttachment); }while(0)
+
+
 #endif /* _WEBCLCOMMON_H_ */

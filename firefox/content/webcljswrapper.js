@@ -21,7 +21,7 @@
 
   var _wrapInternalObject = function (obj)
   {
-    if (obj instanceof Array)
+    if (Array.isArray(obj))
     {
       var tmp = [];
       for (var i = 0; i < obj.length; ++i)
@@ -30,7 +30,7 @@
       }
       obj = tmp;
     }
-    else if (typeof(obj) == "object")
+    else if (obj && typeof(obj) == "object")
     {
       var s = obj.toString ();
       if (s.startsWith ("[xpconnect wrapped "))
@@ -56,7 +56,7 @@
           case "IWebCLEvent]":        return new _Event (obj);
           case "IWebCLMemoryObject]": return new _MemoryObject (obj);
           case "IWebCLSampler]":      return new _Sampler (obj);
-          //default: try{ console.log ("_wrapInternalObject: Can't wrap object " + obj.toString()); }catch(e){}; break;
+          /* default: try{ console.log ("_wrapInternalObject: Can't wrap object " + obj.toString()); }catch(e){}; break; */
         }
       }
     }
@@ -65,7 +65,7 @@
 
   var _unwrapInternalObject = function (obj)
   {
-    if (obj instanceof Array)
+    if (Array.isArray(obj))
     {
       var tmp = [];
       for (var i = 0; i < obj.length; ++i)
@@ -74,7 +74,7 @@
       }
       obj = tmp;
     }
-    else if (typeof(obj) == "object")
+    else if (obj && typeof(obj) == "object")
     {
       if (obj instanceof _Platform) return obj._internal;
       if (obj instanceof _Device) return obj._internal;
@@ -85,7 +85,7 @@
       if (obj instanceof _Event) return obj._internal;
       if (obj instanceof _MemoryObject) return obj._internal;
       if (obj instanceof _Sampler) return obj._internal;
-      //try{ console.log ("_unwrapInternalObject: Can't unwrap object " + obj.toString()); }catch(e){}
+      /* try{ console.log("_unwrapInternalObject: Can't unwrap " + typeof(obj) + " object " + obj.toString()); }catch(e){} */
     }
     return obj;
   };
@@ -200,18 +200,27 @@
   };
 
 
-  // == Platform =================================================================
-  function _Platform (internal)
+  function _Base (internal)
   {
-    if (!this instanceof _Platform) return; // TODO
-
     this._internal = internal;
+
+    /*
     if (internal.setAttachment && typeof(internal.setAttachment) == "function")
     {
       internal.setAttachment (this);
     }
+    */
   }
 
+  // == Platform =================================================================
+  function _Platform (internal)
+  {
+    if (!this instanceof _Platform) return; // TODO
+    _Base.call (this, internal);
+  }
+
+  _Platform.prototype = Object.create (_Base.prototype);
+  _Platform.prototype.constructor = _Platform;
 
   _Platform.prototype.getInfo = _createDefaultFunctionWrapperRv ("getPlatformInfo");
   _Platform.prototype.getPlatformInfo = _Platform.prototype.getInfo;
@@ -224,14 +233,11 @@
   function _Device (internal)
   {
     if (!this instanceof _Device) return; // TODO
-
-    this._internal = internal;
-    if (internal.setAttachment && typeof(internal.setAttachment) == "function")
-    {
-      internal.setAttachment (this);
-    }
+    _Base.call (this, internal);
   }
 
+  _Device.prototype = Object.create (_Base.prototype);
+  _Device.prototype.constructor = _Device;
 
   _Device.prototype.getInfo = _createDefaultFunctionWrapperRv ("getDeviceInfo");
   _Device.prototype.getDeviceInfo = _Device.prototype.getInfo;
@@ -240,14 +246,11 @@
   // == Context ==================================================================
   function _Context (internal) {
     if (!this instanceof _Context) return; // TODO
-
-    this._internal = internal;
-    if (internal.setAttachment && typeof(internal.setAttachment) == "function")
-    {
-      internal.setAttachment (this);
-    }
+    _Base.call (this, internal);
   }
 
+  _Context.prototype = Object.create (_Base.prototype);
+  _Context.prototype.constructor = _Context;
 
   _Context.prototype.getInfo = _createDefaultFunctionWrapperRv ("getContextInfo");
   _Context.prototype.getContextInfo = _Context.prototype.getInfo;
@@ -286,14 +289,11 @@
   // == Program ==================================================================
   function _Program (internal) {
     if (!this instanceof _Program) return; // TODO
-
-    this._internal = internal;
-    if (internal.setAttachment && typeof(internal.setAttachment) == "function")
-    {
-      internal.setAttachment (this);
-    }
+    _Base.call (this, internal);
   }
 
+  _Program.prototype = Object.create (_Base.prototype);
+  _Program.prototype.constructor = _Program;
 
   _Program.prototype.getInfo = _createDefaultFunctionWrapperRv ("getProgramInfo");
   _Program.prototype.getProgramInfo = _Program.prototype.getInfo;
@@ -313,14 +313,11 @@
   // == Kernel ===================================================================
   function _Kernel (internal) {
     if (!this instanceof _Kernel) return; // TODO
-
-    this._internal = internal;
-    if (internal.setAttachment && typeof(internal.setAttachment) == "function")
-    {
-      internal.setAttachment (this);
-    }
+    _Base.call (this, internal);
   }
 
+  _Kernel.prototype = Object.create (_Base.prototype);
+  _Kernel.prototype.constructor = _Kernel;
 
   _Kernel.prototype.getInfo = _createDefaultFunctionWrapperRv ("getKernelInfo");
   _Kernel.prototype.getKernelInfo = _Kernel.prototype.getInfo;
@@ -340,14 +337,11 @@
   // == CommandQueue =============================================================
   function _CommandQueue (internal) {
     if (!this instanceof _CommandQueue) return; // TODO
-
-    this._internal = internal;
-    if (internal.setAttachment && typeof(internal.setAttachment) == "function")
-    {
-      internal.setAttachment (this);
-    }
+    _Base.call (this, internal);
   }
 
+  _CommandQueue.prototype = Object.create (_Base.prototype);
+  _CommandQueue.prototype.constructor = _CommandQueue;
 
   _CommandQueue.prototype.getInfo = _createDefaultFunctionWrapperRv ("getCommandQueueInfo");
   _CommandQueue.prototype.getCommandQueueInfo = _CommandQueue.prototype.getInfo;
@@ -397,14 +391,11 @@
   // == Event ====================================================================
   function _Event (internal) {
     if (!this instanceof _Event) return; // TODO
-
-    this._internal = internal;
-    if (internal.setAttachment && typeof(internal.setAttachment) == "function")
-    {
-      internal.setAttachment (this);
-    }
+    _Base.call (this, internal);
   }
 
+  _Event.prototype = Object.create (_Base.prototype);
+  _Event.prototype.constructor = _Event;
 
   _Event.prototype.getInfo = _createDefaultFunctionWrapperRv ("getEventInfo");
   _Event.prototype.getEventInfo = _Event.prototype.getInfo;
@@ -420,17 +411,14 @@
   // == MemoryObject =============================================================
   function _MemoryObject (internal) {
     if (!this instanceof _MemoryObject) return; // TODO
-
-    this._internal = internal;
-    if (internal.setAttachment && typeof(internal.setAttachment) == "function")
-    {
-      internal.setAttachment (this);
-    }
+    _Base.call (this, internal);
   }
 
+  _MemoryObject.prototype = Object.create (_Base.prototype);
+  _MemoryObject.prototype.constructor = _MemoryObject;
 
   _MemoryObject.prototype.getInfo = _createDefaultFunctionWrapperRv ("getMemObjectInfo");
-  _MemoryObject.prototype.getMemObjectInfo = _MemoryObject.getInfo;
+  _MemoryObject.prototype.getMemObjectInfo = _MemoryObject.prototype.getInfo;
 
   _MemoryObject.prototype.getImageInfo = _createDefaultFunctionWrapperRv ("getImageInfo");
 
@@ -442,14 +430,11 @@
   // == Sampler ==================================================================
   function _Sampler (internal) {
     if (!this instanceof _Sampler) return; // TODO
-
-    this._internal = internal;
-    if (internal.setAttachment && typeof(internal.setAttachment) == "function")
-    {
-      internal.setAttachment (this);
-    }
+    _Base.call (this, internal);
   }
 
+  _Sampler.prototype = Object.create (_Base.prototype);
+  _Sampler.prototype.constructor = _Sampler;
 
   _Sampler.prototype.getInfo = _createDefaultFunctionWrapperRv ("getSamplerInfo");
   _Sampler.prototype.getSamplerInfo = _Sampler.prototype.getInfo;
