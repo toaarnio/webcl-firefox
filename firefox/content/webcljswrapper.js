@@ -115,6 +115,15 @@
   this.WebCL = { };
   this.webCL = WebCL;
 
+  window.WebCLPlatform = _Platform;
+  window.WebCLDevice = _Device;
+  window.WebCLContext = _Context;
+  window.WebCLProgram = _Program;
+  window.WebCLKernel = _Kernel;
+  window.WebCLCommandQueue = _CommandQueue;
+  window.WebCLEvent = _Event;
+  window.WebCLMemoryObject = _MemoryObject;
+  window.WebCLSampler = _Sampler;
 
   try { WebCL.types = _handle.types; } catch(e) { }
   try { WebCL.version = _handle.version; } catch(e) { }
