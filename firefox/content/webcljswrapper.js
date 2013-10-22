@@ -135,63 +135,84 @@
     return _wrapInternalObject (rv);
   };
 
-  WebCL.getPlatformIDs = WebCL.getPlatforms;
-
-  WebCL.createContext = function ()
+  WebCL.createContext = function()
   {
-    if (!_ensureWebCLAvailable ()) return;
+    if (!_ensureWebCLAvailable()) return;
 
-    var rv;
-
-    if (arguments.length === 1 && typeof(arguments[0]) == "object" )
-    {
-      var props = arguments[0];
-
-      // TODO: The default platform is currently the platform at index zero.
-      if (!props.platform)
-      {
-        props.platform = WebCL.getPlatforms ()[0];
-      }
-
-      if (!props.platform instanceof _Platform)
-      {
-        throw new Error ("WebCL#createContext  ERROR: invalid platform object.");
-      }
-
-      switch (props.deviceType)
-      {
-        case 0x1:
-        default:
-          props.deviceType = WebCL.DEVICE_TYPE_DEFAULT;
-          break;
-        // TODO: other device types? Are they going to match OCL enums?
-      }
-
-      if (props.devices)
-      {
-        var args = [ [WebCL.CONTEXT_PLATFORM, props.platform], [props.devices] ];
-        rv = _handle.createContext.apply (_handle, _unwrapInternalObject(args));
-      }
-      else
-      {
-        var args = [ [WebCL.CONTEXT_PLATFORM, props.platform], props.deviceType ];
-        rv = _handle.createContextFromType.apply (_handle, _unwrapInternalObject(args));
-      }
-    }
-    else
-    {
+    if (arguments.length >= 2) {
+      console.warn("Use of createContext([WebCL.CONTEXT_PLATFORM, platform], [devices]) is deprecated, use createContext(properties) instead.");
       var args = Array.prototype.slice.call(arguments);
-      rv = _handle.createContext.apply (_handle, _unwrapInternalObject(args));
+      var rv = _handle.createContext.apply (_handle, _unwrapInternalObject(args));
+      var ctx = _wrapInternalObject(rv);
+      return ctx;
     }
-    return _wrapInternalObject (rv);
-  };
 
-  WebCL.createContextFromType = function ()
-  {
-    if (!_ensureWebCLAvailable ()) return;
-    var args = Array.prototype.slice.call(arguments);
-    var rv = _handle.createContextFromType.apply (_handle, _unwrapInternalObject(args));
-    return _wrapInternalObject (rv);
+    if (arguments.length <= 1) {
+
+      var props = arguments[0] || {};
+
+      // If deviceType is not given, use DEVICE_TYPE_DEFAULT.
+      //
+      switch (props.deviceType) {
+      case WebCL.DEVICE_TYPE_CPU:
+      case WebCL.DEVICE_TYPE_GPU:
+      case WebCL.DEVICE_TYPE_ACCELERATOR:
+      case WebCL.DEVICE_TYPE_DEFAULT:
+      case WebCL.DEVICE_TYPE_ALL:
+        break;
+      case undefined:
+      case null:
+        props.deviceType = WebCL.DEVICE_TYPE_DEFAULT;
+        break;
+      default:
+        throw new Error ("WebCL#createContext  ERROR: invalid device type.");
+      }
+
+      // 'devices' is non-null ==> ignore platform and deviceType.
+      //
+      if (props.devices) {
+        props.devices = props.devices instanceof WebCLDevice ? [props.devices] : props.devices;
+        props.devices = props.devices instanceof Array ? props.devices : [];
+        for (var i=0; i < props.devices.length; i++) {
+          if (!props.devices[i] instanceof WebCLDevice) {
+            throw new Error("WebCL.createContext  ERROR: Invalid device object.");
+          }
+        }
+        var args = [ [], props.devices ];
+        var rv = _handle.createContext.apply(_handle, _unwrapInternalObject(args));
+        var ctx = _wrapInternalObject(rv);
+        return ctx;
+      }
+
+      // 'platform' is non-null ==> use the given (or default) deviceType.
+      //
+      if (props.platform) {
+        if (!props.platform instanceof WebCLPlatform) {
+          throw new Error("WebCL.createContext  ERROR: Invalid platform object.");
+        }
+        var args = [ [WebCL.CONTEXT_PLATFORM, props.platform], props.deviceType ];
+        var rv = _handle.createContextFromType.apply(_handle, _unwrapInternalObject(args));
+        var ctx = _wrapInternalObject(rv);
+        return ctx;
+      }
+
+      // Use any device with the given (or default) deviceType.
+      //
+      var platforms = WebCL.getPlatforms();
+      for (var i=0; i < platforms.length; i++) {
+        try {
+          var args = [ [WebCL.CONTEXT_PLATFORM, platforms[i]], props.deviceType ];
+          var rv = _handle.createContextFromType.apply(_handle, _unwrapInternalObject(args));
+          var ctx = _wrapInternalObject(rv);
+        } catch (e) {
+          console.warn("WebCL.createContext WARNING: Failed to create a context on platform " + i + ".");
+        }
+      }
+      if (!ctx instanceof WebCLContext) {
+        throw new Error("WebCL.createContext  ERROR: Failed to create a context for deviceType " + props.deviceType + ".");
+      }
+      return ctx;
+    }
   };
 
   WebCL.waitForEvents = function ()
@@ -201,14 +222,41 @@
     _handle.waitForEvents.apply (_handle, _unwrapInternalObject(args));
   };
 
-  WebCL.unloadCompiler = function ()
+  // Not Yet Implemented (TODO)
+
+  WebCL.getSupportedExtensions = function ()
   {
     if (!_ensureWebCLAvailable ()) return;
+    console.error("WebCL.getSupportedExtensions() is not yet implemented.");
+    return null;
+  }
+
+  WebCL.enableExtension = function ()
+  {
+    if (!_ensureWebCLAvailable ()) return;
+    console.error("WebCL.enableExtension() is not yet implemented.");
+    return null;
+  }
+
+  // Deprecated
+
+  WebCL.getPlatformIDs = function () 
+  {
+    console.warn("Use of getPlatformIDs() is deprecated, use getPlatforms() instead.");
+    return WebCL.getPlatforms.call(this);
+  };
+
+  WebCL.createContextFromType = function ()
+  {
+    console.warn("Use of createContextFromType() is deprecated, use createContext() instead.");
+    if (!_ensureWebCLAvailable ()) return;
     var args = Array.prototype.slice.call(arguments);
-    _handle.unloadCompiler.apply (_handle, _unwrapInternalObject(args));
+    var rv = _handle.createContextFromType.apply (_handle, _unwrapInternalObject(args));
+    return _wrapInternalObject (rv);
   };
 
 
+  // == Base ====================================================================
   function _Base (internal)
   {
     this._internal = internal;
@@ -221,6 +269,7 @@
     */
   }
 
+
   // == Platform =================================================================
   function _Platform (internal)
   {
@@ -230,12 +279,40 @@
 
   _Platform.prototype = Object.create (_Base.prototype);
   _Platform.prototype.constructor = _Platform;
-
   _Platform.prototype.getInfo = _createDefaultFunctionWrapperRv ("getPlatformInfo");
-  _Platform.prototype.getPlatformInfo = _Platform.prototype.getInfo;
+  _Platform.prototype.getDevices = function(deviceType) {
+    return _Platform.prototype.getDevicesInternal.call(this, deviceType || WebCL.DEVICE_TYPE_ALL);
+  }
 
-  _Platform.prototype.getDevices = _createDefaultFunctionWrapperRv ("getDevices");
-  _Platform.prototype.getDeviceIDs = _Platform.prototype.getDevices;
+  // Not Yet Implemented (TODO)
+
+  _Platform.prototype.getSupportedExtensions = function()
+  {
+    console.error("WebCLPlatform.getSupportedExtensions() is not yet implemented.");
+    return null;
+  }
+
+  _Platform.prototype.enableExtension = function()
+  {
+    console.error("WebCLPlatform.enableExtension() is not yet implemented.");
+    return null;
+  }
+
+  // Deprecated
+
+  _Platform.prototype.getPlatformInfo = function() {
+    console.warn("Use of getPlatformInfo() is deprecated, use getInfo() instead.");
+    return _Platform.prototype.getInfo.apply(this, arguments);
+  }
+
+  _Platform.prototype.getDeviceIDs = function(deviceType) {
+    console.warn("Use of getDeviceIDs() is deprecated, use getDevices() instead.");
+    return _Platform.prototype.getDevices.call(this, deviceType);
+  }
+
+  // Internals
+
+  _Platform.prototype.getDevicesInternal = _createDefaultFunctionWrapperRv ("getDevices");
 
 
   // == Device ===================================================================
@@ -247,9 +324,28 @@
 
   _Device.prototype = Object.create (_Base.prototype);
   _Device.prototype.constructor = _Device;
-
   _Device.prototype.getInfo = _createDefaultFunctionWrapperRv ("getDeviceInfo");
-  _Device.prototype.getDeviceInfo = _Device.prototype.getInfo;
+
+  // Not Yet Implemented (TODO)
+
+  _Device.prototype.getSupportedExtensions = function()
+  {
+    console.error("WebCLDevice.getSupportedExtensions() is not yet implemented.");
+    return null;
+  }
+
+  _Device.prototype.enableExtension = function()
+  {
+    console.error("WebCLDevice.enableExtension() is not yet implemented.");
+    return null;
+  }
+
+  // Deprecated
+
+  _Device.prototype.getDeviceInfo = function() {
+    console.warn("Use of getDeviceInfo() is deprecated, use getInfo() instead.");
+    return _Device.prototype.getInfo.apply(this, arguments);
+  }
 
 
   // == Context ==================================================================
@@ -260,39 +356,55 @@
 
   _Context.prototype = Object.create (_Base.prototype);
   _Context.prototype.constructor = _Context;
-
   _Context.prototype.getInfo = _createDefaultFunctionWrapperRv ("getContextInfo");
-  _Context.prototype.getContextInfo = _Context.prototype.getInfo;
+  _Context.prototype.createBuffer = _createDefaultFunctionWrapperRv ("createBuffer");
+  _Context.prototype.createCommandQueue =  _createDefaultFunctionWrapperRv ("createCommandQueue");
+  _Context.prototype.createImage = _createDefaultFunctionWrapperRv ("createImage2D");
+  _Context.prototype.createProgram = _createDefaultFunctionWrapperRv ("createProgramWithSource");
+  _Context.prototype.createSampler = _createDefaultFunctionWrapperRv ("createSampler");
+  _Context.prototype.createUserEvent = _createDefaultFunctionWrapperRv ("createUserEvent");
+  _Context.prototype.getSupportedImageFormats =  _createDefaultFunctionWrapperRv ("getSupportedImageFormats");
+  _Context.prototype.release = _createDefaultFunctionWrapper ("releaseCLResources");
 
-  _Context.prototype.createProgramWithSource =
-        _createDefaultFunctionWrapperRv ("createProgramWithSource");
+  // Not Yet Implemented (TODO)
 
-  _Context.prototype.createProgramWithBinary =
-        _createDefaultFunctionWrapperRv ("createProgramWithBinary");
+  _Context.prototype.releaseAll = function() {
+    console.error("releaseAll() is not yet implemented.");
+  }
 
-  _Context.prototype.createCommandQueue =
-        _createDefaultFunctionWrapperRv ("createCommandQueue");
+  // Deprecated
 
-  _Context.prototype.createBuffer =
-        _createDefaultFunctionWrapperRv ("createBuffer");
+  _Context.prototype.getContextInfo = function() {
+    console.warn("Use of getContextInfo() is deprecated, use getInfo() instead.");
+    return _Context.prototype.getInfo.apply(this, arguments);
+  }
 
-  _Context.prototype.createImage2D =
-        _createDefaultFunctionWrapperRv ("createImage2D");
+  _Context.prototype.createProgramWithSource = function() {
+    console.warn("Use of createProgramWithSource() is deprecated, use createProgram() instead.");
+    return _Context.prototype.createProgram.apply(this, arguments);
+  }
 
-  _Context.prototype.createImage3D =
-        _createDefaultFunctionWrapperRv ("createImage3D");
+  _Context.prototype.createImage2D = function() {
+    console.warn("Use of createImage2D() is deprecated, use createImage() instead.");
+    return _Context.prototype.createImage.apply(this, arguments);
+  }
 
-  _Context.prototype.createSampler =
-        _createDefaultFunctionWrapperRv ("createSampler");
+  _Context.prototype.releaseCLResources = function() {
+    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    return _Context.prototype.release.apply(this, arguments);
+  }
 
-  _Context.prototype.getSupportedImageFormats =
-        _createDefaultFunctionWrapperRv ("getSupportedImageFormats");
+  // Unsupported
 
-  _Context.prototype.createUserEvent =
-        _createDefaultFunctionWrapperRv ("createUserEvent");
+  _Context.prototype.createProgramWithBinary = function() {
+    console.error("WebCL does not support createProgramWithBinary().");
+    return _createDefaultFunctionWrapperRv ("createProgramWithBinary").apply(this, arguments);
+  }
 
-  _Context.prototype.releaseCLResources =
-        _createDefaultFunctionWrapper ("releaseCLResources");
+  _Context.prototype.createImage3D = function() {
+    console.error("WebCL does not support createImage3D().");
+    return _createDefaultFunctionWrapperRv ("createImage3D").apply(this, arguments);
+  }
 
 
   // == Program ==================================================================
@@ -303,20 +415,34 @@
 
   _Program.prototype = Object.create (_Base.prototype);
   _Program.prototype.constructor = _Program;
-
   _Program.prototype.getInfo = _createDefaultFunctionWrapperRv ("getProgramInfo");
-  _Program.prototype.getProgramInfo = _Program.prototype.getInfo;
-
   _Program.prototype.getBuildInfo = _createDefaultFunctionWrapperRv ("getProgramBuildInfo");
-  _Program.prototype.getProgramBuildInfo = _Program.prototype.getBuildInfo;
-
-  _Program.prototype.buildProgram = _createDefaultFunctionWrapper ("buildProgram");
-
+  _Program.prototype.build = _createDefaultFunctionWrapper ("buildProgram");
   _Program.prototype.createKernel = _createDefaultFunctionWrapperRv ("createKernel");
-
   _Program.prototype.createKernelsInProgram = _createDefaultFunctionWrapperRv ("createKernelsInProgram");
+  _Program.prototype.release = _createDefaultFunctionWrapper ("releaseCLResources");
 
-  _Program.prototype.releaseCLResources = _createDefaultFunctionWrapper ("releaseCLResources");
+  // Deprecated
+
+  _Program.prototype.getProgramInfo = function() {
+    console.warn("Use of getProgramInfo() is deprecated, use getInfo() instead.");
+    return _Program.prototype.getInfo.apply(this, arguments);
+  }
+
+  _Program.prototype.getProgramBuildInfo = function() {
+    console.warn("Use of getProgramBuildInfo() is deprecated, use getBuildInfo() instead.");
+    return _Program.prototype.getBuildInfo.apply(this, arguments);
+  }
+
+  _Program.prototype.buildProgram = function() {
+    console.warn("Use of buildProgram() is deprecated, use build() instead.");
+    return _Program.prototype.build.apply(this, arguments);
+  }
+
+  _Program.prototype.releaseCLResources = function() {
+    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    return _Program.prototype.release.apply(this, arguments);
+  }
 
 
   // == Kernel ===================================================================
@@ -327,20 +453,55 @@
 
   _Kernel.prototype = Object.create (_Base.prototype);
   _Kernel.prototype.constructor = _Kernel;
-
   _Kernel.prototype.getInfo = _createDefaultFunctionWrapperRv ("getKernelInfo");
-  _Kernel.prototype.getKernelInfo = _Kernel.prototype.getInfo;
-
   _Kernel.prototype.getWorkGroupInfo = _createDefaultFunctionWrapperRv ("getKernelWorkGroupInfo");
-  _Kernel.prototype.getKernelWorkGroupInfo = _Kernel.prototype.getWorkGroupInfo;
+  _Kernel.prototype.release = _createDefaultFunctionWrapper ("releaseCLResources");
 
-  _Kernel.prototype.setArg = _createDefaultFunctionWrapper ("setKernelArg");
-  _Kernel.prototype.setKernelArg = _Kernel.prototype.setArg;
+  // Not Yet Implemented (TODO)
 
-  _Kernel.prototype.setArgLocal = _createDefaultFunctionWrapper ("setKernelArgLocal");
-  _Kernel.prototype.setKernelArgLocal = _Kernel.prototype.setArgLocal;
+  _Kernel.prototype.setArg = function(index, arg) {
+    console.warn("WebCLKernel.setArg() is not fully implemented yet.");
+    if (arg instanceof Uint32Array && arg.length === 1) {
+      return _Kernel.prototype.setArgLocalInternal.call(this, index, arg[0]);
+    } else if (arg instanceof WebCLMemoryObject) {
+      return _Kernel.prototype.setArgInternal.apply(this, arguments);
+    } else if (arg instanceof WebCLSampler) {
+      return _Kernel.prototype.setArgInternal.apply(this, arguments);
+    } else {
+      return _Kernel.prototype.setArgInternal.apply(this, arguments);
+    }
+  }
 
-  _Kernel.prototype.releaseCLResources = _createDefaultFunctionWrapper ("releaseCLResources");
+  // Deprecated
+
+  _Kernel.prototype.getKernelInfo = function() {
+    console.warn("Use of getKernelInfo() is deprecated, use getInfo() instead.");
+    return _Kernel.prototype.getInfo.apply(this, arguments);
+  }
+
+  _Kernel.prototype.getKernelWorkGroupInfo = function() {
+    console.warn("Use of getKernelWorkGroupInfo() is deprecated, use getWorkGroupInfo() instead.");
+    return _Kernel.prototype.getWorkGroupInfo.apply(this, arguments);
+  }
+
+  _Kernel.prototype.setArgInternal = _createDefaultFunctionWrapper ("setKernelArg");
+
+  _Kernel.prototype.setArgLocalInternal = _createDefaultFunctionWrapper ("setKernelArgLocal");
+
+  _Kernel.prototype.setKernelArg = function() {
+    console.warn("Use of setKernelArg() is deprecated, use setArg() instead.");
+    return _Kernel.prototype.setArgInternal.apply(this, arguments);
+  }
+
+  _Kernel.prototype.setKernelArgLocal = function() {
+    console.warn("Use of setKernelArgLocal() is deprecated, use setArg(Uint8Array) instead.");
+    return _Kernel.prototype.setArgLocalInternal.apply(this, arguments);
+  }
+
+  _Kernel.prototype.releaseCLResources = function() {
+    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    return _Kernel.prototype.release.apply(this, arguments);
+  }
 
 
   // == CommandQueue =============================================================
@@ -351,50 +512,59 @@
 
   _CommandQueue.prototype = Object.create (_Base.prototype);
   _CommandQueue.prototype.constructor = _CommandQueue;
-
   _CommandQueue.prototype.getInfo = _createDefaultFunctionWrapperRv ("getCommandQueueInfo");
-  _CommandQueue.prototype.getCommandQueueInfo = _CommandQueue.prototype.getInfo;
 
-  _CommandQueue.prototype.enqueueNDRangeKernel = _createDefaultFunctionWrapperRv ("enqueueNDRangeKernel");
-
-  _CommandQueue.prototype.enqueueTask = _createDefaultFunctionWrapperRv ("enqueueTask");
-
-  _CommandQueue.prototype.enqueueWriteBuffer = _createDefaultFunctionWrapperRv ("enqueueWriteBuffer");
-
-  _CommandQueue.prototype.enqueueReadBuffer = _createDefaultFunctionWrapperRv ("enqueueReadBuffer");
-
-  _CommandQueue.prototype.enqueueWriteBufferRect = _createDefaultFunctionWrapperRv ("enqueueWriteBufferRect");
-
-  _CommandQueue.prototype.enqueueReadBufferRect = _createDefaultFunctionWrapperRv ("enqueueReadBufferRect");
-
-  _CommandQueue.prototype.enqueueWriteImage = _createDefaultFunctionWrapperRv ("enqueueWriteImage");
-
-  _CommandQueue.prototype.enqueueReadImage = _createDefaultFunctionWrapperRv ("enqueueReadImage");
-
+  _CommandQueue.prototype.enqueueCopyBuffer = _createDefaultFunctionWrapperRv ("enqueueCopyBuffer");
+  _CommandQueue.prototype.enqueueCopyBufferRect = _createDefaultFunctionWrapperRv ("enqueueCopyBufferRect");
   _CommandQueue.prototype.enqueueCopyImage = _createDefaultFunctionWrapperRv ("enqueueCopyImage");
-
   _CommandQueue.prototype.enqueueCopyImageToBuffer = _createDefaultFunctionWrapperRv ("enqueueCopyImageToBuffer");
-
   _CommandQueue.prototype.enqueueCopyBufferToImage = _createDefaultFunctionWrapperRv ("enqueueCopyBufferToImage");
 
-  _CommandQueue.prototype.enqueueMapBuffer = _createDefaultFunctionWrapperRv ("enqueueMapBuffer");
+  _CommandQueue.prototype.enqueueReadBuffer = _createDefaultFunctionWrapperRv ("enqueueReadBuffer");
+  _CommandQueue.prototype.enqueueReadBufferRect = _createDefaultFunctionWrapperRv ("enqueueReadBufferRect");
+  _CommandQueue.prototype.enqueueReadImage = _createDefaultFunctionWrapperRv ("enqueueReadImage");
 
-  _CommandQueue.prototype.enqueueMapImage = _createDefaultFunctionWrapperRv ("enqueueMapImage");
+  _CommandQueue.prototype.enqueueWriteBuffer = _createDefaultFunctionWrapperRv ("enqueueWriteBuffer");
+  _CommandQueue.prototype.enqueueWriteBufferRect = _createDefaultFunctionWrapperRv ("enqueueWriteBufferRect");
+  _CommandQueue.prototype.enqueueWriteImage = _createDefaultFunctionWrapperRv ("enqueueWriteImage");
 
-  _CommandQueue.prototype.enqueueUnmapMemObject = _createDefaultFunctionWrapperRv ("enqueueUnmapMemObject");
-
+  _CommandQueue.prototype.enqueueNDRangeKernel = _createDefaultFunctionWrapperRv ("enqueueNDRangeKernel");
   _CommandQueue.prototype.enqueueMarker = _createDefaultFunctionWrapperRv ("enqueueMarker");
-
-  _CommandQueue.prototype.enqueueWaitForEvents = _createDefaultFunctionWrapper ("enqueueWaitForEvents");
-
   _CommandQueue.prototype.enqueueBarrier = _createDefaultFunctionWrapper ("enqueueBarrier");
-
-  _CommandQueue.prototype.flush = _createDefaultFunctionWrapper ("flush");
-
+  _CommandQueue.prototype.enqueueWaitForEvents = _createDefaultFunctionWrapper ("enqueueWaitForEvents");
   _CommandQueue.prototype.finish = _createDefaultFunctionWrapper ("finish");
+  _CommandQueue.prototype.flush = _createDefaultFunctionWrapper ("flush");
+  _CommandQueue.prototype.release = _createDefaultFunctionWrapper ("releaseCLResources");
 
-  _CommandQueue.prototype.releaseCLResources = _createDefaultFunctionWrapper ("releaseCLResources");
+  // Deprecated
 
+  _CommandQueue.prototype.getCommandQueueInfo = function() {
+    console.warn("Use of getCommandQueueInfo() is deprecated, use getInfo() instead.");
+    return _CommandQueue.prototype.getInfo.apply(this, arguments);
+  }
+
+  _CommandQueue.prototype.releaseCLResources = function() {
+    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    return _CommandQueue.prototype.release.apply(this, arguments);
+  }
+
+  // Unsupported
+
+  _CommandQueue.prototype.enqueueTask = function() {
+    console.error("WebCL does not support enqueueTask(), use enqueueNDRangeKernel() instead.");
+  }
+
+  _CommandQueue.prototype.enqueueMapBuffer = function() {
+    console.error("WebCL does not support enqueueMapBuffer(), use enqueueRead/WriteBuffer() instead.");
+  }
+
+  _CommandQueue.prototype.enqueueMapImage = function() {
+    console.error("WebCL does not support enqueueMapImage(), use enqueueRead/WriteImage() instead.");
+  }
+
+  _CommandQueue.prototype.enqueueUnmapMemObject = function() {
+    console.error("WebCL does not support enqueueUnmapMemObject().");
+  }
 
 
   // == Event ====================================================================
@@ -405,16 +575,36 @@
 
   _Event.prototype = Object.create (_Base.prototype);
   _Event.prototype.constructor = _Event;
-
   _Event.prototype.getInfo = _createDefaultFunctionWrapperRv ("getEventInfo");
-  _Event.prototype.getEventInfo = _Event.prototype.getInfo;
-
   _Event.prototype.getProfilingInfo = _createDefaultFunctionWrapperRv ("getEventProfilingInfo");
-  _Event.prototype.getEventProfilingInfo = _Event.prototype.getProfilingInfo;
+  _Event.prototype.release = _createDefaultFunctionWrapper ("releaseCLResources");
 
+  // Not Yet Implemented (TODO)
+
+  _Event.prototype.setCallback = function() {
+    console.error("WebCLEvent.setCallback() is not yet implemented.");
+  }
+
+  // Deprecated
+
+  _Event.prototype.getEventInfo = function() {
+    console.warn("Use of getEventInfo() is deprecated, use getInfo() instead.");
+    return _Event.prototype.getInfo.apply(this, arguments);
+  }
+
+  _Event.prototype.getEventProfilingInfo = function() {
+    console.warn("Use of getEventProfilingInfo() is deprecated, use getProfilingInfo() instead.");
+    return _Event.prototype.getProfilingInfo.apply(this, arguments);
+  }
+
+  _Event.prototype.releaseCLResources = function() {
+    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    return _Event.prototype.release.apply(this, arguments);
+  }
+
+
+  // == UserEvent ================================================================
   _Event.prototype.setUserEventStatus = _createDefaultFunctionWrapper ("setUserEventStatus");
-
-  _Event.prototype.releaseCLResources = _createDefaultFunctionWrapper ("releaseCLResources");
 
 
   // == MemoryObject =============================================================
@@ -425,15 +615,28 @@
 
   _MemoryObject.prototype = Object.create (_Base.prototype);
   _MemoryObject.prototype.constructor = _MemoryObject;
-
   _MemoryObject.prototype.getInfo = _createDefaultFunctionWrapperRv ("getMemObjectInfo");
-  _MemoryObject.prototype.getMemObjectInfo = _MemoryObject.prototype.getInfo;
+  _MemoryObject.prototype.release = _createDefaultFunctionWrapper ("releaseCLResources");
 
-  _MemoryObject.prototype.getImageInfo = _createDefaultFunctionWrapperRv ("getImageInfo");
+  // Deprecated
 
+  _MemoryObject.prototype.getMemObjectInfo = function() {
+    console.warn("Use of getMemObjectInfo() is deprecated, use getInfo() instead.");
+    return _MemoryObject.prototype.getInfo.apply(this, arguments);
+  }
+
+  _MemoryObject.prototype.releaseCLResources = function() {
+    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    return _MemoryObject.prototype.release.apply(this, arguments);
+  }
+
+
+  // == Buffer ===================================================================
   _MemoryObject.prototype.createSubBuffer = _createDefaultFunctionWrapperRv ("createSubBuffer");
 
-  _MemoryObject.prototype.releaseCLResources = _createDefaultFunctionWrapper ("releaseCLResources");
+
+  // == Image ====================================================================
+  _MemoryObject.prototype.getImageInfo = _createDefaultFunctionWrapperRv ("getImageInfo");
 
 
   // == Sampler ==================================================================
@@ -444,12 +647,20 @@
 
   _Sampler.prototype = Object.create (_Base.prototype);
   _Sampler.prototype.constructor = _Sampler;
-
   _Sampler.prototype.getInfo = _createDefaultFunctionWrapperRv ("getSamplerInfo");
-  _Sampler.prototype.getSamplerInfo = _Sampler.prototype.getInfo;
+  _Sampler.prototype.release = _createDefaultFunctionWrapper ("releaseCLResources");
 
-  _Sampler.prototype.releaseCLResources = _createDefaultFunctionWrapper ("releaseCLResources");
+  // Deprecated
 
+  _Sampler.prototype.getSamplerInfo = function() {
+    console.warn("Use of getSamplerInfo() is deprecated, use getInfo() instead.");
+    return _Sampler.prototype.getInfo.apply(this, arguments);
+  }
+
+  _Sampler.prototype.releaseCLResources = function() {
+    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    return _Sampler.prototype.release.apply(this, arguments);
+  }
 
 
   // == Constants ================================================================
