@@ -238,6 +238,10 @@
     return null;
   }
 
+  WebCL.releaseAll = function() {
+    console.error("releaseAll() is not yet implemented.");
+  }
+
   // Deprecated
 
   WebCL.getPlatformIDs = function () 
