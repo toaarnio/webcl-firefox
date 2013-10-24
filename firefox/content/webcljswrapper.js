@@ -464,14 +464,55 @@
   // Not Yet Implemented (TODO)
 
   _Kernel.prototype.setArg = function(index, arg) {
-    console.warn("WebCLKernel.setArg() is not fully implemented yet.");
+
+    if (arg instanceof WebCLMemoryObject) {
+      return _Kernel.prototype.setArgInternal.apply(this, arguments);
+    } 
+
+    if (arg instanceof WebCLSampler) {
+      return _Kernel.prototype.setArgInternal.apply(this, arguments);
+    }
+
+    // Local memory size, given as a Uint32Array of length 1.  We can
+    // get rid the try-catch once we get kernel argument info from the
+    // kernel validator or OpenCL 1.2.
+
     if (arg instanceof Uint32Array && arg.length === 1) {
-      return _Kernel.prototype.setArgLocalInternal.call(this, index, arg[0]);
-    } else if (arg instanceof WebCLMemoryObject) {
-      return _Kernel.prototype.setArgInternal.apply(this, arguments);
-    } else if (arg instanceof WebCLSampler) {
-      return _Kernel.prototype.setArgInternal.apply(this, arguments);
-    } else {
+      try {
+        return _Kernel.prototype.setArgInternal.call(this, index, arg[0], WebCL.types.UINT);
+      } catch (e) {
+        return _Kernel.prototype.setArgLocalInternal.call(this, index, arg[0]);
+      }
+    }
+
+    // 64-bit integer. We can get rid of the warnings once we get
+    // kernel argument info from the kernel validator or OpenCL 1.2.
+
+    if (arg instanceof Uint32Array && arg.length === 2) {
+      console.warn("setArg: assuming the given Uint32Array of length 2 represents a 64-bit integer.");
+      console.warn("setArg: the high-order 32 bits of a 64-bit integer are currently set to zero.");
+      return _Kernel.prototype.setArgInternal.call(this, index, arg[0], WebCL.types.ULONG);
+    }
+
+    // Other scalar types
+
+    if (arg.buffer instanceof ArrayBuffer && arg.length === 1) {
+      var typemap = {
+        1 : WebCL.types.UCHAR,
+        2 : WebCL.types.USHORT,
+        4 : WebCL.types.UINT,
+      };
+      var type = (arg instanceof Float32Array) && WebCL.types.FLOAT;
+      type = type || ((arg instanceof Float64Array) && WebCL.types.DOUBLE);
+      type = type || typemap[arg.BYTES_PER_ELEMENT];
+      return _Kernel.prototype.setArgInternal.call(this, index, arg[0], type);
+    } 
+
+    // Vector types. uint2/int2 are not supported, because they alias
+    // with long/ulong.  We can get rid of this limitation once we get
+    // kernel argument info from the kernel validator or OpenCL 1.2.
+
+    if (arg.buffer instanceof ArrayBuffer) {
       return _Kernel.prototype.setArgInternal.apply(this, arguments);
     }
   }
@@ -493,12 +534,12 @@
   _Kernel.prototype.setArgLocalInternal = _createDefaultFunctionWrapper ("setKernelArgLocal");
 
   _Kernel.prototype.setKernelArg = function() {
-    console.warn("Use of setKernelArg() is deprecated, use setArg() instead.");
+    //console.warn("Use of setKernelArg() is deprecated, use setArg() instead.");
     return _Kernel.prototype.setArgInternal.apply(this, arguments);
   }
 
   _Kernel.prototype.setKernelArgLocal = function() {
-    console.warn("Use of setKernelArgLocal() is deprecated, use setArg(Uint8Array) instead.");
+    console.warn("Use of setKernelArgLocal() is deprecated, use setArg(new Uint32Array([localMemSize])) instead.");
     return _Kernel.prototype.setArgLocalInternal.apply(this, arguments);
   }
 
