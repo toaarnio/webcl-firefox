@@ -473,47 +473,62 @@
       return _Kernel.prototype.setArgInternal.apply(this, arguments);
     }
 
-    // Local memory size, given as a Uint32Array of length 1.  We can
-    // get rid the try-catch once we get kernel argument info from the
-    // kernel validator or OpenCL 1.2.
-
-    if (arg instanceof Uint32Array && arg.length === 1) {
-      try {
-        return _Kernel.prototype.setArgInternal.call(this, index, arg[0], WebCL.types.UINT);
-      } catch (e) {
-        return _Kernel.prototype.setArgLocalInternal.call(this, index, arg[0]);
-      }
-    }
-
-    // 64-bit integer. We can get rid of the warnings once we get
-    // kernel argument info from the kernel validator or OpenCL 1.2.
-
-    if (arg instanceof Uint32Array && arg.length === 2) {
-      console.warn("setArg: assuming the given Uint32Array of length 2 represents a 64-bit integer.");
-      console.warn("setArg: the high-order 32 bits of a 64-bit integer are currently set to zero.");
-      return _Kernel.prototype.setArgInternal.call(this, index, arg[0], WebCL.types.ULONG);
-    }
-
-    // Other scalar types
-
-    if (arg.buffer instanceof ArrayBuffer && arg.length === 1) {
-      var typemap = {
-        1 : WebCL.types.UCHAR,
-        2 : WebCL.types.USHORT,
-        4 : WebCL.types.UINT,
-      };
-      var type = (arg instanceof Float32Array) && WebCL.types.FLOAT;
-      type = type || ((arg instanceof Float64Array) && WebCL.types.DOUBLE);
-      type = type || typemap[arg.BYTES_PER_ELEMENT];
-      return _Kernel.prototype.setArgInternal.call(this, index, arg[0], type);
-    } 
-
-    // Vector types. uint2/int2 are not supported, because they alias
-    // with long/ulong.  We can get rid of this limitation once we get
-    // kernel argument info from the kernel validator or OpenCL 1.2.
+    // Scalar and vector types
 
     if (arg.buffer instanceof ArrayBuffer) {
-      return _Kernel.prototype.setArgInternal.apply(this, arguments);
+
+      var typemap = {
+        'Int8Array1' : WebCL.types.CHAR,
+        'Int16Array1' : WebCL.types.SHORT,
+        'Int32Array1' : WebCL.types.INT,
+        'Int32Array2' : WebCL.types.LONG,
+        'Uint8Array1' : WebCL.types.UCHAR,
+        'Uint16Array1' : WebCL.types.USHORT,
+        'Uint32Array1' : WebCL.types.UINT,
+        'Uint32Array2' : WebCL.types.ULONG,
+        'Float32Array1' : WebCL.types.FLOAT,
+        'Float64Array1' : WebCL.types.DOUBLE,
+      };
+
+      var typename = arg.toString().slice(8, -1).concat(arg.length);
+      var type = typemap[typename];
+
+      console.log("Inferred typename: " + typename);
+
+      // 64-bit integer. We can get rid of the warnings once we get
+      // kernel argument info from the kernel validator or OpenCL 1.2.
+
+      if (type === WebCL.types.LONG || type === WebCL.types.ULONG) {
+        console.warn("setArg: assuming the given Uint32Array of length 2 represents a 64-bit integer.");
+        console.warn("setArg: the high-order 32 bits of a 64-bit integer are currently set to zero.");
+        return _Kernel.prototype.setArgInternal.call(this, index, arg[0], type);
+      }
+
+      // 32-bit unsigned integer, possibly representing local memory
+      // size. The only way to find out, without kernel argument info,
+      // is to try and catch.
+
+      if (type === WebCL.types.UINT) {
+        try {
+          _Kernel.prototype.setArgLocalInternal.call(this, index, arg[0]);
+          return console.log("Correctly inferred type: LOCAL");
+        } catch (e) {}
+      }
+
+      // Scalar types. Passed in as a JavaScript Number.
+
+      if (type !== undefined) {
+        return _Kernel.prototype.setArgInternal.call(this, index, arg[0], type);
+      }
+
+      // Vector types. Passed in as an ArrayBufferView. uint2/int2 are
+      // not supported, because they alias with long/ulong.  We can
+      // get rid of this limitation once we get kernel argument info
+      // from the kernel validator or OpenCL 1.2.
+      
+      if (type === undefined) {
+        return _Kernel.prototype.setArgInternal.call(this, index, arg, WebCL.types.FLOAT_V);
+      }
     }
   }
 
