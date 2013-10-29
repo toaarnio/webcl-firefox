@@ -95,6 +95,7 @@ int WebCLDevice::getTypeForInfoName (int aName)
     case CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE: return types::UINT;
     case CL_DEVICE_GLOBAL_MEM_SIZE: return types::ULONG;
     //case CL_DEVICE_HALF_FP_CONFIG: return types::DEVICE_HALF_FP_CONFIG;
+    case CL_DEVICE_HOST_UNIFIED_MEMORY: return types::BOOL;
     case CL_DEVICE_IMAGE_SUPPORT: return types::BOOL;
     case CL_DEVICE_IMAGE2D_MAX_HEIGHT: return types::SIZE_T;
     case CL_DEVICE_IMAGE2D_MAX_WIDTH: return types::SIZE_T;
@@ -116,7 +117,7 @@ int WebCLDevice::getTypeForInfoName (int aName)
     case CL_DEVICE_MAX_WORK_ITEM_SIZES: return types::SIZE_T_V;
     case CL_DEVICE_MAX_WRITE_IMAGE_ARGS: return types::UINT;
     case CL_DEVICE_MEM_BASE_ADDR_ALIGN: return types::UINT;
-    case CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE: return types::UINT;
+    //case CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE: return types::UINT;
     case CL_DEVICE_NAME: return types::STRING;
     case CL_DEVICE_PLATFORM: return types::PLATFORM;
     case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR: return types::UINT;
