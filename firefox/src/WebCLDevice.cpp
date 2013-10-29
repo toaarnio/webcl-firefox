@@ -134,6 +134,7 @@ int WebCLDevice::getTypeForInfoName (int aName)
     case CL_DEVICE_VENDOR: return types::STRING;
     case CL_DEVICE_VENDOR_ID: return types::UINT;
     case CL_DEVICE_VERSION: return types::STRING;
+    case CL_DEVICE_OPENCL_C_VERSION: return types::STRING;
     case CL_DRIVER_VERSION: return types::STRING;
     default: ;
   }
