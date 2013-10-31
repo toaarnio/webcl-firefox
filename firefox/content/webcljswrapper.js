@@ -501,8 +501,6 @@
       var typename = arg.toString().slice(8, -1).concat(arg.length);
       var type = typemap[typename];
 
-      console.log("Inferred typename: " + typename);
-
       // 64-bit integer. We can get rid of the warnings once we get
       // kernel argument info from the kernel validator or OpenCL 1.2.
 
