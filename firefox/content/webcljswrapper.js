@@ -110,6 +110,15 @@
     };
   }
 
+  var alreadyWarned = {};
+
+  var WARN = function(funcName, msg)
+  {
+    if (!alreadyWarned[funcName]) {
+      console.warn(msg);
+      alreadyWarned[funcName] = true;
+    }
+  }
 
   // == WebCL ====================================================================
   this.WebCL = { };
@@ -140,7 +149,7 @@
     if (!_ensureWebCLAvailable()) return;
 
     if (arguments.length >= 2) {
-      console.warn("Use of createContext([WebCL.CONTEXT_PLATFORM, platform], [devices]) is deprecated, use createContext(properties) instead.");
+      WARN("createContext", "Use of createContext([WebCL.CONTEXT_PLATFORM, platform], [devices]) is deprecated, use createContext(properties) instead.");
       var args = Array.prototype.slice.call(arguments);
       var rv = _handle.createContext.apply (_handle, _unwrapInternalObject(args));
       var ctx = _wrapInternalObject(rv);
@@ -246,13 +255,12 @@
 
   WebCL.getPlatformIDs = function () 
   {
-    console.warn("Use of getPlatformIDs() is deprecated, use getPlatforms() instead.");
     return WebCL.getPlatforms.call(this);
   };
 
   WebCL.createContextFromType = function ()
   {
-    console.warn("Use of createContextFromType() is deprecated, use createContext() instead.");
+    WARN("createContextFromType", "Use of createContextFromType() is deprecated, use createContext() instead.");
     if (!_ensureWebCLAvailable ()) return;
     var args = Array.prototype.slice.call(arguments);
     var rv = _handle.createContextFromType.apply (_handle, _unwrapInternalObject(args));
@@ -304,14 +312,14 @@
 
   // Deprecated
 
-  _Platform.prototype.getPlatformInfo = function() {
-    console.warn("Use of getPlatformInfo() is deprecated, use getInfo() instead.");
-    return _Platform.prototype.getInfo.apply(this, arguments);
+  _Platform.prototype.getDeviceIDs = function(deviceType) {
+    WARN("getDeviceIDs", "Use of getDeviceIDs() is deprecated, use getDevices() instead.");
+    return _Platform.prototype.getDevices.call(this, deviceType);
   }
 
-  _Platform.prototype.getDeviceIDs = function(deviceType) {
-    console.warn("Use of getDeviceIDs() is deprecated, use getDevices() instead.");
-    return _Platform.prototype.getDevices.call(this, deviceType);
+  _Platform.prototype.getPlatformInfo = function() {
+    WARN("getPlatformInfo", "Use of getPlatformInfo() is deprecated, use getInfo() instead.");
+    return _Platform.prototype.getInfo.apply(this, arguments);
   }
 
   // Internals
@@ -347,7 +355,7 @@
   // Deprecated
 
   _Device.prototype.getDeviceInfo = function() {
-    console.warn("Use of getDeviceInfo() is deprecated, use getInfo() instead.");
+    WARN("getDeviceInfo", "Use of getDeviceInfo() is deprecated, use getInfo() instead.");
     return _Device.prototype.getInfo.apply(this, arguments);
   }
 
@@ -379,29 +387,29 @@
   // Deprecated
 
   _Context.prototype.getContextInfo = function() {
-    console.warn("Use of getContextInfo() is deprecated, use getInfo() instead.");
+    WARN("getContextInfo", "Use of getContextInfo() is deprecated, use getInfo() instead.");
     return _Context.prototype.getInfo.apply(this, arguments);
   }
 
   _Context.prototype.createProgramWithSource = function() {
-    console.warn("Use of createProgramWithSource() is deprecated, use createProgram() instead.");
+    WARN("createProgramWithSource", "Use of createProgramWithSource() is deprecated, use createProgram() instead.");
     return _Context.prototype.createProgram.apply(this, arguments);
   }
 
   _Context.prototype.createImage2D = function() {
-    console.warn("Use of createImage2D() is deprecated, use createImage() instead.");
+    WARN("createImage2D", "Use of createImage2D() is deprecated, use createImage() instead.");
     return _Context.prototype.createImage.apply(this, arguments);
   }
 
   _Context.prototype.releaseCLResources = function() {
-    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    WARN("releaseCLResources", "Use of releaseCLResources() is deprecated, use release() instead.");
     return _Context.prototype.release.apply(this, arguments);
   }
 
   // Unsupported
 
   _Context.prototype.createProgramWithBinary = function() {
-    console.error("WebCL does not support createProgramWithBinary().");
+    console.error("createProgramWithBinary", "WebCL does not support createProgramWithBinary().");
     return _createDefaultFunctionWrapperRv ("createProgramWithBinary").apply(this, arguments);
   }
 
@@ -429,22 +437,22 @@
   // Deprecated
 
   _Program.prototype.getProgramInfo = function() {
-    console.warn("Use of getProgramInfo() is deprecated, use getInfo() instead.");
+    WARN("getProgramInfo", "Use of getProgramInfo() is deprecated, use getInfo() instead.");
     return _Program.prototype.getInfo.apply(this, arguments);
   }
 
   _Program.prototype.getProgramBuildInfo = function() {
-    console.warn("Use of getProgramBuildInfo() is deprecated, use getBuildInfo() instead.");
+    WARN("getProgramBuildInfo", "Use of getProgramBuildInfo() is deprecated, use getBuildInfo() instead.");
     return _Program.prototype.getBuildInfo.apply(this, arguments);
   }
 
   _Program.prototype.buildProgram = function() {
-    console.warn("Use of buildProgram() is deprecated, use build() instead.");
+    WARN("buildProgram", "Use of buildProgram() is deprecated, use build() instead.");
     return _Program.prototype.build.apply(this, arguments);
   }
 
   _Program.prototype.releaseCLResources = function() {
-    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    WARN("releaseCLResources", "Use of releaseCLResources() is deprecated, use release() instead.");
     return _Program.prototype.release.apply(this, arguments);
   }
 
@@ -499,8 +507,8 @@
       // kernel argument info from the kernel validator or OpenCL 1.2.
 
       if (type === WebCL.types.LONG || type === WebCL.types.ULONG) {
-        console.warn("setArg: assuming the given Uint32Array of length 2 represents a 64-bit integer.");
-        console.warn("setArg: the high-order 32 bits of a 64-bit integer are currently set to zero.");
+        WARN("setArgLONG1", "setArg: assuming the given Uint32Array of length 2 represents a 64-bit integer.");
+        WARN("setArgLONG2", "setArg: the high-order 32 bits of a 64-bit integer are currently set to zero.");
         return _Kernel.prototype.setArgInternal.call(this, index, arg[0], type);
       }
 
@@ -525,7 +533,7 @@
       // not supported, because they alias with long/ulong.  We can
       // get rid of this limitation once we get kernel argument info
       // from the kernel validator or OpenCL 1.2.
-      
+
       if (type === undefined) {
         return _Kernel.prototype.setArgInternal.call(this, index, arg, WebCL.types.FLOAT_V);
       }
@@ -535,12 +543,12 @@
   // Deprecated
 
   _Kernel.prototype.getKernelInfo = function() {
-    console.warn("Use of getKernelInfo() is deprecated, use getInfo() instead.");
+    WARN("getKernelInfo", "Use of getKernelInfo() is deprecated, use getInfo() instead.");
     return _Kernel.prototype.getInfo.apply(this, arguments);
   }
 
   _Kernel.prototype.getKernelWorkGroupInfo = function() {
-    console.warn("Use of getKernelWorkGroupInfo() is deprecated, use getWorkGroupInfo() instead.");
+    WARN("getKernelWorkGroupInfo", "Use of getKernelWorkGroupInfo() is deprecated, use getWorkGroupInfo() instead.");
     return _Kernel.prototype.getWorkGroupInfo.apply(this, arguments);
   }
 
@@ -549,17 +557,17 @@
   _Kernel.prototype.setArgLocalInternal = _createDefaultFunctionWrapper ("setKernelArgLocal");
 
   _Kernel.prototype.setKernelArg = function() {
-    //console.warn("Use of setKernelArg() is deprecated, use setArg() instead.");
+    WARN("setKernelArg", "Use of setKernelArg() is deprecated, use setArg() instead.");
     return _Kernel.prototype.setArgInternal.apply(this, arguments);
   }
 
   _Kernel.prototype.setKernelArgLocal = function() {
-    console.warn("Use of setKernelArgLocal() is deprecated, use setArg(new Uint32Array([localMemSize])) instead.");
+    WARN("setKernelArgLocal", "Use of setKernelArgLocal() is deprecated, use setArg(new Uint32Array([localMemSize])) instead.");
     return _Kernel.prototype.setArgLocalInternal.apply(this, arguments);
   }
 
   _Kernel.prototype.releaseCLResources = function() {
-    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    WARN("releaseCLResources", "Use of releaseCLResources() is deprecated, use release() instead.");
     return _Kernel.prototype.release.apply(this, arguments);
   }
 
@@ -599,12 +607,12 @@
   // Deprecated
 
   _CommandQueue.prototype.getCommandQueueInfo = function() {
-    console.warn("Use of getCommandQueueInfo() is deprecated, use getInfo() instead.");
+    WARN("getCommandQueueInfo", "Use of getCommandQueueInfo() is deprecated, use getInfo() instead.");
     return _CommandQueue.prototype.getInfo.apply(this, arguments);
   }
 
   _CommandQueue.prototype.releaseCLResources = function() {
-    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    WARN("releaseCLResources", "Use of releaseCLResources() is deprecated, use release() instead.");
     return _CommandQueue.prototype.release.apply(this, arguments);
   }
 
@@ -648,17 +656,17 @@
   // Deprecated
 
   _Event.prototype.getEventInfo = function() {
-    console.warn("Use of getEventInfo() is deprecated, use getInfo() instead.");
+    WARN("getEventInfo", "Use of getEventInfo() is deprecated, use getInfo() instead.");
     return _Event.prototype.getInfo.apply(this, arguments);
   }
 
   _Event.prototype.getEventProfilingInfo = function() {
-    console.warn("Use of getEventProfilingInfo() is deprecated, use getProfilingInfo() instead.");
+    WARN("getEventProfilingInfo", "Use of getEventProfilingInfo() is deprecated, use getProfilingInfo() instead.");
     return _Event.prototype.getProfilingInfo.apply(this, arguments);
   }
 
   _Event.prototype.releaseCLResources = function() {
-    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    WARN("releaseCLResources", "Use of releaseCLResources() is deprecated, use release() instead.");
     return _Event.prototype.release.apply(this, arguments);
   }
 
@@ -681,12 +689,12 @@
   // Deprecated
 
   _MemoryObject.prototype.getMemObjectInfo = function() {
-    console.warn("Use of getMemObjectInfo() is deprecated, use getInfo() instead.");
+    WARN("getMemObjectInfo", "Use of getMemObjectInfo() is deprecated, use getInfo() instead.");
     return _MemoryObject.prototype.getInfo.apply(this, arguments);
   }
 
   _MemoryObject.prototype.releaseCLResources = function() {
-    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    WARN("releaseCLResources", "Use of releaseCLResources() is deprecated, use release() instead.");
     return _MemoryObject.prototype.release.apply(this, arguments);
   }
 
@@ -713,12 +721,12 @@
   // Deprecated
 
   _Sampler.prototype.getSamplerInfo = function() {
-    console.warn("Use of getSamplerInfo() is deprecated, use getInfo() instead.");
+    WARN("getSamplerInfo", "Use of getSamplerInfo() is deprecated, use getInfo() instead.");
     return _Sampler.prototype.getInfo.apply(this, arguments);
   }
 
   _Sampler.prototype.releaseCLResources = function() {
-    console.warn("Use of releaseCLResources() is deprecated, use release() instead.");
+    WARN("releaseCLResources", "Use of releaseCLResources() is deprecated, use release() instead.");
     return _Sampler.prototype.release.apply(this, arguments);
   }
 
@@ -814,7 +822,6 @@
   WebCL.DEVICE_MAX_PARAMETER_SIZE = 0x1017;
   WebCL.DEVICE_MAX_SAMPLERS = 0x1018;
   WebCL.DEVICE_MEM_BASE_ADDR_ALIGN = 0x1019;
-  WebCL.DEVICE_MIN_DATA_TYPE_ALIGN_SIZE = 0x101A;
   WebCL.DEVICE_SINGLE_FP_CONFIG = 0x101B;
   WebCL.DEVICE_GLOBAL_MEM_CACHE_TYPE = 0x101C;
   WebCL.DEVICE_GLOBAL_MEM_CACHELINE_SIZE = 0x101D;
@@ -1093,7 +1100,6 @@
   WebCL.CL_DEVICE_MAX_PARAMETER_SIZE = 0x1017;
   WebCL.CL_DEVICE_MAX_SAMPLERS = 0x1018;
   WebCL.CL_DEVICE_MEM_BASE_ADDR_ALIGN = 0x1019;
-  WebCL.CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE = 0x101A;
   WebCL.CL_DEVICE_SINGLE_FP_CONFIG = 0x101B;
   WebCL.CL_DEVICE_GLOBAL_MEM_CACHE_TYPE = 0x101C;
   WebCL.CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE = 0x101D;
