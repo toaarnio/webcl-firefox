@@ -19,11 +19,11 @@ endif
 
 
 # Gecko
-GECKO_DEFINES = -D XPCOM_GLUE -D XPCOM_GLUE_USE_NSPR -D JS_NO_JSVAL_JSID_STRUCT_TYPES -D __STDC_LIMIT_MACROS
+GECKO_DEFINES = -D XPCOM_GLUE_USE_NSPR -D JS_NO_JSVAL_JSID_STRUCT_TYPES -D __STDC_LIMIT_MACROS
 GECKO_INCLUDES = -I"$(MS_REAL_SDK_PATH)/include" -I"$(MS_REAL_SDK_PATH)/include/nspr"
 GECKO_CXXFLAGS =
 GECKO_LDFLAGS = -LIBPATH:"$(MS_REAL_SDK_PATH)/lib" \
- xul.lib mozjs.lib xpcomglue_s_nomozalloc.lib nss3.lib
+ xul.lib mozjs.lib mozalloc.lib xpcomglue_s_nomozalloc.lib nss3.lib
 
 # WebCL
 WEBCL_DEFINES = \
