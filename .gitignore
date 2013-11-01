@@ -1,0 +1,11 @@
+*~
+*.diff
+*.zip
+*.xpi
+firefox/src/.build
+firefox/src/.deps
+firefox/public/*.h
+firefox/public/*.xpt
+firefox/install.rdf
+firefox/src/libwebcl.so
+*-swp
