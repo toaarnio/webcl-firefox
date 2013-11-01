@@ -205,6 +205,7 @@ do { \
   /* NOTE: DO NOT FREE value IF IT COMES FROM TYPED ARRAY! */ \
   if (NS_FAILED (rv)) \
   { \
+    value = 0; \
     /* Not a typed array, try treating it as an array */ \
     nsTArray<nsIVariant*> variants; \
     rv = WebCL_getVariantsFromJSArray (cx, aValue, variants); \
@@ -217,6 +218,7 @@ do { \
     if (!value) \
     { \
       rv = NS_ERROR_OUT_OF_MEMORY; \
+      WebCL_releaseVariantVector (variants); \
       break; \
     } \
     okToFreeValue = true; \
@@ -226,11 +228,13 @@ do { \
       rv = variants[i]->variantGetter (&val); \
       if (NS_FAILED (rv)) \
       { \
+        WebCL_releaseVariantVector (variants); \
         break; \
       } \
       \
       ((clType*)value)[i] = (clType)val; \
     } \
+    WebCL_releaseVariantVector (variants); \
   } \
   cl_int err = mWrapper->setKernelArg (mInternal, aIndex, sze, value); \
   \
