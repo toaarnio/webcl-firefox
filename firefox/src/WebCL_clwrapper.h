@@ -14,7 +14,7 @@
 #ifndef _WEBCL_CLWRAPPER_H_
 #define _WEBCL_CLWRAPPER_H_
 
-#include <mozilla/StandardInteger.h>
+#include <cstdint>
 
 #include "WebCLCommon.h"
 #include "WebCLLogger.h"

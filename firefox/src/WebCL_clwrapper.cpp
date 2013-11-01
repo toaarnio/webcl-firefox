@@ -326,7 +326,7 @@ IMPL_GET_INFO_WITH_EXTRA_FOR_OBJECT_VECTOR (Sampler, cl_sampler)
 
 
 
-NS_IMPL_THREADSAFE_ISUPPORTS0(WebCL_LibCLWrapper)
+NS_IMPL_ISUPPORTS0(WebCL_LibCLWrapper)
 
 
 WebCL_LibCLWrapper::WebCL_LibCLWrapper (WebCL_LibCL* aLibCL)

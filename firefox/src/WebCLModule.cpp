@@ -16,8 +16,10 @@
  * All components belonging to the WebCL module are registered in this file.
  * The registration makes these components available to XPCOM.
  */
+
 #include "mozilla/ModuleUtils.h"
 
+#include "nsISupportsImpl.h"
 #include "nsICategoryManager.h"
 #include "nsIServiceManager.h"
 

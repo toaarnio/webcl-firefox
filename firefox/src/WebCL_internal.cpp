@@ -26,7 +26,7 @@
 
 #include <cstdlib>
 #include <cstdio>
-#include <mozilla/StandardInteger.h>
+#include <cstdint>
 #include <cstdarg>
 #include <sstream>
 
@@ -133,9 +133,9 @@ nsresult WebCL_createTypesObject (JSContext *cx, nsIVariant** aResultOut)
   {
     for (size_t i = 0; i < sizeof(types)/sizeof(types[0]); ++i)
     {
-      js::Value val;
+      JS::Rooted<js::Value> val (cx);
       val.setInt32 (types[i].value);
-      if (!JS_SetProperty(cx, jsObj, types[i].name, &val))
+      if (!JS_SetProperty(cx, jsObj, types[i].name, val))
       {
         D_LOG (LOG_LEVEL_ERROR, "Failed to set types object property \"%s\" = %d",
                types[i].name, types[i].value);
@@ -380,7 +380,7 @@ nsresult WebCL_getVariantsFromJSArray (JSContext *cx, nsIVariant* aVariant,
   NS_ENSURE_SUCCESS (rv, rv);
 
   js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS_GetGlobalForScopeChain(cx), aVariant, &jsVal);
+  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aVariant, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   if ( !jsVal.isObject ())
@@ -554,7 +554,7 @@ nsresult WebCL_convertVectorToJSArrayInVariant_##C (JSContext *cx,nsTArray<T> co
       break; \
     jsval val; \
     const nsIID iid = NS_GET_IID (I##C); \
-    rv = xpc->WrapNativeToJSVal (cx, JS_GetGlobalForScopeChain(cx), xpcObj, 0, &iid, JS_TRUE, &val, 0); \
+    rv = xpc->WrapNativeToJSVal (cx, JS::CurrentGlobalOrNull(cx), xpcObj, 0, &iid, JS_TRUE, &val, 0); \
     if (NS_FAILED (rv)) \
       break; \
     JS_SetElement (cx, jsArr, cnt++, &val); \
@@ -610,14 +610,14 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx, nsTArray<cl_image_
     JSObject* jsObj = JS_NewObject (cx, NULL, NULL, NULL);
     if (jsObj)
     {
-      js::Value propChannelOrder;
+      JS::Rooted<js::Value> propChannelOrder (cx);
       propChannelOrder.setInt32 (aVector[i].image_channel_order);
-      js::Value propChannelDataType;
+      JS::Rooted<js::Value> propChannelDataType (cx);
       propChannelDataType.setInt32 (aVector[i].image_channel_data_type);
-      JS_SetProperty(cx, jsObj, "channelOrder", &propChannelOrder);
-      JS_SetProperty(cx, jsObj, "channelDataType", &propChannelDataType);
-      JS_SetProperty(cx, jsObj, "image_channel_order", &propChannelOrder);
-      JS_SetProperty(cx, jsObj, "image_channel_data_type", &propChannelDataType);
+      JS_SetProperty(cx, jsObj, "channelOrder", propChannelOrder);
+      JS_SetProperty(cx, jsObj, "channelDataType", propChannelDataType);
+      JS_SetProperty(cx, jsObj, "image_channel_order", propChannelOrder);
+      JS_SetProperty(cx, jsObj, "image_channel_data_type", propChannelDataType);
 
       js::Value objVal;
       objVal.setObjectOrNull (jsObj);
@@ -663,7 +663,7 @@ nsresult WebCL_variantToJSObject (JSContext* aCx, nsIVariant* aVariant, JSObject
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;
-  rv = xpc->VariantToJS(aCx, JS_GetGlobalForScopeChain(aCx), aVariant, &jsVal);
+  rv = xpc->VariantToJS(aCx, JS::CurrentGlobalOrNull(aCx), aVariant, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ENSURE_TRUE (jsVal.isObject(), NS_ERROR_INVALID_ARG);
@@ -699,12 +699,13 @@ nsresult WebCL_variantToImageFormat (JSContext *cx, nsIVariant* aVariant, cl_ima
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS_GetGlobalForScopeChain(cx), aVariant, &jsVal);
+  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aVariant, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ENSURE_TRUE (jsVal.isObject (), NS_ERROR_INVALID_ARG);
 
-  JSObject* jsObj = jsVal.toObjectOrNull ();;
+  //JSObject* jsObj = jsVal.toObjectOrNull ();
+  JS::Rooted<JSObject*> jsObj (cx, jsVal.toObjectOrNull ());
   if (jsObj && js::IsObjectProxy (jsObj))
   {
     jsObj = js::GetProxyTargetObject (jsObj);
@@ -714,7 +715,7 @@ nsresult WebCL_variantToImageFormat (JSContext *cx, nsIVariant* aVariant, cl_ima
     return NS_ERROR_INVALID_ARG;
   }
 
-  js::Value propChannelOrder;
+  JS::Rooted<js::Value> propChannelOrder (cx);
   if (!JS_LookupProperty (cx, jsObj, "channelOrder", &propChannelOrder))
   {
     if (!JS_LookupProperty (cx, jsObj, "image_channel_order", &propChannelOrder))
@@ -724,7 +725,7 @@ nsresult WebCL_variantToImageFormat (JSContext *cx, nsIVariant* aVariant, cl_ima
     }
   }
 
-  js::Value propChannelDataType;
+  JS::Rooted<js::Value> propChannelDataType (cx);
   if (!JS_LookupProperty (cx, jsObj, "channelDataType", &propChannelDataType))
   {
     if (!JS_LookupProperty (cx, jsObj, "image_channel_data_type", &propChannelDataType))
@@ -754,19 +755,19 @@ nsresult WebCL_imageFormatToVariant (JSContext *cx, cl_image_format const& aImag
 
   JS_BeginRequest (cx);
 
-  JSObject* jsObj = JS_NewObject (cx, NULL, NULL, NULL);
+  JS::Rooted<JSObject*> jsObj (cx, JS_NewObject (cx, NULL, NULL, NULL));
 
   if (jsObj)
   {
-    js::Value propChannelOrder;
+    JS::Rooted<js::Value> propChannelOrder (cx);
     propChannelOrder.setInt32 (aImageFormat.image_channel_order);
-    js::Value propChannelDataType;
+    JS::Rooted<js::Value> propChannelDataType (cx);
     propChannelDataType.setInt32 (aImageFormat.image_channel_data_type);
 
-    if ( JS_SetProperty(cx, jsObj, "channelOrder", &propChannelOrder)
-        && JS_SetProperty(cx, jsObj, "channelDataType", &propChannelDataType)
-        && JS_SetProperty(cx, jsObj, "image_channel_order", &propChannelOrder)
-        && JS_SetProperty(cx, jsObj, "image_channel_data_type", &propChannelDataType) )
+    if ( JS_SetProperty(cx, jsObj, "channelOrder", propChannelOrder)
+        && JS_SetProperty(cx, jsObj, "channelDataType", propChannelDataType)
+        && JS_SetProperty(cx, jsObj, "image_channel_order", propChannelOrder)
+        && JS_SetProperty(cx, jsObj, "image_channel_data_type", propChannelDataType) )
     {
 
       js::Value objVal;
@@ -852,5 +853,89 @@ nsresult WEBCL_variantToOffset (JSContext* cx, nsIVariant* aVariant,
 {
   // Add any offset-specific checks/modifications here
   return WebCL_variantToInternalVector3 (cx, aVariant, aOffsetOut);
+}
+
+
+nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayVariant,
+                                  void** aDataOut, size_t* aLengthOut,
+                                  nsIXPConnectJSObjectHolder** aHolderOut,
+                                  bool throwErrors)
+{
+  D_METHOD_START;
+  NS_ENSURE_ARG_POINTER (cx);
+  NS_ENSURE_ARG_POINTER (aTypedArrayVariant);
+  NS_ENSURE_ARG_POINTER (aDataOut);
+  NS_ENSURE_ARG_POINTER (aLengthOut);
+
+  void* data = 0;
+  size_t length = 0;
+  nsresult rv;
+
+  PRUint16 variantType = 0;
+  rv = aTypedArrayVariant->GetDataType (&variantType);
+  if ( !(variantType == nsIDataType::VTYPE_INTERFACE
+         || variantType == nsIDataType::VTYPE_INTERFACE_IS))
+  {
+    if (throwErrors)
+    {
+      D_LOG (LOG_LEVEL_ERROR, "Invalid variant type.");
+      WebCL_reportJSError (cx, "%s: Invalid typed array argument"
+                               "(variant type %d).", __FUNCTION__, variantType);
+    }
+    return NS_ERROR_INVALID_ARG;
+  }
+
+  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
+
+  nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
+  NS_ENSURE_SUCCESS (rv, rv);
+  JS::Rooted<js::Value> jsVal (cx);
+  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aTypedArrayVariant, jsVal.address());
+  NS_ENSURE_SUCCESS (rv, rv);
+
+  NS_ENSURE_TRUE (jsVal.isObject(), NS_ERROR_INVALID_ARG);
+
+  JS::Rooted<JSObject*> jsObj (cx, jsVal.toObjectOrNull());
+  if (jsObj && js::IsObjectProxy (jsObj))
+  {
+    jsObj = JS::Rooted<JSObject*> (cx, js::GetProxyTargetObject (jsObj));
+  }
+
+  if (!jsObj || !JS_IsTypedArrayObject (jsObj))
+  {
+    if (throwErrors)
+    {
+      WebCL_reportJSError (cx, "%s: Invalid typed array argument (not typed array).",
+                         __FUNCTION__);
+    }
+    return NS_ERROR_INVALID_ARG;
+  }
+
+  data = JS_GetArrayBufferViewData (jsObj);
+  D_LOG (LOG_LEVEL_DEBUG, "TypedArray data pointer: %p", data);
+  if (!data)
+  {
+    if (throwErrors)
+    {
+      D_LOG (LOG_LEVEL_ERROR, "Typed array has no data.");
+      WebCL_reportJSError (cx, "WebCLCommandQueue::enqueueWriteBuffer: Typed array has no data.");
+    }
+    return NS_ERROR_INVALID_ARG;
+  }
+  length = JS_GetArrayBufferViewByteLength (jsObj);
+  D_LOG (LOG_LEVEL_DEBUG, "TypedArray data length: %lu bytes", length);
+
+  if (aHolderOut)
+  {
+    rv = xpc->HoldObject (cx, jsObj, aHolderOut);
+    NS_ENSURE_SUCCESS (rv, rv);
+  }
+
+  if (aDataOut)
+    *aDataOut = data;
+  if (aLengthOut)
+    *aLengthOut = length;
+
+  return NS_OK;
 }
 

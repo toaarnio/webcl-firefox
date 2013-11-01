@@ -204,7 +204,7 @@ NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVari
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
   js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS_GetGlobalForScopeChain(cx), aBufferRegion, &jsVal);
+  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aBufferRegion, &jsVal);
   NS_ENSURE_SUCCESS (rv, rv);
 
   if (!jsVal.isObject())
@@ -214,7 +214,7 @@ NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVari
     return WEBCL_XPCOM_ERROR; //NS_ERROR_INVALID_ARG;
   }
 
-  JSObject* jsObj = jsVal.toObjectOrNull ();
+  JS::Rooted<JSObject*> jsObj (cx, jsVal.toObjectOrNull ());
   if (jsObj && js::IsObjectProxy (jsObj))
   {
     jsObj = js::GetProxyTargetObject (jsObj);
@@ -226,14 +226,14 @@ NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVari
     return NS_ERROR_INVALID_ARG;
   }
 
-  js::Value propOrigin;
+  JS::Rooted<js::Value> propOrigin (cx);
   if (!JS_LookupProperty (cx, jsObj, "origin", &propOrigin))
   {
     D_LOG (LOG_LEVEL_ERROR, "Failed to read origin property.");
     return NS_ERROR_INVALID_ARG;
   }
 
-  js::Value propSize;
+  JS::Rooted<js::Value> propSize (cx);
   if (!JS_LookupProperty (cx, jsObj, "size", &propSize))
   {
     D_LOG (LOG_LEVEL_ERROR, "Failed to read size property.");

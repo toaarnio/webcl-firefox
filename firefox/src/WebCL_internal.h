@@ -494,6 +494,10 @@ nsresult WEBCL_variantToOffset (JSContext* cx, nsIVariant* aVariant,
                                 nsTArray<size_t>& aOffsetOut);
 
 
+nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayVariant,
+                                  void** aDataOut, size_t* aLengthOut,
+                                  nsIXPConnectJSObjectHolder** aHolderOut = 0,
+                                  bool throwErrors = true);
 
 //==============================================================================
 

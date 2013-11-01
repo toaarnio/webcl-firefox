@@ -16,6 +16,7 @@
 #include "WebCL_internal.h"
 #include "WebCL_clwrapper.h"
 
+#include "nsISupportsImpl.h"
 #include "nsXPCOM.h"
 #include "nsError.h"
 #include "nsComponentManagerUtils.h"
@@ -311,7 +312,7 @@ private:
   nsIXPConnectJSObjectHolder* m_target;
 };
 
-NS_IMPL_THREADSAFE_ISUPPORTS1 (HolderReleaserRunnable, nsIRunnable);
+NS_IMPL_ISUPPORTS1 (HolderReleaserRunnable, nsIRunnable);
 
 NS_IMETHODIMP HolderReleaserRunnable::Run ()
 {
@@ -372,80 +373,6 @@ void CL_CALLBACK bufferDataHolderUnrefCb(cl_event event, cl_int event_command_ex
 
     free (user_data);
   }
-}
-
-
-static nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayVariant,
-                                         void** aDataOut, size_t* aLengthOut,
-                                         nsIXPConnectJSObjectHolder** aHolderOut = 0)
-{
-  D_METHOD_START;
-  NS_ENSURE_ARG_POINTER (cx);
-  NS_ENSURE_ARG_POINTER (aTypedArrayVariant);
-  NS_ENSURE_ARG_POINTER (aDataOut);
-  NS_ENSURE_ARG_POINTER (aLengthOut);
-
-  void* data = 0;
-  size_t length = 0;
-  nsresult rv;
-
-  PRUint16 variantType = 0;
-  rv = aTypedArrayVariant->GetDataType (&variantType);
-  if ( !(variantType == nsIDataType::VTYPE_INTERFACE
-         || variantType == nsIDataType::VTYPE_INTERFACE_IS))
-  {
-      D_LOG (LOG_LEVEL_ERROR, "Invalid variant type.");
-      WebCL_reportJSError (cx, "%s: Invalid typed array argument"
-                               "(variant type %d).", __FUNCTION__, variantType);
-      return NS_ERROR_INVALID_ARG;
-  }
-
-  NS_ENSURE_TRUE (cx, NS_ERROR_FAILURE);
-
-  nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
-  NS_ENSURE_SUCCESS (rv, rv);
-  js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS_GetGlobalForScopeChain(cx), aTypedArrayVariant, &jsVal);
-  NS_ENSURE_SUCCESS (rv, rv);
-
-  NS_ENSURE_TRUE (jsVal.isObject(), NS_ERROR_INVALID_ARG);
-
-  JSObject* jsObj = jsVal.toObjectOrNull();
-  if (jsObj && js::IsObjectProxy (jsObj))
-  {
-    jsObj = js::GetProxyTargetObject (jsObj);
-  }
-
-  if (!jsObj || !JS_IsTypedArrayObject (jsObj))
-  {
-    WebCL_reportJSError (cx, "%s: Invalid typed array argument (not typed array).",
-                         __FUNCTION__);
-    return NS_ERROR_INVALID_ARG;
-  }
-
-  data = JS_GetArrayBufferViewData (jsObj);
-  D_LOG (LOG_LEVEL_DEBUG, "TypedArray data pointer: %p", data);
-  if (!data)
-  {
-    D_LOG (LOG_LEVEL_ERROR, "Typed array has no data.");
-    WebCL_reportJSError (cx, "WebCLCommandQueue::enqueueWriteBuffer: Typed array has no data.");
-    return NS_ERROR_INVALID_ARG;
-  }
-  length = JS_GetArrayBufferViewByteLength (jsObj);
-  D_LOG (LOG_LEVEL_DEBUG, "TypedArray data length: %lu bytes", length);
-
-  if (aHolderOut)
-  {
-    rv = xpc->HoldObject (cx, jsObj, aHolderOut);
-    NS_ENSURE_SUCCESS (rv, rv);
-  }
-
-  if (aDataOut)
-    *aDataOut = data;
-  if (aLengthOut)
-    *aLengthOut = length;
-
-  return NS_OK;
 }
 
 

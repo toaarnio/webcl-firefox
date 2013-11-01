@@ -32,7 +32,7 @@
 static bool loadCLLibrary (WebCL_LibCL* instance, PRLibrary* libHndl);
 
 
-NS_IMPL_THREADSAFE_ISUPPORTS0(WebCL_LibCL)
+NS_IMPL_ISUPPORTS0(WebCL_LibCL)
 
 
 WebCL_LibCL::WebCL_LibCL ()
@@ -108,7 +108,7 @@ bool WebCL_LibCL::load (char const* aLibName, WebCL_LibCL** aInstanceOut,
       *aErrorMessageOut = "Invalid library name: \"\"";
     return false;
   }
-    
+
   char* systemName = 0;
   #ifdef __APPLE__
     systemName = "/System/Library/Frameworks/OpenCL.framework/OpenCL";
@@ -125,9 +125,9 @@ bool WebCL_LibCL::load (char const* aLibName, WebCL_LibCL** aInstanceOut,
   #ifndef __APPLE__
     PR_FreeLibraryName (systemName);
   #endif
-    
+
   char* errText = 0;
-    
+
   if (!libHndl)
   {
     // Perhaps PR_GetLibraryName failed?
@@ -300,7 +300,7 @@ static bool loadCLLibrary (WebCL_LibCL* instance, PRLibrary* libHndl)
   LOAD_CL_SYM (clGetGLTextureInfo, false)
   LOAD_CL_SYM (clEnqueueAcquireGLObjects, false)
   LOAD_CL_SYM (clEnqueueReleaseGLObjects, false)
-  
+
   #ifndef __APPLE__
     LOAD_CL_SYM (clGetGLContextInfoKHR, false)
   #endif

@@ -196,6 +196,58 @@ VARIANT_TO_CL_TYPE(cl_half, PRUint16, GetAsUint16, variantToCLHalf) // NOTE: cl_
 VARIANT_TO_CL_TYPE(cl_float, float, GetAsFloat, variantToCLFloat)
 VARIANT_TO_CL_TYPE(cl_double, double, GetAsDouble, variantToCLDouble)
 
+
+#define HANDLE_KERNEL_VECTOR_ARG(clType,variantType,variantGetter) \
+do { \
+  /* Let's see if it's a typed array we're given */ \
+  rv = variantTypedArrayToData (cx, aValue, &value, &sze, 0, false); \
+  bool okToFreeValue = false; \
+  /* NOTE: DO NOT FREE value IF IT COMES FROM TYPED ARRAY! */ \
+  if (NS_FAILED (rv)) \
+  { \
+    /* Not a typed array, try treating it as an array */ \
+    nsTArray<nsIVariant*> variants; \
+    rv = WebCL_getVariantsFromJSArray (cx, aValue, variants); \
+    if (NS_FAILED (rv)) \
+    { \
+      break; \
+    } \
+    \
+    value = (clType*)malloc (sze = sizeof (clType) * variants.Length()); \
+    if (!value) \
+    { \
+      rv = NS_ERROR_OUT_OF_MEMORY; \
+      break; \
+    } \
+    okToFreeValue = true; \
+    for (nsTArray<size_t>::index_type i = 0; i < variants.Length(); ++i) \
+    { \
+      variantType val; \
+      rv = variants[i]->variantGetter (&val); \
+      if (NS_FAILED (rv)) \
+      { \
+        break; \
+      } \
+      \
+      ((clType*)value)[i] = (clType)val; \
+    } \
+  } \
+  cl_int err = mWrapper->setKernelArg (mInternal, aIndex, sze, value); \
+  \
+  if (okToFreeValue) \
+  { \
+    if (value) \
+    { \
+      free (value); \
+    } \
+  } \
+  value = 0; \
+  \
+  ENSURE_LIB_WRAPPER_SUCCESS (mWrapper); \
+  ENSURE_CL_OP_SUCCESS (err); \
+  return NS_OK; \
+} while(0)
+
 /* void setKernelArg (in long aIndex, in nsIVariant aValue, [optional] in long aType); */
 NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRInt32 aType, JSContext *cx)
 {
@@ -383,18 +435,42 @@ NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRIn
 
     case types::BYTE_V:
     case types::CHAR_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_char, uint8_t, GetAsInt8);
+      break;
     case types::UCHAR_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_uchar, uint8_t, GetAsUint8);
+      break;
     case types::SHORT_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_short, int16_t, GetAsInt16);
+      break;
     case types::USHORT_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_ushort, uint16_t, GetAsUint16);
+      break;
     case types::CONTEXT_PROPERTIES:
     case types::INT_V:
-    case types::UINT_V:
-    case types::LONG_V:
-    case types::ULONG_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_int, int32_t, GetAsInt32);
+      break;
     case types::BOOL_V:
+    case types::UINT_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_uint, uint32_t, GetAsUint32);
+      break;
+    case types::LONG_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_long, int64_t, GetAsInt64);
+      break;
     case types::SIZE_T_V:
+    case types::ULONG_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_ulong, uint64_t, GetAsUint64);
+      break;
     case types::HALF_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_half, float, GetAsFloat);
+      break;
+    case types::DOUBLE_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_double, double, GetAsDouble);
+      break;
     case types::FLOAT_V:
+      HANDLE_KERNEL_VECTOR_ARG (cl_float, float, GetAsFloat);
+      break;
+    /*
     {
       PRUint16 variantType = 0;
       rv = aValue->GetDataType (&variantType);
@@ -423,10 +499,10 @@ NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRIn
       ENSURE_CL_OP_SUCCESS (wrErr);
       return NS_OK;
     }
+    */
 
-    case types::DOUBLE_V:
     case types::STRING_V:
-      D_LOG (LOG_LEVEL_ERROR, "Array types are not supported.");
+      D_LOG (LOG_LEVEL_ERROR, "String array types are not supported.");
       WebCL_reportJSError (cx, "WebCLKernel::setKernelArg: Array types are not supported.");
       return WEBCL_XPCOM_ERROR; //NS_ERROR_NOT_IMPLEMENTED;
 
