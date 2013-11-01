@@ -213,7 +213,7 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx,
 
   JS_BeginRequest (cx);
 
-  JSObject* jsArr = JS_NewArrayObject (cx, aVector.Length (), NULL);
+  JS::Rooted<JSObject*> jsArr (cx, JS_NewArrayObject (cx, aVector.Length (), NULL));
   if (!jsArr)
   {
     JS_EndRequest(cx);
@@ -237,10 +237,10 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx,
       // integers
       for (typename nsTArray<T>::index_type i = 0; i < aVector.Length(); ++i)
       {
-        js::Value val;
+        JS::Rooted<js::Value> val (cx);
         if (val.setNumber ((double)aVector[i]))
         {
-          JS_SetElement (cx, jsArr, cnt++, &val);
+          JS_SetElement (cx, jsArr, cnt++, val.address());
         }
         else
         {
@@ -253,9 +253,9 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx,
       // booleans
       for (typename nsTArray<T>::index_type i = 0; i < aVector.Length(); ++i)
       {
-        js::Value val;
+        JS::Rooted<js::Value> val (cx);
         val.setBoolean (aVector[i]);
-        JS_SetElement (cx, jsArr, cnt++, &val);
+        JS_SetElement (cx, jsArr, cnt++, val.address());
       }
       break;
     case types::FLOAT_V:
@@ -263,9 +263,9 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx,
       // floating points
       for (typename nsTArray<T>::index_type i = 0; i < aVector.Length(); ++i)
       {
-        js::Value val;
+        JS::Rooted<js::Value> val (cx);
         val.setDouble (aVector[i]);
-        JS_SetElement (cx, jsArr, cnt++, &val);
+        JS_SetElement (cx, jsArr, cnt++, val.address());
       }
       break;
     default: {
@@ -283,9 +283,9 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx,
 
   // Wrap the JSArray in an nsIVariant
   nsCOMPtr<nsIVariant> value;
-  js::Value jsValue;
+  JS::Rooted<js::Value> jsValue (cx);
   jsValue.setObject (*jsArr);
-  rv = xpc->JSValToVariant(cx, &jsValue, getter_AddRefs(value));
+  rv = xpc->JSValToVariant(cx, jsValue.address(), getter_AddRefs(value));
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ADDREF (*aResultOut = value);
@@ -641,11 +641,11 @@ nsresult variantTypedArrayToData (JSContext* cx, nsIVariant* aTypedArrayVariant,
       err = lib->infoFunc (internal, name, val); \
       if (CL_SUCCEEDED (err)) { \
         if (val == NULL) { \
-          js::Value jsValue = OBJECT_TO_JSVAL (0); \
+          JS::Rooted<js::Value> jsValue (cx, OBJECT_TO_JSVAL (0)); \
           nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv); \
           if (NS_SUCCEEDED (rv)) { \
             nsCOMPtr<nsIVariant> v; \
-            rv = xpc->JSValToVariant(cx, &jsValue, getter_AddRefs(v)); \
+            rv = xpc->JSValToVariant(cx, jsValue.address(), getter_AddRefs(v)); \
             if (NS_SUCCEEDED (rv)) { \
               rv = variant->SetFromVariant (v); \
             } \

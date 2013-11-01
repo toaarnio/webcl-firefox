@@ -203,8 +203,8 @@ NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVari
 
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
-  js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aBufferRegion, &jsVal);
+  JS::Rooted<js::Value> jsVal (cx);
+  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aBufferRegion, jsVal.address());
   NS_ENSURE_SUCCESS (rv, rv);
 
   if (!jsVal.isObject())
@@ -217,7 +217,7 @@ NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVari
   JS::Rooted<JSObject*> jsObj (cx, jsVal.toObjectOrNull ());
   if (jsObj && js::IsObjectProxy (jsObj))
   {
-    jsObj = js::GetProxyTargetObject (jsObj);
+    jsObj = JS::Rooted<JSObject*> (cx, js::GetProxyTargetObject (jsObj));
   }
 
   if (!jsObj)

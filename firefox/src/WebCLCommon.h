@@ -248,7 +248,7 @@ WEBCL_SECURITY_CHECKED_CANSETPROPERTY_IMPL (cname)
         NS_ADDREF (*_retval = mAttachment); \
       } else { \
         nsCOMPtr<nsIVariant> tmp; \
-        js::Value val; \
+        JS::Rooted<js::Value> val (cx); \
         val.setObjectOrNull (0); \
         nsresult rv = NS_OK; \
         nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv); \

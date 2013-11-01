@@ -127,7 +127,7 @@ nsresult WebCL_createTypesObject (JSContext *cx, nsIVariant** aResultOut)
 
   JS_BeginRequest (cx);
 
-  JSObject* jsObj = JS_NewObject (cx, NULL, NULL, NULL);
+  JS::Rooted<JSObject*> jsObj (cx, JS_NewObject (cx, NULL, NULL, NULL));
 
   if (jsObj)
   {
@@ -143,7 +143,7 @@ nsresult WebCL_createTypesObject (JSContext *cx, nsIVariant** aResultOut)
       }
     }
 
-    js::Value objVal;
+    JS::Rooted<js::Value> objVal (cx);
     objVal.setObjectOrNull (jsObj);
     rv = xpc->JSToVariant (cx, objVal, getter_AddRefs (res));
 
@@ -179,31 +179,31 @@ nsresult WebCL_createVersionObject (JSContext *cx, nsIVariant** aResultOut)
 
   JS_BeginRequest (cx);
 
-  JSObject* jsArr = JS_NewArrayObject (cx, 4, NULL);
+  JS::Rooted<JSObject*> jsArr (cx, JS_NewArrayObject (cx, 4, NULL));
   if (!jsArr)
   {
     JS_EndRequest(cx);
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  js::Value val;
+  JS::Rooted<js::Value> val (cx);
 
   val.setNumber ((double)WEBCL_VERSION_MAJOR);
-  JS_SetElement (cx, jsArr, 0, &val);
+  JS_SetElement (cx, jsArr, 0, val.address());
   val.setNumber ((double)WEBCL_VERSION_MINOR);
-  JS_SetElement (cx, jsArr, 1, &val);
+  JS_SetElement (cx, jsArr, 1, val.address());
   val.setNumber ((double)WEBCL_VERSION_RELEASE);
-  JS_SetElement (cx, jsArr, 2, &val);
+  JS_SetElement (cx, jsArr, 2, val.address());
 //  nsCString buildDate = WEBCL_BUILD_DATE;
-  val = STRING_TO_JSVAL (JS_NewStringCopyZ (cx, (char const*)WEBCL_BUILD_DATE));
-  JS_SetElement (cx, jsArr, 3, &val);
+  val = JS::Rooted<js::Value>(cx, STRING_TO_JSVAL (JS_NewStringCopyZ (cx, (char const*)WEBCL_BUILD_DATE)));
+  JS_SetElement (cx, jsArr, 3, val.address());
 
   JS_EndRequest(cx);
 
   nsCOMPtr<nsIVariant> value;
-  js::Value jsValue;
+  JS::Rooted<js::Value> jsValue (cx);
   jsValue.setObject (*jsArr);
-  rv = xpc->JSValToVariant(cx, &jsValue, getter_AddRefs(value));
+  rv = xpc->JSValToVariant(cx, jsValue.address(), getter_AddRefs(value));
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ADDREF (*aResultOut = value);
@@ -278,18 +278,18 @@ nsresult WebCL_reportJSError (JSContext* cx, char const* aMsg, ...)
   // JS_SetPendingException NOTE: caller must return with NS_OK or we'll just
   //                              get the usual MOZ exception msg
   {
-    JSString *str = JS_NewStringCopyZ(cx, msgBuf);
+    JS::Rooted<JSString *str> (cx, JS_NewStringCopyZ(cx, msgBuf));
     JS_SetPendingException (cx, STRING_TO_JSVAL(str));
     JS_ReportPendingException (cx);
 
     //JSErrorReport* report = JS_ErrorFromException (cx, STRING_TO_JSVAL(str));
-    jsval expVal;
+    JS::Rooted<js::Value> expVal (cx);
     if (JS_GetPendingException (cx, &expVal))
     {
       JSErrorReport* report = JS_ErrorFromException (cx, expVal);
       fprintf(stderr, "report: %p\n", (void*)report);
       if (report)
-        JS_ThrowReportedError (cx, "Fooooools!", report);
+        JS_ThrowReportedError (cx, "ErrorReport!", report);
     }
   }
   // TODO: Figure out a way to throw real JS exceptions with
@@ -379,8 +379,8 @@ nsresult WebCL_getVariantsFromJSArray (JSContext *cx, nsIVariant* aVariant,
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
 
-  js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aVariant, &jsVal);
+  JS::Rooted<js::Value> jsVal (cx);
+  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aVariant, jsVal.address());
   NS_ENSURE_SUCCESS (rv, rv);
 
   if ( !jsVal.isObject ())
@@ -389,10 +389,10 @@ nsresult WebCL_getVariantsFromJSArray (JSContext *cx, nsIVariant* aVariant,
     return NS_ERROR_INVALID_ARG;
   }
 
-  JSObject* jsArrObj = jsVal.toObjectOrNull ();
+  JS::Rooted<JSObject*> jsArrObj (cx, jsVal.toObjectOrNull ());
   if (jsArrObj && js::IsObjectProxy (jsArrObj))
   {
-    jsArrObj = js::GetProxyTargetObject (jsArrObj);
+    jsArrObj = JS::Rooted<JSObject*> (cx, js::GetProxyTargetObject (jsArrObj));
   }
 
   if (!jsArrObj || !JS_IsArrayObject (cx, jsArrObj))
@@ -405,7 +405,7 @@ nsresult WebCL_getVariantsFromJSArray (JSContext *cx, nsIVariant* aVariant,
 
   JS_BeginRequest (cx);
 
-  JSBool ok = JS_TRUE;
+  JS::Rooted<JSBool> ok (cx, JS_TRUE);
   uint32_t jsArrLen = 0;
   ok = JS_GetArrayLength(cx, jsArrObj, &jsArrLen);
   if (!ok)
@@ -419,12 +419,12 @@ nsresult WebCL_getVariantsFromJSArray (JSContext *cx, nsIVariant* aVariant,
 
   for (uint32_t i = 0; i < jsArrLen; ++i)
   {
-    jsval elem;
-    JSBool ok = JS_GetElement (cx, jsArrObj, i, &elem);
+    JS::Rooted<js::Value> elem (cx);
+    JS::Rooted <JSBool> ok (cx, JS_GetElement (cx, jsArrObj, i, elem.address()));
     if (ok)
     {
       nsCOMPtr<nsIVariant> variant;
-      rv = xpc->JSValToVariant (cx, &elem, getter_AddRefs(variant));
+      rv = xpc->JSValToVariant (cx, elem.address(), getter_AddRefs(variant));
       if (NS_SUCCEEDED (rv))
       {
         res.AppendElement (variant);
@@ -496,7 +496,7 @@ nsresult WebCL_convertVectorToJSArrayInVariant_string(JSContext *cx,
 
   JS_BeginRequest (cx);
 
-  JSObject* jsArr = JS_NewArrayObject (cx, aVector.Length (), NULL);
+  JS::Rooted<JSObject*> jsArr (cx, JS_NewArrayObject (cx, aVector.Length (), NULL));
   if (!jsArr)
   {
     JS_EndRequest(cx);
@@ -506,17 +506,17 @@ nsresult WebCL_convertVectorToJSArrayInVariant_string(JSContext *cx,
   size_t cnt = 0;
   for (nsTArray<nsCString>::index_type i = 0; i < aVector.Length(); ++i)
   {
-    jsval val = STRING_TO_JSVAL (JS_NewStringCopyZ (cx, aVector[i].get ()));
-    JS_SetElement (cx, jsArr, cnt++, &val);
+    JS::Rooted<js::Value> val (cx, STRING_TO_JSVAL (JS_NewStringCopyZ (cx, aVector[i].get ())));
+    JS_SetElement (cx, jsArr, cnt++, val.address());
   }
 
   JS_EndRequest(cx);
 
   // Wrap the JSArray in an nsIVariant
   nsCOMPtr<nsIVariant> value;
-  js::Value jsValue;
+  JS::Rooted<js::Value> jsValue (cx);
   jsValue.setObjectOrNull (jsArr);
-  rv = xpc->JSValToVariant(cx, &jsValue, getter_AddRefs(value));
+  rv = xpc->JSValToVariant(cx, jsValue.address(), getter_AddRefs(value));
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ADDREF (*aResultOut = value);
@@ -540,7 +540,7 @@ nsresult WebCL_convertVectorToJSArrayInVariant_##C (JSContext *cx,nsTArray<T> co
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv); \
   NS_ENSURE_SUCCESS (rv, rv); \
   JS_BeginRequest (cx); \
-  JSObject* jsArr = JS_NewArrayObject (cx, aVector.Length (), NULL); \
+  JS::Rooted<JSObject*> jsArr (cx, JS_NewArrayObject (cx, aVector.Length (), NULL)); \
   if (!jsArr) { \
     JS_EndRequest(cx); \
     return NS_ERROR_OUT_OF_MEMORY; \
@@ -552,21 +552,21 @@ nsresult WebCL_convertVectorToJSArrayInVariant_##C (JSContext *cx,nsTArray<T> co
     rv = C::getInstance (aVector[i], getter_AddRefs(xpcObj), aLibWrapper); \
     if (NS_FAILED (rv)) \
       break; \
-    jsval val; \
+    JS::Rooted<js::Value> val (cx); \
     const nsIID iid = NS_GET_IID (I##C); \
-    rv = xpc->WrapNativeToJSVal (cx, JS::CurrentGlobalOrNull(cx), xpcObj, 0, &iid, JS_TRUE, &val, 0); \
+    rv = xpc->WrapNativeToJSVal (cx, JS::CurrentGlobalOrNull(cx), xpcObj, 0, &iid, JS_TRUE, val.address(), 0); \
     if (NS_FAILED (rv)) \
       break; \
-    JS_SetElement (cx, jsArr, cnt++, &val); \
+    JS_SetElement (cx, jsArr, cnt++, val.address()); \
   } \
   JS_EndRequest(cx); \
   if (NS_FAILED (rv)) \
     return rv; \
   /* Wrap the JSArray in an nsIVariant */ \
   nsCOMPtr<nsIVariant> value; \
-  js::Value jsValue; \
+  JS::Rooted<js::Value> jsValue (cx); \
   jsValue.setObjectOrNull (jsArr); \
-  rv = xpc->JSValToVariant(cx, &jsValue, getter_AddRefs(value)); \
+  rv = xpc->JSValToVariant(cx, jsValue.address(), getter_AddRefs(value)); \
   NS_ENSURE_SUCCESS (rv, rv); \
   NS_ADDREF (*aResultOut = value); \
   return NS_OK; \
@@ -597,7 +597,7 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx, nsTArray<cl_image_
 
   JS_BeginRequest (cx);
 
-  JSObject* jsArr = JS_NewArrayObject (cx, aVector.Length (), NULL);
+  JS::Rooted<JSObject*> jsArr (cx, JS_NewArrayObject (cx, aVector.Length (), NULL));
   if (!jsArr)
   {
     JS_EndRequest(cx);
@@ -607,7 +607,7 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx, nsTArray<cl_image_
   size_t cnt = 0;
   for (nsTArray<cl_image_format>::index_type i = 0; i < aVector.Length(); ++i)
   {
-    JSObject* jsObj = JS_NewObject (cx, NULL, NULL, NULL);
+    JS::Rooted<JSObject*> jsObj (cx, JS_NewObject (cx, NULL, NULL, NULL));
     if (jsObj)
     {
       JS::Rooted<js::Value> propChannelOrder (cx);
@@ -619,9 +619,9 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx, nsTArray<cl_image_
       JS_SetProperty(cx, jsObj, "image_channel_order", propChannelOrder);
       JS_SetProperty(cx, jsObj, "image_channel_data_type", propChannelDataType);
 
-      js::Value objVal;
+      JS::Rooted<js::Value> objVal (cx);
       objVal.setObjectOrNull (jsObj);
-      JS_SetElement (cx, jsArr, cnt++, &objVal);
+      JS_SetElement (cx, jsArr, cnt++, objVal.address());
     }
   }
 
@@ -631,9 +631,9 @@ nsresult WebCL_convertVectorToJSArrayInVariant(JSContext *cx, nsTArray<cl_image_
 
   // Wrap the JSArray in an nsIVariant
   nsCOMPtr<nsIVariant> value;
-  js::Value jsValue;
+  JS::Rooted<js::Value> jsValue (cx);
   jsValue.setObjectOrNull (jsArr);
-  rv = xpc->JSValToVariant(cx, &jsValue, getter_AddRefs(value));
+  rv = xpc->JSValToVariant(cx, jsValue.address(), getter_AddRefs(value));
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ADDREF (*aResultOut = value);
@@ -648,7 +648,7 @@ nsresult WebCL_variantToJSObject (JSContext* aCx, nsIVariant* aVariant, JSObject
   NS_ENSURE_ARG_POINTER (aVariant);
   NS_ENSURE_ARG_POINTER (aResultOut);
   nsresult rv;
-  JSObject* res = 0;
+  JS::Rooted<JSObject*> res (aCx, 0);
 
   PRUint16 variantType = 0;
   rv = aVariant->GetDataType (&variantType);
@@ -662,16 +662,16 @@ nsresult WebCL_variantToJSObject (JSContext* aCx, nsIVariant* aVariant, JSObject
 
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
-  js::Value jsVal;
-  rv = xpc->VariantToJS(aCx, JS::CurrentGlobalOrNull(aCx), aVariant, &jsVal);
+  JS::Rooted<js::Value> jsVal (aCx);
+  rv = xpc->VariantToJS(aCx, JS::CurrentGlobalOrNull(aCx), aVariant, jsVal.address());
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ENSURE_TRUE (jsVal.isObject(), NS_ERROR_INVALID_ARG);
 
-  res = jsVal.toObjectOrNull ();
+  res = JS::Rooted<JSObject*> (aCx, jsVal.toObjectOrNull ());
   if (res && js::IsObjectProxy (res))
   {
-    res = js::GetProxyTargetObject (res);
+    res = JS::Rooted<JSObject*> (aCx, js::GetProxyTargetObject (res));
   }
   NS_ENSURE_TRUE (res, NS_ERROR_INVALID_ARG);
 
@@ -698,8 +698,8 @@ nsresult WebCL_variantToImageFormat (JSContext *cx, nsIVariant* aVariant, cl_ima
 
   nsCOMPtr<nsIXPConnect> xpc = do_GetService (nsIXPConnect::GetCID (), &rv);
   NS_ENSURE_SUCCESS (rv, rv);
-  js::Value jsVal;
-  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aVariant, &jsVal);
+  JS::Rooted<js::Value> jsVal (cx);
+  rv = xpc->VariantToJS(cx, JS::CurrentGlobalOrNull(cx), aVariant, jsVal.address ());
   NS_ENSURE_SUCCESS (rv, rv);
 
   NS_ENSURE_TRUE (jsVal.isObject (), NS_ERROR_INVALID_ARG);
@@ -708,7 +708,7 @@ nsresult WebCL_variantToImageFormat (JSContext *cx, nsIVariant* aVariant, cl_ima
   JS::Rooted<JSObject*> jsObj (cx, jsVal.toObjectOrNull ());
   if (jsObj && js::IsObjectProxy (jsObj))
   {
-    jsObj = js::GetProxyTargetObject (jsObj);
+    jsObj = JS::Rooted<JSObject*> (cx, js::GetProxyTargetObject (jsObj));
   }
   if (!jsObj)
   {
@@ -770,7 +770,7 @@ nsresult WebCL_imageFormatToVariant (JSContext *cx, cl_image_format const& aImag
         && JS_SetProperty(cx, jsObj, "image_channel_data_type", propChannelDataType) )
     {
 
-      js::Value objVal;
+      JS::Rooted<js::Value> objVal (cx);
       objVal.setObjectOrNull (jsObj);
       rv = xpc->JSToVariant (cx, objVal, getter_AddRefs (res));
 
