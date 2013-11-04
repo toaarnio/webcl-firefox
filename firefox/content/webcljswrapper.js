@@ -567,7 +567,20 @@
       // from the kernel validator or OpenCL 1.2.
 
       if (type === undefined) {
-        return this.setArgInternal(index, arg);
+
+        var basetypes = {
+          'Int8Array' : WebCL.types.CHAR_V,
+          'Int16Array' : WebCL.types.SHORT_V,
+          'Int32Array' : WebCL.types.INT_V,
+          'Uint8Array' : WebCL.types.UCHAR_V,
+          'Uint16Array' : WebCL.types.USHORT_V,
+          'Uint32Array' : WebCL.types.UINT_V,
+          'Float32Array' : WebCL.types.FLOAT_V,
+          'Float64Array' : WebCL.types.DOUBLE_V,
+        };
+
+        var basetype = basetypes[arg.toString().slice(8, -1)];
+        return this.setArgInternal(index, arg, basetype);
       }
     }
   }
