@@ -19,7 +19,7 @@ endif
 
 
 # Gecko
-GECKO_DEFINES = -DXPCOM_GLUE -DXPCOM_GLUE_USE_NSPR -DJS_NO_JSVAL_JSID_STRUCT_TYPES -D__STDC_LIMIT_MACROS
+GECKO_DEFINES = -DJS_NO_JSVAL_JSID_STRUCT_TYPES -D__STDC_LIMIT_MACROS
 GECKO_INCLUDES = -I$(REAL_SDK_PATH)/include -I$(REAL_SDK_PATH)/include/nspr
 GECKO_CXXFLAGS = -Wformat -Os -shared -fPIC \
  -fno-exceptions -fno-strict-aliasing \
@@ -30,7 +30,7 @@ GECKO_CXXFLAGS = -Wformat -Os -shared -fPIC \
 GECKO_LDFLAGS = -F$(REAL_SDK_PATH)/bin -L$(REAL_SDK_PATH)/lib \
   -framework XUL \
   -shared -fPIC -pthread -pipe \
-  -lnss3 -lxpcomglue -lxpcomglue_s_nomozalloc \
+  -lnss3 -lxpcomglue_s -lmozalloc \
   
 #-Wl,-Bsymbolic -Wl,-z,defs \
 #-ldl -lm
