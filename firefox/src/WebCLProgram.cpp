@@ -112,9 +112,10 @@ int WebCLProgram::getTypeForInfoName (int aName)
 NS_IMETHODIMP WebCLProgram::GetProgramInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)
@@ -188,10 +189,11 @@ NS_IMETHODIMP WebCLProgram::GetProgramInfo(PRInt32 aName, JSContext *cx, nsIVari
 NS_IMETHODIMP WebCLProgram::GetProgramBuildInfo(nsISupports* aDevice, PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aDevice);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)
@@ -222,6 +224,7 @@ NS_IMETHODIMP WebCLProgram::GetProgramBuildInfo(nsISupports* aDevice, PRInt32 aN
 NS_IMETHODIMP WebCLProgram::BuildProgram(nsIVariant *aDevices, const char *aOptions, JSContext *cx)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aDevices);
   NS_ENSURE_ARG_POINTER (cx);
   nsresult rv;
@@ -248,6 +251,7 @@ NS_IMETHODIMP WebCLProgram::BuildProgram(nsIVariant *aDevices, const char *aOpti
 NS_IMETHODIMP WebCLProgram::CreateKernel(const char *aKernelName, JSContext *cx, IWebCLKernel **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
@@ -271,6 +275,7 @@ NS_IMETHODIMP WebCLProgram::CreateKernel(const char *aKernelName, JSContext *cx,
 NS_IMETHODIMP WebCLProgram::CreateKernelsInProgram(JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;

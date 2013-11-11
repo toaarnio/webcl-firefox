@@ -127,9 +127,10 @@ int WebCLMemoryObject::getTypeForInfoName (int aName)
 NS_IMETHODIMP WebCLMemoryObject::GetMemObjectInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)
@@ -156,9 +157,10 @@ NS_IMETHODIMP WebCLMemoryObject::GetMemObjectInfo(PRInt32 aName, JSContext *cx, 
 NS_IMETHODIMP WebCLMemoryObject::GetImageInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)
@@ -185,9 +187,11 @@ NS_IMETHODIMP WebCLMemoryObject::GetImageInfo(PRInt32 aName, JSContext *cx, nsIV
 NS_IMETHODIMP WebCLMemoryObject::CreateSubBuffer(T_WebCLMemFlags aFlags, nsIVariant *aBufferRegion, JSContext *cx, IWebCLMemoryObject **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aBufferRegion);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   // The variant must be an object
   PRUint16 variantType = 0;
   rv = aBufferRegion->GetDataType (&variantType);

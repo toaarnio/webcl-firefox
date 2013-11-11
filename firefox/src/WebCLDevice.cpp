@@ -146,6 +146,7 @@ int WebCLDevice::getTypeForInfoName (int aName)
 NS_IMETHODIMP WebCLDevice::GetDeviceInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
 
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;

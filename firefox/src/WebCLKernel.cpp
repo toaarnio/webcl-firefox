@@ -111,9 +111,10 @@ int WebCLKernel::getTypeForInfoName (int aName)
 NS_IMETHODIMP WebCLKernel::GetKernelInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)
@@ -140,10 +141,11 @@ NS_IMETHODIMP WebCLKernel::GetKernelInfo(PRInt32 aName, JSContext *cx, nsIVarian
 NS_IMETHODIMP WebCLKernel::GetKernelWorkGroupInfo(nsISupports *aDevice, PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aDevice);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)
@@ -256,6 +258,7 @@ do { \
 NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRInt32 aType, JSContext *cx)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aValue);
   NS_ENSURE_ARG_POINTER (cx);
   nsresult rv = NS_OK;
@@ -686,6 +689,7 @@ NS_IMETHODIMP WebCLKernel::SetKernelArg(PRInt32 aIndex, nsIVariant *aValue, PRIn
 NS_IMETHODIMP WebCLKernel::SetKernelArgLocal(PRInt32 aIndex, PRUint32 aSize, JSContext *cx)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   nsresult rv = NS_OK;
   NS_ENSURE_ARG_POINTER (cx);
 

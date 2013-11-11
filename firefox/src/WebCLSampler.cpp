@@ -102,9 +102,10 @@ int WebCLSampler::getTypeForInfoName (int aName)
 NS_IMETHODIMP WebCLSampler::GetSamplerInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)

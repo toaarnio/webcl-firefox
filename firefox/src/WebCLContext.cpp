@@ -100,6 +100,7 @@ int WebCLContext::getTypeForInfoName (int aName) {
 NS_IMETHODIMP WebCLContext::GetContextInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
 
@@ -129,6 +130,7 @@ NS_IMETHODIMP WebCLContext::GetContextInfo(PRInt32 aName, JSContext *cx, nsIVari
 NS_IMETHODIMP WebCLContext::CreateProgramWithSource(const char *aSource, JSContext *cx, IWebCLProgram **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aSource);
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
@@ -154,6 +156,7 @@ NS_IMETHODIMP WebCLContext::CreateProgramWithSource(const char *aSource, JSConte
 NS_IMETHODIMP WebCLContext::CreateProgramWithBinary(nsIVariant *aDeviceArray, nsIVariant *aBinaryArray, JSContext *cx, IWebCLProgram **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aDeviceArray);
   NS_ENSURE_ARG_POINTER (aBinaryArray);
   NS_ENSURE_ARG_POINTER (cx);
@@ -242,6 +245,7 @@ NS_IMETHODIMP WebCLContext::CreateProgramWithBinary(nsIVariant *aDeviceArray, ns
 NS_IMETHODIMP WebCLContext::CreateCommandQueue(nsISupports *aDevice, T_WebCLCommandQueueProperties aProperties, JSContext *cx, IWebCLCommandQueue **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
@@ -269,6 +273,7 @@ NS_IMETHODIMP WebCLContext::CreateCommandQueue(nsISupports *aDevice, T_WebCLComm
 NS_IMETHODIMP WebCLContext::CreateBuffer(T_WebCLMemFlags aFlags, T_WebCLSize aSize, JSContext *cx, IWebCLMemoryObject **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
@@ -292,6 +297,7 @@ NS_IMETHODIMP WebCLContext::CreateBuffer(T_WebCLMemFlags aFlags, T_WebCLSize aSi
 NS_IMETHODIMP WebCLContext::CreateImage2D(T_WebCLMemFlags aFlags, nsIVariant *aImageFormat, T_WebCLSize aWidth, T_WebCLSize aHeight, T_WebCLSize aRowPitch, JSContext *cx, IWebCLMemoryObject **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
@@ -320,6 +326,7 @@ NS_IMETHODIMP WebCLContext::CreateImage2D(T_WebCLMemFlags aFlags, nsIVariant *aI
 NS_IMETHODIMP WebCLContext::CreateImage3D(T_WebCLMemFlags aFlags, nsIVariant *aImageFormat, T_WebCLSize aWidth, T_WebCLSize aHeight, T_WebCLSize aDepth, T_WebCLSize aRowPitch, T_WebCLSize aSlicePitch, JSContext *cx, IWebCLMemoryObject **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
@@ -349,6 +356,7 @@ NS_IMETHODIMP WebCLContext::CreateImage3D(T_WebCLMemFlags aFlags, nsIVariant *aI
 NS_IMETHODIMP WebCLContext::CreateSampler(bool aNormalizedCoords, T_WebCLAddressingMode aAddressingMode, T_WebCLFilterMode aFilterMode, JSContext *cx, IWebCLSampler **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
@@ -373,6 +381,7 @@ NS_IMETHODIMP WebCLContext::CreateSampler(bool aNormalizedCoords, T_WebCLAddress
 NS_IMETHODIMP WebCLContext::GetSupportedImageFormats(T_WebCLMemFlags aFlags, T_WebCLMemObjectType aImageType, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
@@ -397,6 +406,7 @@ NS_IMETHODIMP WebCLContext::GetSupportedImageFormats(T_WebCLMemFlags aFlags, T_W
 NS_IMETHODIMP WebCLContext::CreateUserEvent(JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;

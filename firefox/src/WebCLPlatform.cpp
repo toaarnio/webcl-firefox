@@ -96,9 +96,10 @@ int WebCLPlatform::getTypeForInfoName (int aName)
 NS_IMETHODIMP WebCLPlatform::GetPlatformInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)
@@ -132,6 +133,7 @@ NS_IMETHODIMP WebCLPlatform::GetDeviceIDs(T_WebCLDeviceType aType, JSContext *cx
 NS_IMETHODIMP WebCLPlatform::GetDevices(T_WebCLDeviceType aType, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
 

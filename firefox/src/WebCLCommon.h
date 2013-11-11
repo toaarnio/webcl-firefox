@@ -264,4 +264,8 @@ WEBCL_SECURITY_CHECKED_CANSETPROPERTY_IMPL (cname)
   do{ NS_IF_RELEASE(mAttachment); }while(0)
 
 
+#define WEBCL_ENSURE_INTERNAL() \
+  do{ if(!(mWrapper && mInternal)) return NS_ERROR_NOT_IMPLEMENTED; }while(0)
+
+
 #endif /* _WEBCLCOMMON_H_ */

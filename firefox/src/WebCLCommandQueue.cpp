@@ -97,6 +97,7 @@ WebCLCommandQueue::~WebCLCommandQueue()
 int WebCLCommandQueue::getTypeForInfoName (int aName)
 {
   D_METHOD_START;
+
   switch (aName)
   {
     case CL_QUEUE_CONTEXT: return types::CONTEXT;
@@ -113,7 +114,7 @@ int WebCLCommandQueue::getTypeForInfoName (int aName)
 NS_IMETHODIMP WebCLCommandQueue::GetCommandQueueInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
   cl_int err = CL_SUCCESS;
@@ -142,6 +143,7 @@ NS_IMETHODIMP WebCLCommandQueue::GetCommandQueueInfo(PRInt32 aName, JSContext *c
 NS_IMETHODIMP WebCLCommandQueue::EnqueueNDRangeKernel(nsISupports *aKernel, PRUint32 aWorkDim, nsIVariant *aGlobalWorkOffset, nsIVariant *aGlobalWorkSize, nsIVariant *aLocalWorkSize, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aKernel);
   NS_ENSURE_ARG_POINTER (aGlobalWorkOffset);
   NS_ENSURE_ARG_POINTER (aGlobalWorkSize);
@@ -264,6 +266,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueNDRangeKernel(nsISupports *aKernel, PRUi
 NS_IMETHODIMP WebCLCommandQueue::EnqueueTask(nsISupports *aKernel, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aKernel);
   NS_ENSURE_ARG_POINTER (aEventWaitList);
   NS_ENSURE_ARG_POINTER (cx);
@@ -380,6 +383,7 @@ void CL_CALLBACK bufferDataHolderUnrefCb(cl_event event, cl_int event_command_ex
 NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBuffer(nsISupports *aBuffer, bool aBlockingWrite, T_WebCLSize aOffset, T_WebCLSize aSize, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aBuffer);
   NS_ENSURE_ARG_POINTER (aData);
   NS_ENSURE_ARG_POINTER (aEventWaitList);
@@ -474,6 +478,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBuffer(nsISupports *aBuffer, bool a
 NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBuffer(nsISupports *aBuffer, bool aBlockingRead, T_WebCLSize aOffset, T_WebCLSize aSize, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aBuffer);
   NS_ENSURE_ARG_POINTER (aData);
   NS_ENSURE_ARG_POINTER (aEventWaitList);
@@ -561,6 +566,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBuffer(nsISupports *aBuffer, bool aB
 NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBufferRect(nsISupports *aBuffer, bool aBlockingWrite, nsIVariant *aBufferOrigin, nsIVariant *aHostOrigin, nsIVariant *aRegion, T_WebCLSize aBufferRowPitch, T_WebCLSize aBufferSlicePitch, T_WebCLSize aHostRowPitch, T_WebCLSize aHostSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aBuffer);
   NS_ENSURE_ARG_POINTER (aBufferOrigin);
   NS_ENSURE_ARG_POINTER (aHostOrigin);
@@ -699,6 +705,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteBufferRect(nsISupports *aBuffer, bo
 NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBufferRect(nsISupports *aBuffer, bool aBlockingRead, nsIVariant *aBufferOrigin, nsIVariant *aHostOrigin, nsIVariant *aRegion, T_WebCLSize aBufferRowPitch, T_WebCLSize aBufferSlicePitch, T_WebCLSize aHostRowPitch, T_WebCLSize aHostSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aBuffer);
   NS_ENSURE_ARG_POINTER (aBufferOrigin);
   NS_ENSURE_ARG_POINTER (aHostOrigin);
@@ -837,6 +844,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadBufferRect(nsISupports *aBuffer, boo
 NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteImage(nsISupports *aImage, bool aBlockingWrite, nsIVariant *aOrigin, nsIVariant *aRegion, T_WebCLSize aInputRowPitch, T_WebCLSize aInputSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aImage);
   NS_ENSURE_ARG_POINTER (aOrigin);
   NS_ENSURE_ARG_POINTER (aRegion);
@@ -975,6 +983,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWriteImage(nsISupports *aImage, bool aBl
 NS_IMETHODIMP WebCLCommandQueue::EnqueueReadImage(nsISupports *aImage, bool aBlockingRead, nsIVariant *aOrigin, nsIVariant *aRegion, T_WebCLSize aRowPitch, T_WebCLSize aSlicePitch, nsIVariant *aData, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aImage);
   NS_ENSURE_ARG_POINTER (aOrigin);
   NS_ENSURE_ARG_POINTER (aRegion);
@@ -1113,6 +1122,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueReadImage(nsISupports *aImage, bool aBlo
 NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImage(nsISupports *aSrcImage, nsISupports *aDstImage, nsIVariant *aSrcOrigin, nsIVariant *aDstOrigin, nsIVariant *aRegion, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aSrcImage);
   NS_ENSURE_ARG_POINTER (aDstImage);
   NS_ENSURE_ARG_POINTER (aSrcOrigin);
@@ -1190,6 +1200,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImage(nsISupports *aSrcImage, nsISup
 NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImageToBuffer(nsISupports *aSrcImage, nsISupports *aDstBuffer, nsIVariant *aSrcOrigin, nsIVariant *aRegion, T_WebCLSize aDstOffset, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aSrcImage);
   NS_ENSURE_ARG_POINTER (aDstBuffer);
   NS_ENSURE_ARG_POINTER (aSrcOrigin);
@@ -1258,6 +1269,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyImageToBuffer(nsISupports *aSrcImage
 NS_IMETHODIMP WebCLCommandQueue::EnqueueCopyBufferToImage(nsISupports *aSrcBuffer, nsISupports *aDstImage, T_WebCLSize aSrcOffset, nsIVariant *aDstOrigin, nsIVariant *aRegion, nsIVariant *aEventWaitList, JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aSrcBuffer);
   NS_ENSURE_ARG_POINTER (aDstImage);
   NS_ENSURE_ARG_POINTER (aDstOrigin);
@@ -1364,6 +1376,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueUnmapMemObject(nsISupports *aMemObject, 
 NS_IMETHODIMP WebCLCommandQueue::EnqueueMarker(JSContext *cx, IWebCLEvent **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
   nsresult rv;
 
@@ -1386,6 +1399,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueMarker(JSContext *cx, IWebCLEvent **_ret
 NS_IMETHODIMP WebCLCommandQueue::EnqueueWaitForEvents(nsIVariant *aEventWaitList, JSContext *cx)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (aEventWaitList);
   NS_ENSURE_ARG_POINTER (cx);
   nsresult rv;
@@ -1412,6 +1426,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueWaitForEvents(nsIVariant *aEventWaitList
 NS_IMETHODIMP WebCLCommandQueue::EnqueueBarrier(JSContext *cx)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
 
   cl_int err = mWrapper->enqueueBarrier (mInternal);
@@ -1426,6 +1441,7 @@ NS_IMETHODIMP WebCLCommandQueue::EnqueueBarrier(JSContext *cx)
 NS_IMETHODIMP WebCLCommandQueue::Flush(JSContext *cx)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
 
   cl_int err = mWrapper->flush (mInternal);
@@ -1440,6 +1456,7 @@ NS_IMETHODIMP WebCLCommandQueue::Flush(JSContext *cx)
 NS_IMETHODIMP WebCLCommandQueue::Finish(JSContext *cx)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
 
   cl_int err = mWrapper->finish (mInternal);

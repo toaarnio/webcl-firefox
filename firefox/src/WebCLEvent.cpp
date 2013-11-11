@@ -109,9 +109,10 @@ int WebCLEvent::getTypeForInfoName (int aName)
 NS_IMETHODIMP WebCLEvent::GetEventInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
-
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
+
   cl_int err = CL_SUCCESS;
   int type = getTypeForInfoName (aName);
   if (type == types::UNKNOWN)
@@ -138,6 +139,7 @@ NS_IMETHODIMP WebCLEvent::GetEventInfo(PRInt32 aName, JSContext *cx, nsIVariant 
 NS_IMETHODIMP WebCLEvent::GetEventProfilingInfo(PRInt32 aName, JSContext *cx, nsIVariant **_retval)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (_retval);
   nsresult rv;
 
@@ -167,6 +169,7 @@ NS_IMETHODIMP WebCLEvent::GetEventProfilingInfo(PRInt32 aName, JSContext *cx, ns
 NS_IMETHODIMP WebCLEvent::SetUserEventStatus(PRInt32 aExecutionStatus, JSContext *cx)
 {
   D_METHOD_START;
+  WEBCL_ENSURE_INTERNAL ();
   NS_ENSURE_ARG_POINTER (cx);
 
   cl_int err = mWrapper->setUserEventStatus (mInternal, aExecutionStatus);
