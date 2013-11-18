@@ -8,6 +8,7 @@
 
   var _ASSERT = function(condition, errorName, errorMsg) {
     if (!condition) {
+      console.error("Assertion failed, throwing WebCLException:", errorName, errorMsg);
       throw new WebCLException(errorName, errorMsg);
     }
   }
@@ -304,7 +305,7 @@
   _Platform.prototype.getInfo = _createDefaultFunctionWrapperRv ("getPlatformInfo");
   _Platform.prototype.getDevices = function(deviceType) {
     if (!this instanceof _Platform) return;
-    return this.getDevicesInternal.call(this, deviceType || WebCL.DEVICE_TYPE_ALL);
+    return _createDefaultFunctionWrapperRv("getDevices").call(this, deviceType || WebCL.DEVICE_TYPE_ALL);
   }
 
   // Not Yet Implemented (TODO)
@@ -334,11 +335,6 @@
     WARN("getPlatformInfo", "Use of getPlatformInfo() is deprecated, use getInfo() instead.");
     return this.getInfo.apply(this, arguments);
   }
-
-  // Internals
-
-  _Platform.prototype.getDevicesInternal = _createDefaultFunctionWrapperRv ("getDevices");
-
 
   // == Device ===================================================================
   function _Device (internal)
@@ -394,9 +390,10 @@
     if (!this instanceof _Context) return;
     device = device || this.getInfo(WebCL.CONTEXT_DEVICES)[0];
     properties = properties || 0;
-    _ASSERT(device instanceof WebCLDevice, "INVALID_DEVICE", "createCommandQueue: 'device' is invalid or not associated with this context.");
-    var cmdQueue = this.createCommandQueueInternal(device, properties);
-    return cmdQueue;
+    _ASSERT(device instanceof WebCLDevice, "INVALID_DEVICE", "createCommandQueue: expected 'device' to be an instance of WebCLDevice");
+    _ASSERT(typeof(properties) === 'number', "INVALID_VALUE", "createCommandQueue: expected 'properties' to be a number.");
+    _ASSERT(properties <= 3, "INVALID_VALUE", "createCommandQueue: expected 'properties' to be <= 3.");
+    return _createDefaultFunctionWrapperRv("createCommandQueue").call(this, device, properties)
   }
 
   // Not Yet Implemented (TODO)
@@ -444,10 +441,6 @@
     console.error("WebCL does not support createImage3D().");
     return _createDefaultFunctionWrapperRv ("createImage3D").apply(this, arguments);
   }
-
-  // Internals
-
-  _Context.prototype.createCommandQueueInternal =  _createDefaultFunctionWrapperRv ("createCommandQueue");
 
   // == Program ==================================================================
   function _Program (internal) {
@@ -507,12 +500,16 @@
 
     if (!this instanceof _Kernel) return;
 
+    var _setKernelArg = _createDefaultFunctionWrapper("setKernelArg");
+    var _setKernelArgLocal = _createDefaultFunctionWrapper("setKernelArgLocal");
+
     if (arg instanceof WebCLMemoryObject) {
-      return this.setArgInternal(index, arg);
+      _setKernelArg.call(this, index, arg);
+      return;
     } 
 
     if (arg instanceof WebCLSampler) {
-      return this.setArgInternal(index, arg);
+      return _setKernelArg.call(this, index, arg);
     }
 
     // Scalar and vector types
@@ -541,7 +538,7 @@
       if (type === WebCL.types.LONG || type === WebCL.types.ULONG) {
         WARN("setArgLONG1", "setArg: assuming the given Uint32Array of length 2 represents a 64-bit integer.");
         WARN("setArgLONG2", "setArg: the high-order 32 bits of a 64-bit integer are currently set to zero.");
-        return this.setArgInternal(index, arg[0], type);
+        return _setKernelArg.call(this, index, arg[0], type);
       }
 
       // 32-bit unsigned integer, possibly representing local memory
@@ -550,7 +547,7 @@
 
       if (type === WebCL.types.UINT) {
         try {
-          this.setArgLocalInternal(index, arg[0]);
+          _setKernelArgLocal.call(this, index, arg[0]);
           return;
         } catch (e) {}
       }
@@ -558,7 +555,7 @@
       // Scalar types. Passed in as a JavaScript Number.
 
       if (type !== undefined) {
-        return this.setArgInternal(index, arg[0], type);
+        return _setKernelArg.call(this, index, arg[0], type);
       }
 
       // Vector types. Passed in as an ArrayBufferView. uint2/int2 are
@@ -580,7 +577,7 @@
         };
 
         var basetype = basetypes[arg.toString().slice(8, -1)];
-        return this.setArgInternal(index, arg, basetype);
+        return _setKernelArg.call(this, index, arg, basetype);
       }
     }
   }
@@ -602,13 +599,13 @@
   _Kernel.prototype.setKernelArg = function() {
     if (!this instanceof _Kernel) return;
     WARN("setKernelArg", "Use of setKernelArg() is deprecated, use setArg() instead.");
-    return this.setArgInternal.apply(this, arguments);
+    return _createDefaultFunctionWrapper("setKernelArg").apply(this, arguments);
   }
 
   _Kernel.prototype.setKernelArgLocal = function() {
     if (!this instanceof _Kernel) return;
     WARN("setKernelArgLocal", "Use of setKernelArgLocal() is deprecated, use setArg(new Uint32Array([localMemSize])) instead.");
-    return this.setArgLocalInternal.apply(this, arguments);
+    return _createDefaultFunctionWrapper("setKernelArgLocal").apply(this, arguments);
   }
 
   _Kernel.prototype.releaseCLResources = function() {
@@ -616,12 +613,6 @@
     WARN("releaseCLResources", "Use of releaseCLResources() is deprecated, use release() instead.");
     return this.release.apply(this, arguments);
   }
-
-  // Internals
-
-  _Kernel.prototype.setArgInternal = _createDefaultFunctionWrapper ("setKernelArg");
-  _Kernel.prototype.setArgLocalInternal = _createDefaultFunctionWrapper ("setKernelArgLocal");
-
 
   // == CommandQueue =============================================================
   function _CommandQueue (internal) {
