@@ -81,15 +81,15 @@
     }
     else if (obj && typeof(obj) == "object")
     {
-      if (obj instanceof _Platform) return obj._internal;
-      if (obj instanceof _Device) return obj._internal;
-      if (obj instanceof _Context) return obj._internal;
-      if (obj instanceof _Program) return obj._internal;
-      if (obj instanceof _Kernel) return obj._internal;
-      if (obj instanceof _CommandQueue) return obj._internal;
-      if (obj instanceof _Event) return obj._internal;
-      if (obj instanceof _MemoryObject) return obj._internal;
-      if (obj instanceof _Sampler) return obj._internal;
+      if (obj instanceof _Platform) return obj._internal();
+      if (obj instanceof _Device) return obj._internal();
+      if (obj instanceof _Context) return obj._internal();
+      if (obj instanceof _Program) return obj._internal();
+      if (obj instanceof _Kernel) return obj._internal();
+      if (obj instanceof _CommandQueue) return obj._internal();
+      if (obj instanceof _Event) return obj._internal();
+      if (obj instanceof _MemoryObject) return obj._internal();
+      if (obj instanceof _Sampler) return obj._internal();
       /* try{ console.log("_unwrapInternalObject: Can't unwrap " + typeof(obj) + " object " + obj.toString()); }catch(e){} */
     }
     return obj;
@@ -100,7 +100,7 @@
     return function ()
     {
       var args = Array.prototype.slice.call(arguments);
-      var rv = this._internal[fname].apply (this._internal,
+      var rv = this._internal()[fname].apply (this._internal(),
                                             _unwrapInternalObject(args));
       return _wrapInternalObject (rv);
     };
@@ -111,7 +111,7 @@
     return function ()
     {
       var args = Array.prototype.slice.call(arguments);
-      this._internal[fname].apply (this._internal, _unwrapInternalObject(args));
+      this._internal()[fname].apply (this._internal(), _unwrapInternalObject(args));
     };
   }
 
@@ -282,7 +282,7 @@
   // == Base ====================================================================
   function _Base (internal)
   {
-    this._internal = internal;
+    this._internal = function() { return internal; }
 
     /*
     if (internal.setAttachment && typeof(internal.setAttachment) == "function")
