@@ -127,8 +127,8 @@
 
   // == WebCL ====================================================================
   this.WebCL = { };
-  this.webCL = WebCL;
   this.webcl = WebCL;
+  this.webCL = WebCL;
 
   window.WebCLPlatform = _Platform;
   window.WebCLDevice = _Device;
@@ -139,6 +139,12 @@
   window.WebCLEvent = _Event;
   window.WebCLMemoryObject = _MemoryObject;
   window.WebCLSampler = _Sampler;
+
+  // dummy placeholders for derived classes
+
+  window.WebCLBuffer = window.WebCLMemoryObject;
+  window.WebCLImage = window.WebCLMemoryObject;
+  window.WebCLUserEvent = window.WebCLEvent;
 
   window.WebCLException = function(name, msg) {
     return { name: name, msg: msg };
@@ -719,7 +725,7 @@
 
 
   // == UserEvent ================================================================
-  _Event.prototype.setUserEventStatus = _createDefaultFunctionWrapper ("setUserEventStatus");
+  _Event.prototype.setStatus = _createDefaultFunctionWrapper ("setUserEventStatus");
 
 
   // == MemoryObject =============================================================
