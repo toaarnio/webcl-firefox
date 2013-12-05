@@ -99,10 +99,14 @@
   {
     return function ()
     {
-      var args = Array.prototype.slice.call(arguments);
-      var rv = this._internal()[fname].apply (this._internal(),
-                                            _unwrapInternalObject(args));
-      return _wrapInternalObject (rv);
+      try {
+        var args = Array.prototype.slice.call(arguments);
+        var rv = this._internal()[fname].apply (this._internal(),
+                                                _unwrapInternalObject(args));
+        return _wrapInternalObject (rv);
+      } catch (e) {
+        throw new WebCLException("INVALID_VALUE", e.toString());
+      }
     };
   }
 
@@ -110,8 +114,12 @@
   {
     return function ()
     {
-      var args = Array.prototype.slice.call(arguments);
-      this._internal()[fname].apply (this._internal(), _unwrapInternalObject(args));
+      try {
+        var args = Array.prototype.slice.call(arguments);
+        this._internal()[fname].apply (this._internal(), _unwrapInternalObject(args));
+      } catch (e) {
+        throw new WebCLException("INVALID_VALUE", e.toString());
+      }
     };
   }
 
@@ -147,7 +155,8 @@
   window.WebCLUserEvent = window.WebCLEvent;
 
   window.WebCLException = function(name, msg) {
-    return { name: name, msg: msg };
+    this.name = name;
+    this.msg = msg;
   }
 
   try { WebCL.types = _handle.types; } catch(e) { }
@@ -386,12 +395,11 @@
   _Context.prototype.constructor = _Context;
   _Context.prototype.getInfo = _createDefaultFunctionWrapperRv ("getContextInfo");
   _Context.prototype.createBuffer = _createDefaultFunctionWrapperRv ("createBuffer");
-  _Context.prototype.createImage = _createDefaultFunctionWrapperRv ("createImage2D");
   _Context.prototype.createProgram = _createDefaultFunctionWrapperRv ("createProgramWithSource");
   _Context.prototype.createSampler = _createDefaultFunctionWrapperRv ("createSampler");
   _Context.prototype.createUserEvent = _createDefaultFunctionWrapperRv ("createUserEvent");
-  _Context.prototype.getSupportedImageFormats =  _createDefaultFunctionWrapperRv ("getSupportedImageFormats");
   _Context.prototype.release = _createDefaultFunctionWrapper ("releaseCLResources");
+
   _Context.prototype.createCommandQueue = function(device, properties) {
     if (!this instanceof _Context) return;
     device = device || this.getInfo(WebCL.CONTEXT_DEVICES)[0];
@@ -399,8 +407,24 @@
     _ASSERT(device instanceof WebCLDevice, "INVALID_DEVICE", "createCommandQueue: expected 'device' to be an instance of WebCLDevice");
     _ASSERT(typeof(properties) === 'number', "INVALID_VALUE", "createCommandQueue: expected 'properties' to be a number.");
     _ASSERT(properties <= 3, "INVALID_VALUE", "createCommandQueue: expected 'properties' to be <= 3.");
-    return _createDefaultFunctionWrapperRv("createCommandQueue").call(this, device, properties)
+    return _createDefaultFunctionWrapperRv("createCommandQueue").call(this, device, properties);
   }
+
+  _Context.prototype.createImage = function(memFlags, imageDescriptor) {
+    var width = imageDescriptor.width;
+    var height = imageDescriptor.height;
+    var pitch = imageDescriptor.rowPitch;
+    imageDescriptor.channelDataType = imageDescriptor.channelType;
+    return _createDefaultFunctionWrapperRv("createImage2D").call(this, memFlags, imageDescriptor, width, height, pitch);
+  }
+
+  _Context.prototype.getSupportedImageFormats = function(memFlags) {
+    var formats = _createDefaultFunctionWrapperRv("getSupportedImageFormats").call(this, memFlags, WebCL.MEM_OBJECT_IMAGE2D);
+    formats.forEach(function(val) {
+      val.channelType = val.channelDataType;
+    });
+    return formats;
+  } 
 
   // Not Yet Implemented (TODO)
 
