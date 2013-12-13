@@ -1,0 +1,29 @@
+/*
+ * This file is part of WebCL – Web Computing Language.
+ *
+ * This Source Code Form is subject to the terms of the
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
+ * one at http://mozilla.org/MPL/2.0/.
+ *
+ * The Original Contributor of this Source Code Form is
+ * Nokia Research Center Tampere (http://webcl.nokiaresearch.com).
+ *
+ */
+
+#include "nsISupports.idl"
+#include "nsIVariant.idl"
+#include "interfaces/webcl_types.idl"
+
+typedef nsIVariant IWebCLDevice;
+typedef nsIVariant WebCLKernelArgInfo;
+
+[scriptable, uuid(5d1be1d7-aad2-4eb3-918b-e9551079d634)]
+interface IWebCLKernel : nsISupports
+{
+  nsIVariant getInfo (in CLenum name);
+  nsIVariant getWorkGroupInfo (in IWebCLDevice device, in CLenum name);
+  WebCLKernelArgInfo getArgInfo (in CLuint index);
+  void setArg (in CLuint index, in nsIVariant value);
+  void release ();
+};

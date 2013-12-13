@@ -1,0 +1,32 @@
+/*
+ * This file is part of WebCL – Web Computing Language.
+ *
+ * This Source Code Form is subject to the terms of the
+ * Mozilla Public License, v. 2.0. If a copy of the MPL
+ * was not distributed with this file, You can obtain
+ * one at http://mozilla.org/MPL/2.0/.
+ *
+ * The Original Contributor of this Source Code Form is
+ * Nokia Research Center Tampere (http://webcl.nokiaresearch.com).
+ *
+ */
+
+#include "nsISupports.idl"
+#include "nsIVariant.idl"
+#include "interfaces/webcl_types.idl"
+
+
+[scriptable, uuid(0e5fba5c-091f-40db-a6a9-700ba50393d0)]
+interface IWebCLContext : nsISupports
+{
+  nsIVariant createBuffer (in CLenum memFlags, in CLuint sizeInBytes, [optional] in nsIVariant hostPtr);
+  nsIVariant createCommandQueue ([optional] in nsIVariant device, [optional] in CLenum properties);
+  nsIVariant createImage (in CLenum memFlags, in nsIVariant descriptor, [optional] in nsIVariant hostPtr);
+  nsIVariant createProgram (in string source);
+  nsIVariant createSampler (in CLboolean normalizedCoords, in CLenum addressingMode, in CLenum filterMode);
+  nsIVariant createUserEvent ();
+  nsIVariant getInfo (in CLenum name);
+  nsIVariant getSupportedImageFormats ([optional] in CLenum memFlags);
+  void release ();
+  void releaseAll ();
+};

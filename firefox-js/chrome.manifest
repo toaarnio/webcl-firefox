@@ -1,0 +1,60 @@
+interfaces components/IWebCL.xpt
+component {dd8e0776-5030-4b4d-be81-ab5417dc54b7} components/webcl.js
+contract @webcl.nokiaresearch.com/IWebCL;1 {dd8e0776-5030-4b4d-be81-ab5417dc54b7}
+category JavaScript-global-constructor _NokiaWebCL @webcl.nokiaresearch.com/IWebCL;1
+
+interfaces components/IWebCLPlatform.xpt
+component {6ab8b8cf-4d87-40a0-af8a-cc0bf5251fa3} components/webclplatform.js
+contract @webcl.nokiaresearch.com/IWebCLPlatform;1 {6ab8b8cf-4d87-40a0-af8a-cc0bf5251fa3}
+
+interfaces components/IWebCLDevice.xpt
+component {f5352722-9a35-405b-95ae-54d5b4995576} components/webcldevice.js
+contract @webcl.nokiaresearch.com/IWebCLDevice;1 {f5352722-9a35-405b-95ae-54d5b4995576}
+
+interfaces components/IWebCLContext.xpt
+component {0e5fba5c-091f-40db-a6a9-700ba50393d0} components/webclcontext.js
+contract @webcl.nokiaresearch.com/IWebCLContext;1 {0e5fba5c-091f-40db-a6a9-700ba50393d0}
+
+interfaces components/IWebCLCommandQueue.xpt
+component {751b06c0-cac3-4123-87ae-2b8c22832d52} components/webclcommandqueue.js
+contract @webcl.nokiaresearch.com/IWebCLCommandQueue;1 {751b06c0-cac3-4123-87ae-2b8c22832d52}
+
+interfaces components/IWebCLEvent.xpt
+component {cf7372e6-f2ec-467d-99dc-9eeb756bc3e3} components/webclevent.js
+contract @webcl.nokiaresearch.com/IWebCLEvent;1 {cf7372e6-f2ec-467d-99dc-9eeb756bc3e3}
+category JavaScript-global-constructor _NokiaWebCLEvent @webcl.nokiaresearch.com/IWebCLEvent;1
+
+interfaces components/IWebCLMemoryObject.xpt
+interfaces components/IWebCLBuffer.xpt
+interfaces components/IWebCLImage.xpt
+component {e677e482-49e5-40de-ba4f-0e71f301286b} components/webclmemoryobject.js
+contract @webcl.nokiaresearch.com/IWebCLMemoryObject;1 {e677e482-49e5-40de-ba4f-0e71f301286b}
+component {a05ce65b-1962-42bb-81cf-08b2d5ced245} components/webclmemoryobject.js
+contract @webcl.nokiaresearch.com/IWebCLBuffer;1 {a05ce65b-1962-42bb-81cf-08b2d5ced245}
+component {af42d437-b62c-43de-985c-c65e28a82ead} components/webclmemoryobject.js
+contract @webcl.nokiaresearch.com/IWebCLImage;1 {af42d437-b62c-43de-985c-c65e28a82ead}
+
+interfaces components/IWebCLProgram.xpt
+component {74d49a1e-31e0-41d5-8e98-8980a077fcb2} components/webclprogram.js
+contract @webcl.nokiaresearch.com/IWebCLProgram;1 {74d49a1e-31e0-41d5-8e98-8980a077fcb2}
+
+interfaces components/IWebCLKernel.xpt
+component {5d1be1d7-aad2-4eb3-918b-e9551079d634} components/webclkernel.js
+contract @webcl.nokiaresearch.com/IWebCLKernel;1 {5d1be1d7-aad2-4eb3-918b-e9551079d634}
+
+interfaces components/IWebCLSampler.xpt
+component {dc9b25aa-2bdc-4efd-b295-b450c75d252c} components/webclsampler.js
+contract @webcl.nokiaresearch.com/IWebCLSampler;1 {dc9b25aa-2bdc-4efd-b295-b450c75d252c}
+
+
+interfaces components/IWebCLImageDescriptor.xpt
+component {8f865901-2efb-422e-bb15-26e0beb0c845} components/webclimagedescriptor.js
+contract @webcl.nokiaresearch.com/IWebCLImageDescriptor;1 {8f865901-2efb-422e-bb15-26e0beb0c845}
+
+
+component {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2} components/clientwrapperloader.js
+contract @webcl.nokiaresearch.com/WebCLJSWrapperLoader;1 {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2}
+category profile-after-change WebCLJSWrapperLoader @webcl.nokiaresearch.com/WebCLJSWrapperLoader;1
+
+content nrcwebcl content/
+resource nrcwebcl resources/
