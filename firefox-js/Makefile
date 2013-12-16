@@ -65,17 +65,19 @@ $(PACKAGE): install.rdf chrome.manifest $(TYPELIBS) $(SOURCE_FILES) COPYING
 	@cp $(MODULES_OCL:%=js/modules/lib_ocl/%) dist/resources/modules/lib_ocl/
 	@mkdir -p dist/resources/modules/mixins
 	@cp $(MIXINS:%=js/modules/mixins/%) dist/resources/modules/mixins/
+	@mkdir -p dist/defaults/preferences
+	@cp defaults/preferences/*.js dist/defaults/preferences/
 	@cp -r content dist/
 	@cp install.rdf chrome.manifest COPYING dist/
-	@cd dist && zip -r ../$@ install.rdf chrome.manifest components content resources COPYING \
-         -x@../zipexclude.lst
+	@cd dist && zip -r ../$@ install.rdf chrome.manifest \
+	    components content resources defaults COPYING -x@../zipexclude.lst
 
 
 dist-src: $(SRC_PACKAGE)
 
 $(SRC_PACKAGE): Makefile buildconfig.inc install.rdf chrome.manifest $(INTERFACE_FILES) $(SOURCE_FILES) COPYING zipexclude.lst
 	@rm -f $(SRC_PACKAGE)
-	zip -r $@ ^ content -x@zipexclude.lst
+	zip -r $@ ^ content defaults -x@zipexclude.lst
 
 
 docs:

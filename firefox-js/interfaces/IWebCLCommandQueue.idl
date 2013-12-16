@@ -15,14 +15,15 @@
 #include "nsIVariant.idl"
 #include "interfaces/webcl_types.idl"
 
+#include "interfaces/IWebCLBuffer.idl"
+#include "interfaces/IWebCLImage.idl"
+#include "interfaces/IWebCLEvent.idl"
+#include "interfaces/IWebCLKernel.idl"
+
 // TODO: Proper types
-typedef nsIVariant IWebCLBuffer;
-typedef nsIVariant IWebCLImage;
-typedef nsIVariant IWebCLEvent;
 typedef nsIVariant IWebCLEvent_List;
 typedef nsIVariant CLuint_List;
 typedef nsIVariant ArrayBufferView;
-typedef nsIVariant IWebCLKernel;
 
 
 [scriptable, uuid(751b06c0-cac3-4123-87ae-2b8c22832d52)]

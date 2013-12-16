@@ -391,7 +391,7 @@ Context.prototype.createUserEvent = function ()
   var clEvent = this._lib.clCreateUserEvent (this._internal, clErr.address());
   if (clErr.value) throw new CLError (clErr.value, null, "Context.createUserEvent");
 
-  return new Event (clEvent, this._lib);
+  return new CLEvent (clEvent, this._lib);
 };
 
 

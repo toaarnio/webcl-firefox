@@ -158,7 +158,8 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
 
 
 // index: (Number)
-// value: (MemoryObject | Sampler | ArrayBufferView | ArrayBuffer)
+// value: (MemoryObject | Sampler | ArrayBufferView | ArrayBuffer | Number)
+//        Note: if value is Number, it's treated as integer local arg size.
 Kernel.prototype.setArg = function (index, value)
 {
   TRACE (this, "setArg", arguments);
@@ -172,13 +173,19 @@ Kernel.prototype.setArg = function (index, value)
   //       false even though value.toString() gives "[object Int8Array]".
   //       Workaround is to extract type name and compare against that.
 
-  if (typeof(value) == "object")
+  if (value && typeof(value) == "object")
   {
     className = Object.prototype.toString.call(value).substr(8);
     className = className.substring(0, className.lastIndexOf("]"));
   }
 
-  if (value instanceof MemoryObject)
+  if (!isNaN(+value) && +value > 0)
+  {
+    // If value is a number, assume it's local arg size.
+    ptr = null;
+    size = Math.floor(+value);
+  }
+  else if (value instanceof MemoryObject)
   {
     ptr = value._internal.address();
     size = T.cl_mem.size;

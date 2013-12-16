@@ -24,6 +24,9 @@ component {cf7372e6-f2ec-467d-99dc-9eeb756bc3e3} components/webclevent.js
 contract @webcl.nokiaresearch.com/IWebCLEvent;1 {cf7372e6-f2ec-467d-99dc-9eeb756bc3e3}
 category JavaScript-global-constructor _NokiaWebCLEvent @webcl.nokiaresearch.com/IWebCLEvent;1
 
+component {f353b7e7-03af-41f2-a260-5cbcdaec8ae9} components/webclevent.js
+contract @webcl.nokiaresearch.com/IWebCLUserEvent;1 {f353b7e7-03af-41f2-a260-5cbcdaec8ae9}
+
 interfaces components/IWebCLMemoryObject.xpt
 interfaces components/IWebCLBuffer.xpt
 interfaces components/IWebCLImage.xpt

@@ -261,7 +261,8 @@ WebCL.prototype.releaseAll = function ()
   TRACE (this, "releaseAll", arguments);
 
   this.ensureInitialized ();
-  this.ensureUsePermitted ();
+  // NOTE: No need to ensure use permitted, in fact it should NOT be done or
+  //       we'll have unwanted permission prompts on page unload.
   this.ensureLibraryLoaded ();
 
   this._forEachRegistered (function (o)

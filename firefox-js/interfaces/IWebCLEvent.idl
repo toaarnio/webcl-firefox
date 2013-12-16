@@ -25,3 +25,10 @@ interface IWebCLEvent : nsISupports
   void setCallback (in CLenum commandExecCallbackType, in WebCLCallback notify);
   void release ();
 };
+
+
+[scriptable, uuid(f353b7e7-03af-41f2-a260-5cbcdaec8ae9)]
+interface IWebCLUserEvent : IWebCLEvent
+{
+  void setUserEventStatus (in CLenum executionStatus);
+};

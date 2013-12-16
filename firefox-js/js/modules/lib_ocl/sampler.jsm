@@ -75,7 +75,7 @@ Sampler.prototype.getInfo = function (name)
 
       // cl_bool
       case ocl_info.CL_SAMPLER_NORMALIZED_COORDS:
-        return getInfo_plain (this._lib.clGetSamplerInfo, this._internal, name, T.cl_bool).value;
+        return !!getInfo_plain (this._lib.clGetSamplerInfo, this._internal, name, T.cl_bool).value;
         break;
 
       default:

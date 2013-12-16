@@ -59,7 +59,7 @@ function typedArrayToCTypesPtr (value)
 
   if (typeof(value) == "object")
   {
-    className = Object.prototype.toString.call(value).substr(8);
+    var className = Object.prototype.toString.call(value).substr(8);
     className = className.substring(0, className.lastIndexOf("]"));
   }
 

@@ -189,7 +189,7 @@ LibOCLWrapper.prototype.waitForEvents = function (eventList)
 
   for (var i = 0; i < eventList.length; ++i)
   {
-    if (!eventList[i] instanceof Event)
+    if (!eventList[i] instanceof CLEvent)
     {
       throw new CLInvalidArgument ("eventList", "Invalid event object at index " + i + " on ", "waitForEvents");
     }

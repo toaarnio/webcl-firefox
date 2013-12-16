@@ -15,7 +15,8 @@
 #include "nsIVariant.idl"
 #include "interfaces/webcl_types.idl"
 
-typedef nsIVariant IWebCLDevice;
+#include "interfaces/IWebCLDevice.idl"
+
 typedef nsIVariant WebCLKernelArgInfo;
 
 [scriptable, uuid(5d1be1d7-aad2-4eb3-918b-e9551079d634)]

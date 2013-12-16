@@ -32,7 +32,7 @@ var CID =        "{cf7372e6-f2ec-467d-99dc-9eeb756bc3e3}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLEvent;1";
 
 
-function Event (owner)
+function Event ()
 {
   if (!this instanceof Event) return new Event ();
 
@@ -103,11 +103,60 @@ Event.prototype.release = function ()
 
 
 
+//==============================================================================
+
+
+function UserEvent ()
+{
+  if (!this instanceof UserEvent) return new UserEvent ();
+
+  Event.apply(this);
+
+  this.wrappedJSObject = this;
+
+  this._interfaces = [ Ci.IWebCLUserEvent,
+                       Ci.IWebCLEvent,
+                       Ci.nsISecurityCheckedComponent,
+                       Ci.nsISupportsWeakReference,
+                       Ci.nsIClassInfo,
+                       Ci.nsISupports
+                     ];
+}
+
+
+UserEvent.prototype = Object.create (Event.prototype);
+
+
+UserEvent.prototype.classDescription = "WebCLUserEvent";
+UserEvent.prototype.classID =          Components.ID("{f353b7e7-03af-41f2-a260-5cbcdaec8ae9}");
+UserEvent.prototype.contractID =       "@webcl.nokiaresearch.com/IWebCLUserEvent;1";
+UserEvent.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLUserEvent,
+                                                                Ci.IWebCLEvent,
+                                                                Ci.nsISecurityCheckedComponent,
+                                                                Ci.nsISupportsWeakReference,
+                                                                Ci.nsIClassInfo
+                                                              ]);
+
+
+//------------------------------------------------------------------------------
+// IWebCLUserEvent
+
+UserEvent.prototype.setUserEventStatus = function (executionStatus)
+{
+  TRACE (this, "setUserEventStatus", arguments);
+
+  if (!this._owner) throw new Exception ();
+
+  this._internal.setUserEventStatus (executionStatus);
+};
+
+
+
 //------------------------------------------------------------------------------
 // Internal functions
 
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Event]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Event, UserEvent]);
 
 
 } catch(e) { Components.utils.reportError ("event.js: "+EXCEPTIONSTR(e)); }

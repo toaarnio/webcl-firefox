@@ -165,7 +165,21 @@ function wrapInternal (value, owner)
   else if (value instanceof CLEvent)
   {
     if (!value) throw new CLInternalError ("Invalid internal", "WebCLEvent");
-    var rv = createWebCLEvent (owner);
+    try {
+      var type = value.getInfo (ocl_info.CL_EVENT_COMMAND_TYPE);
+    } catch (e) { ERROR ("wrapInternal: Failed to get event type."); }
+
+    switch (type)
+    {
+      case ocl_const.CL_COMMAND_USER:
+        var rv = createWebCLUserEvent (owner);
+        break;
+
+      default:
+        var rv = createWebCLEvent (owner);
+        break;
+    }
+
     rv.wrappedJSObject._internal = value;
   }
   else if (value instanceof MemoryObject)

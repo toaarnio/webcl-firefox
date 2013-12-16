@@ -18,6 +18,7 @@ var EXPORTED_SYMBOLS = [
                          "createWebCLContext",
                          "createWebCLCommandQueue",
                          "createWebCLEvent",
+                         "createWebCLUserEvent",
                          "createWebCLMemoryObject",
                          "createWebCLBuffer",
                          "createWebCLImage",
@@ -51,6 +52,9 @@ function createWebCLCommandQueue (owner) { var o = new WebCLCommandQueue(); o.wr
 
 var WebCLEvent = Components.Constructor ("@webcl.nokiaresearch.com/IWebCLEvent;1");
 function createWebCLEvent (owner) { var o = new WebCLEvent(); o.wrappedJSObject._register(owner); return o; }
+
+var WebCLUserEvent = Components.Constructor ("@webcl.nokiaresearch.com/IWebCLUserEvent;1");
+function createWebCLUserEvent (owner) { var o = new WebCLUserEvent(); o.wrappedJSObject._register(owner); return o; }
 
 var WebCLMemoryObject = Components.Constructor ("@webcl.nokiaresearch.com/IWebCLMemoryObject;1");
 function createWebCLMemoryObject (owner) { var o = new WebCLMemoryObject(); o.wrappedJSObject._register(owner); return o; }

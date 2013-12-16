@@ -15,8 +15,9 @@
 #include "nsIVariant.idl"
 #include "interfaces/webcl_types.idl"
 
-typedef nsIVariant IWebCLDevice;
-typedef nsIVariant IWebCLKernel;
+#include "interfaces/IWebCLDevice.idl"
+#include "interfaces/IWebCLKernel.idl"
+
 typedef nsIVariant IWebCLDevice_List;
 typedef nsIVariant WebCLCallback;
 typedef nsIVariant IWebCLKernel_List;

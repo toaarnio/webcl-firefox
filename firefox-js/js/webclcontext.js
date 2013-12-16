@@ -88,15 +88,17 @@ Context.prototype.createCommandQueue = function (device, properties)
 {
   TRACE (this, "createCommandQueue", arguments);
 
-  if (!device instanceof Ci.IWebCLDevice)
+  if (device && !device instanceof Ci.IWebCLDevice)
   {
     throw new Exception ("Context.createCommandQueue: Invalid argument: device.");  // TODO
   }
+  if (!device) device = this.getInfo (ocl_const.CL_CONTEXT_DEVICES)[0];
 
-  if (isNaN(+properties))
+  if (properties && isNaN(+properties))
   {
     throw new Exception ("Context.createCommandQueue: Invalid argument: properties.");  // TODO
   }
+  if (!properties) properties = 0;
 
   var clDevice = this._unwrapInternalOrNull (device);
   return this._wrapInternal (this._internal.createCommandQueue (clDevice, +properties),

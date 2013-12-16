@@ -22,6 +22,8 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://nrcwebcl/modules/logger.jsm");
 Cu.import("resource://nrcwebcl/modules/webclutils.jsm");
 
+Cu.import("resource://gre/modules/Services.jsm");
+
 
 var CLASSNAME =  "WebCLLoader";
 var CID =        "{f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2}";
@@ -75,9 +77,20 @@ function handle_contentDocumentGlobalCreated (ctx, domWindow)
   {
     LOG ("Loading WebCL client side component. baseURI: " + domWindow.document.baseURI);
     var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-                            .getService (Components.interfaces.mozIJSSubScriptLoader);
+                            .getService (Ci.mozIJSSubScriptLoader);
     loader.loadSubScript ("chrome://nrcwebcl/content/webclclientwrapper.js",
                           domWindow.wrappedJSObject);
+
+    try
+    {
+      if (Services.prefs.getCharPref ("extensions.webcl.api-mode") == "deprecated-1.0.3")
+      {
+        LOG ("Loading deprecated compatibilitity API.");
+        loader.loadSubScript ("chrome://nrcwebcl/content/webcldeprecatedclientwrapper.js",
+                              domWindow.wrappedJSObject);
+      }
+    }
+    catch (e) { }
 
     // Another option? https://developer.mozilla.org/en-US/docs/Components.utils.createObjectIn
   }

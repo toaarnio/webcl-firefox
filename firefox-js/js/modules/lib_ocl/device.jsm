@@ -99,7 +99,7 @@ Device.prototype.getInfo = function (name)
       case ocl_info.CL_DEVICE_ERROR_CORRECTION_SUPPORT:
       case ocl_info.CL_DEVICE_HOST_UNIFIED_MEMORY:
       case ocl_info.CL_DEVICE_IMAGE_SUPPORT:
-        return getInfo_plain (this._lib.clGetDeviceInfo, this._internal, name, T.cl_bool).value;
+        return !!getInfo_plain (this._lib.clGetDeviceInfo, this._internal, name, T.cl_bool).value;
         break;
 
       // cl_ulong
