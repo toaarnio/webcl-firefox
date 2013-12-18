@@ -2,6 +2,7 @@
 *.diff
 *.zip
 *.xpi
+*.pyc
 firefox/src/.build
 firefox/src/.deps
 firefox/public/*.h
@@ -9,4 +10,7 @@ firefox/public/*.xpt
 firefox/install.rdf
 firefox/src/libwebcl.so
 firefox/src/libwebcl.dylib
+firefox-js/dist
+firefox-js/external/xpidllex.py
+firefox-js/external/xpidlyacc.py
 *-swp
