@@ -648,9 +648,9 @@ CommandQueue.prototype.release = function ()
 function processEventWaitList (eventWaitList)
 {
   var len = 0;
-  var ptr = 0;
+  var ptr = new T.cl_event.ptr(0);
 
-  if (eventWaitList)
+  if (eventWaitList && Array.isArray(eventWaitList) && eventWaitList.length)
   {
     var clEventWaitList = T.cl_event.array(eventWaitList.length)();
     for (var i = 0; i < eventWaitList.length; ++i)
