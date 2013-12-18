@@ -138,21 +138,19 @@ CLEvent.prototype.getProfilingInfo = function (name)
 };
 
 
-CLEvent.prototype.setUserEventStatus = function (executionStatus)
+CLEvent.prototype.setStatus = function (executionStatus)
 {
-  TRACE (this, "setUserEventStatus", arguments);
+  TRACE (this, "setStatus", arguments);
 
   var err = this._lib.clSetUserEventStatus (this._internal, executionStatus);
-  if (err) throw new CLError (err, "Event.setUserEventStatus");
-
-  return new MemoryObject (clMem, this._lib);
+  if (err) throw new CLError (err, "Event.setStatus");
 };
 
 
-CLEvent.prototype.setEventCallback = function (commandExecCallbackType, callback, userData)
+CLEvent.prototype.setCallback = function (commandExecCallbackType, notify)
 {
-  // TODO: Event.setEventCallback NOT IMPLEMENTED!
-  throw new CLNotImplemented ("Event.setEventCallback");
+  // TODO: Event.setCallback NOT IMPLEMENTED!
+  throw new CLNotImplemented ("Event.setCallback");
 };
 
 

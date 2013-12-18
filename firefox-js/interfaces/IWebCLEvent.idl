@@ -30,5 +30,5 @@ interface IWebCLEvent : nsISupports
 [scriptable, uuid(f353b7e7-03af-41f2-a260-5cbcdaec8ae9)]
 interface IWebCLUserEvent : IWebCLEvent
 {
-  void setUserEventStatus (in CLenum executionStatus);
+  void setStatus (in CLenum executionStatus);
 };

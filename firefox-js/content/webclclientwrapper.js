@@ -478,7 +478,7 @@
     this._name = "WebCLUserEvent";
   }
   _UserEvent.prototype = Object.create (_Event.prototype);
-  _UserEvent.prototype.setUserEventStatus = _createDefaultFunctionWrapper ("setUserEventStatus");
+  _UserEvent.prototype.setStatus = _createDefaultFunctionWrapper ("setStatus");
 
 
 
