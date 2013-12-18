@@ -239,6 +239,22 @@ WebCL.prototype.createContext = function (properties)
 };
 
 
+WebCL.prototype.getSupportedExtensions = function ()
+{
+  TRACE (this, "getSupportedExtensions", arguments);
+  // TODO!
+  return [];
+};
+
+
+WebCL.prototype.enableExtension = function (extensionName)
+{
+  TRACE (this, "enableExtension", arguments);
+  // TODO;
+  return false;
+};
+
+
 WebCL.prototype.waitForEvents = function (eventList, whenFinished)
 {
   TRACE (this, "waitForEvents", arguments);
