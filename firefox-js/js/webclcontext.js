@@ -92,7 +92,7 @@ Context.prototype.createCommandQueue = function (device, properties)
   {
     throw new Exception ("Context.createCommandQueue: Invalid argument: device.");  // TODO
   }
-  if (!device) device = this.getInfo (ocl_const.CL_CONTEXT_DEVICES)[0];
+  if (!device) device = this.getInfo (ocl_info.CL_CONTEXT_DEVICES)[0];
 
   if (properties && isNaN(+properties))
   {
