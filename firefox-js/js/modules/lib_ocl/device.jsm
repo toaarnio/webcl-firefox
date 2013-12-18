@@ -71,7 +71,6 @@ Device.prototype.getInfo = function (name)
       case ocl_info.CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:
       case ocl_info.CL_DEVICE_MAX_WRITE_IMAGE_ARGS:
       case ocl_info.CL_DEVICE_MEM_BASE_ADDR_ALIGN:
-      case ocl_info.CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE:
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR:
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT:
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_INT:
