@@ -28,7 +28,7 @@ interface IWebCL : nsISupports
 
   nsIVariant getSupportedExtensions ();
 
-  nsIVariant enableExtension (in string extensionName);
+  CLboolean enableExtension (in string extensionName);
 
   void waitForEvents (in nsIVariant eventList, [optional] in nsIVariant whenFinished);
 
