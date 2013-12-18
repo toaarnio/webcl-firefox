@@ -1,0 +1,15 @@
+
+/* -*- Mode: IDL; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsIDOMXULElement.idl"
+
+[scriptable, uuid(7a3be943-dfc0-4b7f-8b5e-692bbce0ce47)]
+interface nsIDOMXULDescriptionElement : nsIDOMXULElement {
+  attribute boolean disabled;
+  attribute boolean crop;
+  attribute DOMString value;
+};
+

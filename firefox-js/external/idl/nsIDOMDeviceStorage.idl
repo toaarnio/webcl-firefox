@@ -1,0 +1,38 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "domstubs.idl"
+#include "nsIDOMEventTarget.idl"
+interface nsIDOMBlob;
+interface nsIDOMDOMRequest;
+interface nsIDOMDOMCursor;
+interface nsIDOMDeviceStorageChangeEvent;
+interface nsIDOMEventListener;
+interface nsIFile;
+
+[scriptable, uuid(7c1b2305-0f14-4c07-8a8a-359eeb850068), builtinclass]
+interface nsIDOMDeviceStorage : nsIDOMEventTarget
+{
+    [implicit_jscontext] attribute jsval onchange;
+    nsIDOMDOMRequest add(in nsIDOMBlob aBlob);
+    nsIDOMDOMRequest addNamed(in nsIDOMBlob aBlob, in DOMString aName);
+
+    nsIDOMDOMRequest get([Null(Stringify)] in DOMString aName);
+    nsIDOMDOMRequest getEditable([Null(Stringify)] in DOMString aName);
+    nsIDOMDOMRequest delete([Null(Stringify)] in DOMString aName);
+
+    nsIDOMDOMRequest freeSpace();
+    nsIDOMDOMRequest usedSpace();
+    nsIDOMDOMRequest available();
+
+    // Note that the storageName is just a name (like sdcard), and doesn't
+    // include any path information.
+    readonly attribute DOMString storageName;
+
+    // Determines if this storage area is the one which will be used by default
+    // for storing new files.
+    readonly attribute bool default;
+
+    [noscript] nsIFile getRootDirectoryForFile(in DOMString aName);
+};

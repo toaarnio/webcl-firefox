@@ -1,0 +1,12 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsIDOMElement.idl"
+#include "nsIDOMXULElement.idl"
+
+[scriptable, uuid(d6f60061-263a-4e57-8986-6b0036ea488b)]
+interface nsIDOMXULImageElement : nsIDOMXULElement {
+  attribute DOMString src;
+};
+

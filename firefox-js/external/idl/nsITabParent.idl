@@ -1,0 +1,12 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+#include "domstubs.idl"
+
+// Sole purpose is to be able to identify the concrete class nsTabParent
+[uuid(95c7c50b-6677-456f-9f1e-885e1cc272dc)]
+interface nsITabParent : nsISupports
+{
+};

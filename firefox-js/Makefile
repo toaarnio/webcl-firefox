@@ -1,11 +1,5 @@
 include buildconfig.inc
 
-export REAL_SDK_PATH:=$(realpath $(XULRUNNER_SDK_PATH))
-ifeq ($(wildcard $(REAL_SDK_PATH)),)
-  $(error Unable to locate Xulrunner SDK. Please check GECKO_SDK_PATH in buildconfig.inc .)
-endif
-
-
 ifeq ($(COMPONENT_NAME),)
   export COMPONENT_NAME=webcl
 endif
@@ -32,7 +26,7 @@ typelib: $(TYPELIBS)
 
 dist/components/%.xpt: interfaces/%.idl
 	@mkdir -p dist/components
-	python $(REAL_SDK_PATH)/sdk/bin/typelib.py -I$(REAL_SDK_PATH)/idl --cachedir=. -o $@ $<
+	python external/xpidl/typelib.py -Iexternal/idl --cachedir=external/ -o $@ $<
 
 
 COMPONENTS = webcl.js webclplatform.js webcldevice.js webclcontext.js webclcommandqueue.js \

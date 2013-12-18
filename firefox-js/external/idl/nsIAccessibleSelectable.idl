@@ -1,0 +1,72 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+#include "nsISupports.idl"
+#include "nsIAccessible.idl"
+#include "nsIArray.idl"
+
+/**
+ * An interface for the accessibility module and in-process accessibility clients
+ * for dealing with getting and changing the selection of accessible nodes.
+ */
+[scriptable, uuid(34d268d6-1dd2-11b2-9d63-83a5e0ada290)]
+interface nsIAccessibleSelectable : nsISupports
+{
+    const unsigned long eSelection_Add = 0;
+    const unsigned long eSelection_Remove = 1;
+    const unsigned long eSelection_GetState = 2;
+
+    /**
+     * Return an nsIArray of selected nsIAccessible children 
+     */
+    nsIArray GetSelectedChildren();
+    
+    /**
+     * Returns the number of accessible children currently selected.
+     */
+    readonly attribute long selectionCount;
+
+    /**
+     * Adds the specified accessible child of the object to the
+     * object's selection.
+     * If the specified object is already selected, then it does nothing.
+     * @throws NS_ERROR_FAILURE if the specified object is not selectable.
+     */
+    void addChildToSelection(in long index);
+
+    /**
+     * Removes the specified child of the object from the object's selection.
+     * If the specified object was not selected, then it does nothing.
+     * @throws NS_ERROR_FAILURE if the specified object is not selectable.
+     */
+    void removeChildFromSelection(in long index);
+
+    /**
+     * Clears the selection in the object so that no children in the object
+     * are selected.
+     */
+    void clearSelection();
+
+    /**
+     * Returns a reference to the accessible object representing the specified
+     * selected child of the object.
+     * @param index Zero-based selected accessible child index 
+     * @return The nth selected accessible child
+     */
+    nsIAccessible refSelection(in long index);
+
+    /**
+      * Determines if the current child of this object is selected
+      * @param The zero-based accessible child index
+      * @return Returns true if the child is selected, false if not.
+      */
+    boolean isChildSelected(in long index);
+
+    /**
+     * Select all children
+     * @return If the object does not accept multiple selection, return false.
+     *         Otherwise, returns true.
+     */
+    boolean selectAllSelection();
+};

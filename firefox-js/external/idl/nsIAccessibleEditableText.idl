@@ -1,0 +1,71 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIEditor;
+
+[scriptable, uuid(e242d495-5cde-4b1c-8c84-2525b14939f5)]
+interface nsIAccessibleEditableText : nsISupports
+{
+  /**
+   * Sets the attributes for the text between the two given indices. The old
+   * attributes are replaced by the new list of attributes. For example,
+   * sets font styles, such as italic, bold...
+   *
+   * @param startPos - start index of the text whose attributes are modified.
+   * @param endPos - end index of the text whose attributes are modified.
+   * @param attributes - set of attributes that replaces the old list of
+   *                     attributes of the specified text portion.
+   */
+  void setAttributes (in long startPos, in long endPos,
+                      in nsISupports attributes);
+
+  /**
+   * Replaces the text represented by this object by the given text.
+   */
+  void setTextContents (in AString text);
+
+  /**
+   * Inserts text at the specified position.
+   *
+   * @param text - text that is inserted.
+   * @param position - index at which to insert the text.
+   */
+  void insertText (in AString text, in long position);
+
+  /**
+   * Copies the text range into the clipboard.
+   *
+   * @param startPos - start index of the text to moved into the clipboard.
+   * @param endPos - end index of the text to moved into the clipboard.
+   */
+  void copyText (in long startPos, in long endPos);
+
+  /**
+   * Deletes a range of text and copies it to the clipboard.
+   *
+   * @param startPos - start index of the text to be deleted.
+   * @param endOffset - end index of the text to be deleted.
+   */
+  void cutText (in long startPos, in long endPos);
+
+  /**
+   * Deletes a range of text.
+   *
+   * @param startPos - start index of the text to be deleted.
+   * @param endPos - end index of the text to be deleted.
+   */
+  void deleteText (in long startPos, in long endPos);
+
+  /**
+   * Pastes text from the clipboard.
+   *
+   * @param position - index at which to insert the text from the system
+   *                   clipboard into the text represented by this object.
+   */
+  void pasteText (in long position);
+};

@@ -1,0 +1,20 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsIStreamListener.idl"
+
+interface nsITabParent;
+
+/**
+ * Implemented by chrome side of IPC protocols.
+ */
+
+[scriptable, uuid(723188c3-fff8-4d27-b657-a256e7209be0)]
+interface nsIParentChannel : nsIStreamListener
+{
+  /**
+   * Called to invoke deletion of the IPC protocol.
+   */
+  void delete();
+};

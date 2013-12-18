@@ -1,0 +1,78 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+#include "nsIAutoCompleteResult.idl"
+
+interface nsIAutoCompleteSimpleResultListener;
+
+/**
+ * This class implements nsIAutoCompleteResult and provides simple methods
+ * for setting the value and result items. It can be used whenever some basic
+ * auto complete results are needed that can be pre-generated and filled into
+ * an array.
+ */
+
+[scriptable, uuid(c738dc26-aa71-4561-a3fd-b5a0e4aa80d2)]
+interface nsIAutoCompleteSimpleResult : nsIAutoCompleteResult
+{
+  /**
+   * A writer for the readonly attribute 'searchString' which should contain
+   * the string that the user typed.
+   */
+  void setSearchString(in AString aSearchString);
+
+  /**
+   * A writer for the readonly attribute 'errorDescription'.
+   */
+  void setErrorDescription(in AString aErrorDescription);
+
+  /**
+   * A writer for the readonly attribute 'defaultIndex' which should contain
+   * the index of the list that will be selected by default (normally 0).
+   */
+  void setDefaultIndex(in long aDefaultIndex);
+
+  /**
+   * A writer for the readonly attribute 'searchResult' which should contain
+   * one of the constants nsIAutoCompleteResult.RESULT_* indicating the success
+   * of the search.
+   */
+  void setSearchResult(in unsigned short aSearchResult);
+
+  /**
+   * A writer for the readonly attribute 'typeAheadResult', typically set
+   * because a result is only intended for type-ahead completion.
+   */
+  void setTypeAheadResult(in boolean aHidden);
+
+  /**
+   * Appends a result item consisting of the given value, comment, image and style.
+   * This is how you add results.  Note:  image and style are optional. 
+   */
+  void appendMatch(in AString aValue, in AString aComment, 
+                   [optional] in AString aImage, 
+                   [optional] in AString aStyle);
+
+  /**
+   * Sets a listener for changes in the result.
+   */
+  void setListener(in nsIAutoCompleteSimpleResultListener aListener);
+};
+
+[scriptable, uuid(004efdc5-1989-4874-8a7a-345bf2fa33af)]
+interface nsIAutoCompleteSimpleResultListener : nsISupports
+{
+  /**
+   * Dispatched after a value is removed from the result.
+   * @param aResult
+   *        The result from which aValue has been removed.
+   * @param aValue
+   *        The removed value.
+   * @param aRemoveFromDb
+   *        Whether the value should be removed from persistent storage as well.
+   */
+  void onValueRemoved(in nsIAutoCompleteSimpleResult aResult, in AString aValue,
+                      in boolean aRemoveFromDb);
+};
