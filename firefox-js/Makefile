@@ -55,7 +55,7 @@ package: xpi
 
 xpi: $(PACKAGE)
 
-$(PACKAGE): install.rdf chrome.manifest $(TYPELIBS) $(SOURCE_FILES) COPYING
+$(PACKAGE): install.rdf chrome.manifest $(TYPELIBS) $(SOURCE_FILES) COPYING $(wildcard defaults/preferences/*.js) $(wildcard content/*.js)
 	@rm -f $(PACKAGE)
 	@mkdir -p dist/components
 	@cp $(COMPONENTS:%=js/%) dist/components/

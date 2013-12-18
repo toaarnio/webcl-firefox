@@ -230,9 +230,25 @@ function wrapInternal (value, owner)
 }
 
 
-function unwrapInternalOrNull (object)
+function unwrapInternalOrNull (object, /*optional*/ maxRecursion)
 {
   rv = null;
+
+  // TODO: Not sure if we should dedicate this function to just handling
+  //       the object unwrapping and handle all recursion somewhere else.
+
+  if (maxRecursion == undefined || isNaN(+maxRecursion))
+  {
+    // Set the default maxRecursion
+    maxRecursion = 5;
+  }
+
+  if (maxRecursion <= 0)
+  {
+    LOG ("unwrapInternalOrNull: Maximum recursion level reached.");
+    throw new Error ("unwrapInternalOrNull: Maximum recursion level reached.");  // TODO?
+    // TODO: Throw error or just return object?
+  }
 
   try
   {
@@ -240,9 +256,11 @@ function unwrapInternalOrNull (object)
     var o = object;
     if (o instanceof Ci.IWebCLPlatform || o instanceof Ci.IWebCLDevice ||
         o instanceof Ci.IWebCLContext || o instanceof Ci.IWebCLCommandQueue ||
-        o instanceof Ci.IWebCLEvent || o instanceof Ci.IWebCLMemoryObject ||
+        o instanceof Ci.IWebCLEvent || o instanceof Ci.IWebCLUserEvent ||
+        o instanceof Ci.IWebCLMemoryObject ||
+        o instanceof Ci.IWebCLBuffer || o instanceof Ci.IWebCLImage ||
         o instanceof Ci.IWebCLProgram || o instanceof Ci.IWebCLKernel ||
-        o instanceof Ci.IWebCLSampler
+        o instanceof Ci.IWebCLSampler || o instanceof Ci.IWebCLException
     )
     {
       if (o.wrappedJSObject) o = o.wrappedJSObject;
@@ -253,16 +271,30 @@ function unwrapInternalOrNull (object)
       if (o.wrappedJSObject) o = o.wrappedJSObject;
       rv = o;
     }
+    else if ("_internal" in o)
+    {
+      // NOTE: The object was not identified as IWebCL* object but it quacks like
+      // a client wrapper object. Those should be unwrapped on the client wrapper
+      // side but due to issues in unwrapping objects containing IWebCL* objects
+      // we might get client side wrappers here as well.
+      // Try a 2nd stage unwrapping on the "_internal" member. If we don't get
+      // anything out of that, then we'll just return the object as such.
+
+      rv = unwrapInternal (o._internal, --maxRecursion);
+    }
+
   }
-  catch(e) {}
+  catch(e) {
+    ERROR ("unwrapInternalOrNull: " + e);
+  }
 
   return rv;
 }
 
 
-function unwrapInternal (object)
+function unwrapInternal (object, /*optional*/ maxRecursion)
 {
-  var rv = unwrapInternalOrNull (object);
+  var rv = unwrapInternalOrNull (object, maxRecursion);
   if (rv == null) rv = object;
   return rv;
 }

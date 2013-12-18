@@ -40,6 +40,8 @@ Base.prototype._register = function (owner)
 {
   TRACE (this, "_register", arguments);
 
+  if (!owner) return;
+
   if (owner.wrappedJSObject) owner = owner.wrappedJSObject;
 
   if (this._owner)

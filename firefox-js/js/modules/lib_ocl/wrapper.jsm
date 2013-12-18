@@ -31,7 +31,7 @@ try
     Cu.import ("resource://nrcwebcl/modules/lib_ocl/platform.jsm");
     Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
     Cu.import ("resource://nrcwebcl/modules/lib_ocl/context.jsm");
-    // Cu.import ("resource://nrcwebcl/modules/lib_ocl/kernel.jsm");
+    Cu.import ("resource://nrcwebcl/modules/lib_ocl/event.jsm");
 
     Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 

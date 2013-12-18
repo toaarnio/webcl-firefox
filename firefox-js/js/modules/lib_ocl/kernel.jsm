@@ -270,7 +270,7 @@ Kernel.prototype.retain = function ()
 {
   TRACE (this, "retain", arguments);
 
-  var err = this._lib.clRetainProgram (this._internal);
+  var err = this._lib.clRetainKernel (this._internal);
   if (err) throw new CLError (err, null, "Kernel.retain");
 };
 
@@ -279,7 +279,7 @@ Kernel.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
-  var err = this._lib.clReleaseProgram (this._internal);
+  var err = this._lib.clReleaseKernel (this._internal);
   if (err) throw new CLError (err, null, "Kernel.release");
 };
 

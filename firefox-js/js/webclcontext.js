@@ -155,7 +155,7 @@ Context.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   return this._wrapInternal (this._internal.getInfo (name), this);
 };
@@ -165,7 +165,7 @@ Context.prototype.getSupportedImageFormats = function (memFlags)
 {
   TRACE (this, "getSupportedImageFormats", arguments);
 
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   var list = this._internal.getSupportedImageFormats (memFlags,
                                                       ocl_const.CL_MEM_OBJECT_IMAGE2D);
@@ -209,6 +209,8 @@ Context.prototype.releaseAll = function ()
   });
 
   this._clearRegistry ();
+
+  this.release ();
 };
 
 

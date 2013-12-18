@@ -79,6 +79,8 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
                                                     region,
                                                     eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueCopyImage", arguments);
+
   var clSrcImage = this._unwrapInternalOrNull (srcImage);
   if (!webclutils.validateImage(clSrcImage)) throw new Exception ("Invalid argument: srcImage");
 
@@ -111,6 +113,8 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
                                                             srcOrigin, srcRegion, dstOffset,
                                                             eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueCopyImageToBuffer", arguments);
+
   var clSrcImage = this._unwrapInternalOrNull (srcImage);
   if (!webclutils.validateImage(clSrcImage)) throw new Exception ("Invalid argument: srcImage");
 
@@ -143,6 +147,8 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
                                                             srcOffset, dstOrigin, dstRegion,
                                                             eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueCopyBufferToImage", arguments);
+
   var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
   if (!webclutils.validateBuffer(clSrcBuffer)) throw new Exception ("Invalid argument: srcBuffer");
 
@@ -175,6 +181,8 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
                                                      bufferOffset, numBytes, hostPtr,
                                                      eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueReadBuffer", arguments);
+
   var clBuffer = this._unwrapInternalOrNull (buffer);
   if (!webclutils.validateBuffer(clBuffer))
     throw new Exception ("Invalid argument: buffer");
@@ -210,6 +218,8 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
                                                          hostPtr,
                                                          eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueReadBufferRect", arguments);
+
   var clBuffer = this._unwrapInternalOrNull (buffer);
   if (!webclutils.validateBuffer(clBuffer)) throw new Exception ("Invalid argument: buffer");
 
@@ -240,6 +250,8 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
                                                     origin, region, hostRowPitch,
                                                     hostPtr, eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueReadImage", arguments);
+
   var clImage = this._unwrapInternalOrNull (image);
   if (!webclutils.validateImage(clImage)) throw new Exception ("Invalid argument: image");
 
@@ -268,6 +280,8 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
                                                       bufferOffset, numBytes, hostPtr,
                                                       eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueWriteBuffer", arguments);
+
   var clBuffer = this._unwrapInternalOrNull (buffer);
   if (!webclutils.validateBuffer(clBuffer))
     throw new Exception ("Invalid argument: buffer");
@@ -306,6 +320,8 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
                                                           hostPtr,
                                                           eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueWriteBufferRect", arguments);
+
   var clBuffer = this._unwrapInternalOrNull (buffer);
   if (!webclutils.validateBuffer(clBuffer)) throw new Exception ("Invalid argument: buffer");
 
@@ -336,6 +352,8 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
                                                     origin, region, hostRowPitch,
                                                     hostPtr, eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueWriteImage", arguments);
+
   var clImage = this._unwrapInternalOrNull (image);
   if (!webclutils.validateImage(clImage)) throw new Exception ("Invalid argument: image");
 
@@ -364,6 +382,8 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
                                                         globalWorkSize, localWorkSize,
                                                         eventWaitList, eventOut)
 {
+  TRACE (this, "enqueueNDRangeKernel", arguments);
+
   var clKernel = this._unwrapInternalOrNull (kernel);
   if (!webclutils.validateKernel(clKernel))
     throw new Exception ("Invalid argument: kernel");
@@ -479,6 +499,11 @@ CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
   {
     // Ensure webcl event is unwrapped
     if (webclEvent.wrappedJSObject) webclEvent = webclEvent.wrappedJSObject;
+
+    if (!webclEvent instanceof Ci.IWebCLEvent)
+    {
+      throw new Exception ("Invalid argument: event"); // TODO!
+    }
 
     // If the event object was already in use, release the internals. This will
     // also cause it to be unregistered!

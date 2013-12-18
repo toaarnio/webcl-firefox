@@ -70,7 +70,7 @@ Kernel.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLKernel,
 Kernel.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   return this._wrapInternal (this._internal.getInfo (name));
 };
@@ -79,7 +79,7 @@ Kernel.prototype.getInfo = function (name)
 Kernel.prototype.getWorkGroupInfo = function (device, name)
 {
   TRACE (this, "getWorkGroupInfo", arguments);
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   var clDevice = this._unwrapInternalOrNull (device);
 

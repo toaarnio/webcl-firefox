@@ -69,7 +69,7 @@ Sampler.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   return this._wrapInternal (this._internal.getInfo (name));
 };

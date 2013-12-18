@@ -172,6 +172,8 @@ WebCL.prototype.createContext = function (properties)
 
     if (typeof(properties) == "object")
     {
+      // TODO: If properties.devices is not a proper array, it's just ignored.
+      //       This is probably not OK.
       if (Array.isArray(properties.devices))
       {
         devices = [];
@@ -185,6 +187,7 @@ WebCL.prototype.createContext = function (properties)
           }
           else
           {
+            DEBUG("WebCL.createContext: properties.devices["+i+"]: Invalid device: " + p);
             // TODO: Invalid device: ERROR?!
           }
         }
@@ -268,9 +271,16 @@ WebCL.prototype.releaseAll = function ()
   this._forEachRegistered (function (o)
   {
     o._unregister();
-    if ("release" in o)
+
+    if ("releaseAll" in o)
     {
-      o.release ();
+      try { o.releaseAll (); } catch(e){ ERROR("WebCL.releaseAll: " +
+                                               o.toString() + ".releaseAll failed: " + e); }
+    }
+    else if ("release" in o)
+    {
+      try { o.release (); } catch(e){ ERROR("WebCL.releaseAll: " +
+                                            o.toString() + ".releaseAll failed: " + e); }
     }
   });
 
@@ -385,12 +395,16 @@ WebCL.prototype.ensureUsePermitted = function ()
       return;
     }
 
-    if (this.showSecurityPrompt ())
+    if (!this.showSecurityPrompt ())
     {
-      // Security prompt accepted
-      this._usePermitted = true;
+      // Security prompt failed
+      this._securityDialogNeeded = false;
+      this._usePermitted = false;
       return;
     }
+
+    // Return if OK
+    if (this._usePermitted) return;
   }
 
   throw new Exception ("NOT PERMITTED.");

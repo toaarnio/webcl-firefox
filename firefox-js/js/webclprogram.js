@@ -71,7 +71,7 @@ Program.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLProgram,
 Program.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   return this._wrapInternal (this._internal.getInfo (name));
 };
@@ -80,7 +80,7 @@ Program.prototype.getInfo = function (name)
 Program.prototype.getBuildInfo = function (device, name)
 {
   TRACE (this, "getBuildInfo", arguments);
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   var clDevice = this._unwrapInternalOrNull (device);
   return this._wrapInternal (this._internal.getBuildInfo (clDevice, name));

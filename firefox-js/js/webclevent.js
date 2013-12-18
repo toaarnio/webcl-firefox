@@ -69,7 +69,7 @@ Event.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   return this._wrapInternal (this._internal.getInfo (name));
 };
@@ -79,7 +79,7 @@ Event.prototype.getProfilingInfo = function (name)
 {
   TRACE (this, "getProfilingInfo", arguments);
 
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   return this._wrapInternal (this._internal.getProfilingInfo (name));
 };
@@ -145,7 +145,7 @@ UserEvent.prototype.setUserEventStatus = function (executionStatus)
 {
   TRACE (this, "setUserEventStatus", arguments);
 
-  if (!this._owner) throw new Exception ();
+  //if (!this._owner) throw new Exception ();
 
   this._internal.setUserEventStatus (executionStatus);
 };

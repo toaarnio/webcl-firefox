@@ -15,4 +15,4 @@ pref("extensions.webcl.trace", false);
 // Select API mode
 //                   "": Default API
 //   "deprecated-1.0.3": Emulate old Nokia WebCL API
-pref("extensions.webcl.api-mode", "");
+/*pref("extensions.webcl.api-mode", "");*/

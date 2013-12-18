@@ -36,7 +36,7 @@ var OwnerMixin =
 
   _registerObject: function (obj)
   {
-    LOG (this.classDescription + "._registerObject("+obj.wrappedJSObject.classDescription+")");
+    TRACE (this, "_registerObject", arguments);
 
     try
     {
@@ -54,7 +54,11 @@ var OwnerMixin =
         throw new Error ("Object already registered");
       }
 
-      this._objectRegistry.push (obj);
+      if ("release" in obj || "releaseAll" in obj)
+      {
+        this._objectRegistry.push (obj);
+      }
+
       obj._owner = this;
     }
     catch (e)
@@ -68,7 +72,7 @@ var OwnerMixin =
 
   _unregisterObject: function (obj)
   {
-    LOG (this.classDescription + "._unregisterObject("+obj.wrappedJSObject.classDescription+")");
+    TRACE (this, "_unregisterObject", arguments);
 
     try
     {
@@ -100,18 +104,22 @@ var OwnerMixin =
 
   _forEachRegistered: function (callback)
   {
+    TRACE (this, "_forEachRegistered", arguments);
     if (!callback || typeof(callback) != "function") callback = function () {};
 
-    for (var i = 0; i < this._objectRegistry.length; ++i)
+    // Modifications to _objectRegistry must not affect iteration here.
+    var list = this._objectRegistry.slice(0);
+    for (var i = 0; i < list.length; ++i)
     {
-      var o = this._objectRegistry[i];
+      var o = list[i];
       callback (o);
     }
   },
 
   _clearRegistry: function ()
   {
-    this._objectRegistry = [];
+    TRACE (this, "_clearRegistry", arguments);
+    this._objectRegistry.length = 0;
   }
 };
 
