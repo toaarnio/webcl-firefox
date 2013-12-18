@@ -246,7 +246,7 @@
     //if (this.name) this.message += (this.ctx ? " " : "") + this.name;
     if (this.msg) this.message += (this.name ? ": " : "") + this.msg;
   }
-  _WebCLException.prototype = Object.create (DOMException.prototype);
+  //_WebCLException.prototype = Object.create (DOMException.prototype);
 
   _WebCLException.prototype.toString = function ()
   {
