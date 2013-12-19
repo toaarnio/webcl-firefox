@@ -141,13 +141,13 @@ UserEvent.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLUserEve
 //------------------------------------------------------------------------------
 // IWebCLUserEvent
 
-UserEvent.prototype.setUserEventStatus = function (executionStatus)
+UserEvent.prototype.setStatus = function (executionStatus)
 {
-  TRACE (this, "setUserEventStatus", arguments);
+  TRACE (this, "setStatus", arguments);
 
   //if (!this._owner) throw new Exception ();
 
-  this._internal.setUserEventStatus (executionStatus);
+  this._internal.setStatus (executionStatus);
 };
 
 
