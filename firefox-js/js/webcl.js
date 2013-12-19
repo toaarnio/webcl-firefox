@@ -170,40 +170,44 @@ WebCL.prototype.createContext = function (properties)
 
     var devices = null, platform = null, deviceType = 0x1;
 
-    if (typeof(properties) == "object")
+    if (properties && typeof(properties) === "object")
     {
-      // TODO: If properties.devices is not a proper array, it's just ignored.
-      //       This is probably not OK.
-      if (Array.isArray(properties.devices))
+      if (properties.devices)
       {
-        devices = [];
-        for (var i = 0; i < properties.devices.length; ++i)
+        if (Array.isArray(properties.devices))
         {
-          var p = webclutils.unwrapInternalOrNull (properties.devices[i]);
+          devices = [];
+          for (var i = 0; i < properties.devices.length; ++i)
+          {
+            var p = webclutils.unwrapInternalOrNull (properties.devices[i]);
 
-          if (p && p instanceof Device)
-          {
-            devices.push (p);
+            if (p && p instanceof Device)
+            {
+              devices.push (p);
+            }
+            else
+            {
+              DEBUG("WebCL.createContext: properties.devices["+i+"]: Invalid device: " + p);
+              throw Exception ("properties.devices must only contain WebCLDevice elements");
+            }
           }
-          else
-          {
-            DEBUG("WebCL.createContext: properties.devices["+i+"]: Invalid device: " + p);
-            // TODO: Invalid device: ERROR?!
-          }
+        } 
+        else 
+        {
+          DEBUG("WebCL.createContext: properties.devices is not an array or null");
+          throw Exception ("properties.devices must be an array of valid WebCLDevices, or null");
         }
-      }
-
-      if (typeof(properties.platform) == "object")
+      } 
+      else if (properties.platform && typeof(properties.platform) === "object")
       {
         platform = webclutils.unwrapInternalOrNull (properties.platform);
         if (!platform || !platform instanceof Platform)
         {
-          // TODO: Invalid platform: ERROR?!
-          platform = null;
+          DEBUG("WebCL.createContext: properties.platform is not a valid WebCLPlatform or null");
+          throw Exception ("properties.platform must be a valid WebCLPlatform, or null");
         }
       }
-
-      if (properties.deviceType)
+      else if (properties.deviceType)
       {
         if (!isNaN(+properties.deviceType))
         {
@@ -211,7 +215,8 @@ WebCL.prototype.createContext = function (properties)
         }
         else
         {
-          // TODO: Invalid device type: ERROR?!
+          DEBUG("WebCL.createContext: properties.deviceType is not a valid DEVICE_TYPE enum");
+          throw Exception ("properties.deviceType must be a valid DEVICE_TYPE enum, or null");
         }
       }
     }
@@ -236,7 +241,9 @@ WebCL.prototype.createContext = function (properties)
         platform = platforms[p];
         try {
           clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
-        } catch (e) {}
+        } catch (e) {
+          LOG("WebCL.createContext: Could not create a context on platform " + p);
+        }
       }
       if (!clCtx) {
         throw Exception ("Could not create a Context for deviceType " + deviceType + " on any WebCLPlatform.");
