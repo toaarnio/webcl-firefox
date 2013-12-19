@@ -277,41 +277,83 @@
 
   WebCL.getPlatforms = function ()
   {
-    if (!_ensureWebCLAvailable ()) return;
-    return _wrapInternalObject (_handle.getPlatforms ());
+    try
+    {
+      if (!_ensureWebCLAvailable ()) return;
+      return _wrapInternalObject (_handle.getPlatforms ());
+    }
+    catch (e)
+    {
+      throw _wrapException (e, this._name);
+    }
   };
 
   WebCL.createContext = function()
   {
-    if (!_ensureWebCLAvailable()) return;
-    var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-    return _wrapInternalObject (_handle.createContext.apply (_handle, args));
+    try
+    {
+      if (!_ensureWebCLAvailable()) return;
+      var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
+      return _wrapInternalObject (_handle.createContext.apply (_handle, args));
+    }
+    catch (e)
+    {
+      throw _wrapException (e, this._name);
+    }
   };
 
   WebCL.getSupportedExtensions = function ()
   {
-    if (!_ensureWebCLAvailable ()) return;
-    var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-    return _wrapInternalObject (_handle.getSupportedExtensions.apply (_handle, args));
+    try
+    {
+      if (!_ensureWebCLAvailable ()) return;
+      var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
+      return _wrapInternalObject (_handle.getSupportedExtensions.apply (_handle, args));
+    }
+    catch (e)
+    {
+      throw _wrapException (e, this._name);
+    }
   }
 
   WebCL.enableExtension = function ()
   {
-    if (!_ensureWebCLAvailable ()) return;
-    var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-    return _wrapInternalObject (_handle.enableExtension.apply (_handle, args));
+    try
+    {
+      if (!_ensureWebCLAvailable ()) return;
+      var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
+      return _wrapInternalObject (_handle.enableExtension.apply (_handle, args));
+    }
+    catch (e)
+    {
+      throw _wrapException (e, this._name);
+    }
   }
 
   WebCL.waitForEvents = function ()
   {
-    if (!_ensureWebCLAvailable ()) return;
-    var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-    return _wrapInternalObject (_handle.waitForEvents.apply (_handle, args));
+    try
+    {
+      if (!_ensureWebCLAvailable ()) return;
+      var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
+      return _wrapInternalObject (_handle.waitForEvents.apply (_handle, args));
+    }
+    catch (e)
+    {
+      throw _wrapException (e, this._name);
+    }
   };
 
   WebCL.releaseAll = function() {
-    if (!_ensureWebCLAvailable ()) return;
-    _handle.releaseAll ();
+    try
+    {
+      if (!_ensureWebCLAvailable ()) return;
+      _handle.releaseAll ();
+    }
+    catch (e)
+    {
+      throw _wrapException (e, this._name);
+    }
   }
 
 
