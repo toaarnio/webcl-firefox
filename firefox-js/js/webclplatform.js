@@ -75,7 +75,16 @@ Platform.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  //if (!this._owner) throw new Exception ();
+  switch (name)
+  {
+    case ocl_info.CL_PLATFORM_PROFILE:                  return "WEBCL_PROFILE";
+    case ocl_info.CL_PLATFORM_VERSION:                  return "WebCL 1.0";
+    case ocl_info.CL_PLATFORM_NAME:                     break;
+    case ocl_info.CL_PLATFORM_VENDOR:                   break;
+    case ocl_info.CL_PLATFORM_EXTENSIONS:               break;
+    default:
+      throw new Exception ("INVALID_VALUE"); // TODO!
+  }
 
   return this._wrapInternal (this._internal.getInfo (name));
 };
