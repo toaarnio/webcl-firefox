@@ -71,7 +71,7 @@ dist-src: $(SRC_PACKAGE)
 
 $(SRC_PACKAGE): Makefile buildconfig.inc install.rdf chrome.manifest $(INTERFACE_FILES) $(SOURCE_FILES) COPYING zipexclude.lst
 	@rm -f $(SRC_PACKAGE)
-	zip -r $@ ^ content defaults -x@zipexclude.lst
+	zip -r $@ $^ content defaults -x@zipexclude.lst
 
 
 docs:
