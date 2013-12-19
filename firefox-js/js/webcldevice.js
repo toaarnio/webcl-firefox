@@ -26,6 +26,7 @@ Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
 
 try {
@@ -136,7 +137,7 @@ Device.prototype.getInfo = function (name)
     case ocl_info.CL_DEVICE_OPENCL_C_VERSION:                   break;
     case ocl_info.CL_DEVICE_EXTENSIONS:                         break;
     default:
-      throw new Exception ("INVALID_VALUE"); // TODO!
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLDevice.getInfo");
   }
 
   return this._wrapInternal (this._internal.getInfo (name));

@@ -55,6 +55,8 @@ function Context (owner)
                        Ci.nsIClassInfo,
                        Ci.nsISupports
                      ];
+
+  this._contextProperties = null;
 }
 
 Context.prototype = Object.create (Base.prototype);
@@ -156,6 +158,14 @@ Context.prototype.getInfo = function (name)
   TRACE (this, "getInfo", arguments);
 
   //if (!this._owner) throw new Exception ();
+  switch (name)
+  {
+    case ocl_info.CL_CONTEXT_NUM_DEVICES:               break;
+    case ocl_info.CL_CONTEXT_DEVICES:                   break;
+    case ocl_info.CL_CONTEXT_PROPERTIES:                return this._contextProperties;
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLContext.getInfo");
+  }
 
   return this._wrapInternal (this._internal.getInfo (name), this);
 };

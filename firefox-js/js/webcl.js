@@ -232,8 +232,13 @@ WebCL.prototype.createContext = function (properties)
       clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
     }
 
-    var x = webclutils.wrapInternal (clCtx, this);
-    return x;
+    var webclCtx = webclutils.wrapInternal (clCtx, this);
+
+    // Store the original context properties object.
+    // TODO: Should it be cloned?
+    webclCtx.wrappedJSObject._contextProperties = properties;
+
+    return webclCtx;
 
   } catch (e) { throw Exception ("WebCL.createContext failed: " + e); }
 };

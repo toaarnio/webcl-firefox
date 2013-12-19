@@ -85,7 +85,17 @@
       return e;
     }
 
-    var name = "WEBCL_IMPLEMENTATION_FAILURE", msg = e.toString();//"";
+    var name = "WEBCL_IMPLEMENTATION_FAILURE", msg = "";
+    try {
+      var originalDescription = "";
+      if (e && typeof(e) == "object") {
+        if ("toString" in e && typeof(e.toString) == "function")
+          originalDescription = e.toString();
+        else
+          originalDescription = Object.prototype.toString.apply (e);
+      }
+      msg = originalDescription;
+    } catch(e2) { }
 
     if (e && typeof(e) == "object")
     {
@@ -119,7 +129,8 @@
         }
         else
         {
-          console.log ("WebCL wrapException  Unknown error: " + e);
+          console.log ("WebCL wrapException  Unknown error" +
+                       (originalDescription ? ": "+originalDescription+"." : "."));
           name = "WEBCL_IMPLEMENTATION_FAILURE";
           msg = "Unknown error.";
         }
@@ -220,7 +231,7 @@
       }
       catch (e)
       {
-        throw _wrapException (e, this._name);
+        throw _wrapException (e, this._name+"."+fname);
       }
     };
   }
@@ -243,8 +254,8 @@
     this.ctx = ctx;
     this.message = "";
     if (this.ctx) this.message += "[" + this.ctx + "] ";
-    //if (this.name) this.message += (this.ctx ? " " : "") + this.name;
-    if (this.msg) this.message += (this.name ? ": " : "") + this.msg;
+    if (this.name) this.message += (this.ctx ? " " : "") + this.name;
+    //if (this.msg) this.message += (this.name ? ": " : "") + this.msg;
   }
   //_WebCLException.prototype = Object.create (DOMException.prototype);
 
@@ -252,6 +263,17 @@
   {
     return this.message;
   };
+
+
+
+  // == WebCLContextProperties ===================================================
+  function _WebCLContextProperties (devices, platform, deviceType)
+  {
+    this.devices = devices || null;
+    this.platform = platform || null;
+    this.deviceType = deviceType || WebCL.DEVICE_TYPE_DEFAULT;
+  }
+
 
 
   // == WebCL ====================================================================
@@ -273,6 +295,7 @@
   window.WebCLSampler = _Sampler;
 
   window.WebCLException = _WebCLException;
+  window.WebCLContextProperties = _WebCLContextProperties;
 
 
   WebCL.getPlatforms = function ()
@@ -284,7 +307,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name);
+      throw _wrapException (e, this._name+".getPlatforms");
     }
   };
 
@@ -298,7 +321,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name);
+      throw _wrapException (e, this._name+".createContext");
     }
   };
 
@@ -312,7 +335,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name);
+      throw _wrapException (e, this._name+".getSupportedExtensions");
     }
   }
 
@@ -326,7 +349,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name);
+      throw _wrapException (e, this._name+".enableExtension");
     }
   }
 
@@ -340,7 +363,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name);
+      throw _wrapException (e, this._name+".waitForEvents");
     }
   };
 
@@ -352,7 +375,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name);
+      throw _wrapException (e, this._name+".releaseAll");
     }
   }
 
@@ -423,6 +446,26 @@
   _Context.prototype.release = _createDefaultFunctionWrapper ("release");
   _Context.prototype.releaseAll = _createDefaultFunctionWrapper ("releaseAll");
 
+  _Context.prototype.getInfo = function (name)
+  {
+    try
+    {
+      _validateInternal (this);
+      var rv = this._internal.getInfo (_unwrapInternalObject(name));
+      if (name == 0x1082) // CONTEXT_PROPERTIES
+      {
+        return new WebCLContextProperties (rv.devices, rv.platform, rv.deviceType);
+      }
+      else
+      {
+        return _wrapInternalObject (rv);
+      }
+    }
+    catch (e)
+    {
+      throw _wrapException (e, this._name+".getInfo");
+    }
+  };
 
 
   // == Program ==================================================================
