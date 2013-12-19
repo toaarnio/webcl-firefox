@@ -216,20 +216,31 @@ WebCL.prototype.createContext = function (properties)
       }
     }
 
-    if (!platform)
-    {
-      // TODO: Using first platform as the default
-      platform = this._internal.getPlatforms ()[0];
-    }
+    var clCtx = null;
 
-    var clCtx;
     if (devices)
     {
-      clCtx = this._internal.createContext([0x1084, platform, 0], devices);
+      LOG("WebCL.createContext: creating a context on the given device(s)");
+      clCtx = this._internal.createContext([], devices);
+    }
+    else if (platform)
+    {
+      LOG("WebCL.createContext: creating a context on the given platform");
+      clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
     }
     else
     {
-      clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
+      LOG("WebCL.createContext: creating a context for deviceType " + deviceType + " on any platform");
+      var platforms = this._internal.getPlatforms ();
+      for (var p=0; p < platforms.length; p++) {
+        platform = platforms[p];
+        try {
+          clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
+        } catch (e) {}
+      }
+      if (!clCtx) {
+        throw Exception ("Could not create a Context for deviceType " + deviceType + " on any WebCLPlatform.");
+      }
     }
 
     var webclCtx = webclutils.wrapInternal (clCtx, this);
