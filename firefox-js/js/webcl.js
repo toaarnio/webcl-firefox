@@ -200,12 +200,12 @@ WebCL.prototype.createContext = function (properties)
               throw Exception ("properties.devices must only contain WebCLDevice elements");
             }
           }
-        } 
+        }
         else {
           DEBUG("WebCL.createContext: properties.devices is not an array or null");
           throw Exception ("properties.devices must be an array of valid WebCLDevices, or null");
         }
-      } 
+      }
       else
       {
         if (properties.platform && typeof(properties.platform) === "object")
