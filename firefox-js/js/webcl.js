@@ -173,6 +173,7 @@ WebCL.prototype.createContext = function (properties)
     // STEP 1. Validate 'properties' as follows:
     //
     // if 'properties' is not undefined, null, or empty
+    //   throw if 'properties' is not an object
     //   if 'properties.devices' is not undefined or null
     //     throw if 'properties.devices' is not an array
     //     throw if 'properties.devices' is an empty array
@@ -180,11 +181,16 @@ WebCL.prototype.createContext = function (properties)
     //   else
     //     if 'properties.platform' is not undefined or null
     //       throw if 'properties.platform' is not a WebCLPlatform
-    //     if 'properties.deviceType' is not undefined
+    //     if 'properties.deviceType' is not undefined or null
     //       throw if 'properties.deviceType' is not a valid DEVICE_TYPE
 
-    if (properties && typeof(properties) === "object")
+    if (properties)
     {
+      if (typeof(properties) !== "object") 
+      {
+        DEBUG("WebCL.createContext: properties is not a valid object");
+        throw Exception ("properties must be typeof 'object'");
+      }
       if (properties.devices)
       {
         if (Array.isArray(properties.devices) && properties.devices.length > 0)
@@ -208,7 +214,7 @@ WebCL.prototype.createContext = function (properties)
       }
       else
       {
-        if (properties.platform && typeof(properties.platform) === "object")
+        if (properties.platform)
         {
           platform = webclutils.unwrapInternalOrNull (properties.platform);
           if (!platform || !platform instanceof Platform) {
@@ -237,8 +243,10 @@ WebCL.prototype.createContext = function (properties)
     // else 
     //   if 'platform' is non-null
     //     create a context using 'platform' and 'deviceType'
+    //     return null if 'platform' does not have a device with 'deviceType'
     //   else
     //     create a context using 'deviceType'
+    //     return null if no platform has a device with 'deviceType'
 
     var clCtx = null;
 
@@ -249,8 +257,15 @@ WebCL.prototype.createContext = function (properties)
     }
     else if (platform)
     {
-      LOG("WebCL.createContext: creating a context on the given platform");
-      clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
+      LOG("WebCL.createContext: creating a context on the given platform for deviceType " + deviceType);
+      try {
+        clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
+      } catch(e) {
+        // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
+        // TODO: alternatively, check that platform has the given type of device before calling createContext
+        LOG("WebCL.createContext: Could not create a context for deviceType " + deviceType + " on platform " + p);
+        return null;
+      }
     }
     else
     {
@@ -265,6 +280,8 @@ WebCL.prototype.createContext = function (properties)
         try {
           clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
         } catch (e) {
+          // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
+          // TODO: alternatively, check that platform has the given type of device before calling createContext
           LOG("WebCL.createContext: Could not create a context on platform " + p);
         }
       }
