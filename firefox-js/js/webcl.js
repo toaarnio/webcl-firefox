@@ -191,13 +191,13 @@ WebCL.prototype.createContext = function (properties)
               throw Exception ("properties.devices must only contain WebCLDevice elements");
             }
           }
-        } 
-        else 
+        }
+        else
         {
           DEBUG("WebCL.createContext: properties.devices is not an array or null");
           throw Exception ("properties.devices must be an array of valid WebCLDevices, or null");
         }
-      } 
+      }
       else if (properties.platform && typeof(properties.platform) === "object")
       {
         platform = webclutils.unwrapInternalOrNull (properties.platform);
@@ -237,7 +237,7 @@ WebCL.prototype.createContext = function (properties)
     {
       LOG("WebCL.createContext: creating a context for deviceType " + deviceType + " on any platform");
       var platforms = this._internal.getPlatforms ();
-      for (var p=0; p < platforms.length; p++) {
+      for (var p=0; p < platforms.length && !clCtx; p++) {
         platform = platforms[p];
         try {
           clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
