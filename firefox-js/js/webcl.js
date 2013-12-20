@@ -173,6 +173,7 @@ WebCL.prototype.createContext = function (properties)
     // STEP 1. Validate 'properties' as follows:
     //
     // if 'properties' is not undefined, null, or empty
+    //   throw if 'properties' is not an object
     //   if 'properties.devices' is not undefined or null
     //     throw if 'properties.devices' is not an array
     //     throw if 'properties.devices' is an empty array
@@ -183,8 +184,13 @@ WebCL.prototype.createContext = function (properties)
     //     if 'properties.deviceType' is not undefined
     //       throw if 'properties.deviceType' is not a valid DEVICE_TYPE
 
-    if (properties && typeof(properties) === "object")
+    if (properties)
     {
+      if (typeof(properties) !== "object") 
+      {
+        DEBUG("WebCL.createContext: properties is not a valid object");
+        throw Exception ("properties must be typeof 'object'");
+      }
       if (properties.devices)
       {
         if (Array.isArray(properties.devices) && properties.devices.length > 0)
