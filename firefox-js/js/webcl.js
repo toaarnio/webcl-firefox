@@ -214,7 +214,7 @@ WebCL.prototype.createContext = function (properties)
       }
       else
       {
-        if (properties.platform && typeof(properties.platform) === "object")
+        if (properties.platform)
         {
           platform = webclutils.unwrapInternalOrNull (properties.platform);
           if (!platform || !platform instanceof Platform) {
