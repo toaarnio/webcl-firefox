@@ -89,6 +89,23 @@ Program.prototype.getBuildInfo = function (device, name)
 
 Program.prototype.build = function (devices, options, fnWhenFinished)
 {
+  TRACE (this, "build", arguments);
+
+  if (!devices)
+  {
+    ERROR("WebCLProgram.build: 'devices === null' is not yet supported.")
+  }
+
+  if (devices.length === 0)
+  {
+    ERROR("WebCLProgram.build: 'devices === []' is not yet supported.")
+  }
+
+  if (!Array.isArray(devices))
+  {
+    ERROR("WebCLProgram.build: 'devices' must be an Array or null.")
+  }
+
   var clDevices = [];
   for (var i = 0; i < devices.length; ++i)
   {
@@ -108,7 +125,7 @@ Program.prototype.build = function (devices, options, fnWhenFinished)
     callback = fnWhenFinished;
   }
 
-  this._internal.buildProgram (clDevices, options, callback);
+  this._internal.buildProgram (clDevices, options || "", callback);
 };
 
 
