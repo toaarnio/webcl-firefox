@@ -70,26 +70,50 @@ Kernel.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLKernel,
 Kernel.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  //if (!this._owner) throw new Exception ();
 
-  return this._wrapInternal (this._internal.getInfo (name));
+  try
+  {
+    return this._wrapInternal (this._internal.getInfo (name));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 Kernel.prototype.getWorkGroupInfo = function (device, name)
 {
   TRACE (this, "getWorkGroupInfo", arguments);
-  //if (!this._owner) throw new Exception ();
 
-  var clDevice = this._unwrapInternalOrNull (device);
+  try
+  {
+    var clDevice = this._unwrapInternalOrNull (device);
 
-  return this._wrapInternal (this._internal.getWorkGroupInfo (clDevice, name));
+    return this._wrapInternal (this._internal.getWorkGroupInfo (clDevice, name));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 Kernel.prototype.getArgInfo = function ()
 {
-  throw new Exception ("NOT IMPLEMENTED");
+  TRACE (this, "getArgInfo", arguments);
+
+  try
+  {
+    throw new Exception ("NOT IMPLEMENTED");
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -99,13 +123,32 @@ Kernel.prototype.setArg = function (index, value)
 
   try
   {
+    // Handle arguments with local address space qualifier.
+    // The number of bytes allocated is set using Uint32Array of length 1.
+    // As we don't have getArgInfo we'll just test any such argument by treating
+    // them initially as local arg and hope that CL driver fails that if they
+    // weren't.
+    try {
+      if (value && typeof(value) == "object")
+      {
+        let re = /\[object (\w*)\]/.exec(Object.prototype.toString.call(value));
+        if (re && re[1] && re[1] == "Uint32Array" && value.length == 1)
+        {
+          DEBUG ("Kernel.setArg: Possible local arg detected, index="+index+" size="+value[0]+".");
+          this._internal.setArg (+index, +(value[0]));
+
+          // setArg didn't fail so arg seems to have been local.
+          return;
+        }
+      }
+    } catch(e) {}
+
     this._internal.setArg (+index, this._unwrapInternal (value));
   }
   catch (e)
   {
-    // TODO: Handle errors properly
-    if (e instanceof CLException) e = e.toString();
-    throw new Exception (e);
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
 };
 
@@ -114,10 +157,18 @@ Kernel.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
-  this._unregister ();
+  try
+  {
+    this._unregister ();
 
-  this._internal.release ();
-  this._internal = null;
+    this._internal.release ();
+    this._internal = null;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -129,4 +180,4 @@ Kernel.prototype.release = function ()
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Kernel]);
 
 
-} catch(e) { Components.utils.reportError ("kernel.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclkernel.js: "+EXCEPTIONSTR(e)); }
