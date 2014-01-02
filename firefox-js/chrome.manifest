@@ -54,8 +54,6 @@ interfaces components/IWebCLImageDescriptor.xpt
 component {8f865901-2efb-422e-bb15-26e0beb0c845} components/webclimagedescriptor.js
 contract @webcl.nokiaresearch.com/IWebCLImageDescriptor;1 {8f865901-2efb-422e-bb15-26e0beb0c845}
 
-interfaces components/IWebCLException.xpt
-
 
 component {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2} components/clientwrapperloader.js
 contract @webcl.nokiaresearch.com/WebCLJSWrapperLoader;1 {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2}

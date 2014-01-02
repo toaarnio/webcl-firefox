@@ -81,8 +81,16 @@ Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 {
   TRACE (this, "createBuffer", arguments);
 
-  return this._wrapInternal (this._internal.createBuffer (memFlags, sizeInBytes, hostPtr),
-                             this);
+  try
+  {
+    return this._wrapInternal (this._internal.createBuffer (memFlags, sizeInBytes, hostPtr),
+                               this);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -90,21 +98,29 @@ Context.prototype.createCommandQueue = function (device, properties)
 {
   TRACE (this, "createCommandQueue", arguments);
 
-  if (device && !device instanceof Ci.IWebCLDevice)
+  try
   {
-    throw new Exception ("Context.createCommandQueue: Invalid argument: device.");  // TODO
-  }
-  if (!device) device = this.getInfo (ocl_info.CL_CONTEXT_DEVICES)[0];
+    if (device && !device instanceof Ci.IWebCLDevice)
+    {
+      throw new Exception ("Context.createCommandQueue: Invalid argument: device.");  // TODO
+    }
+    if (!device) device = this.getInfo (ocl_info.CL_CONTEXT_DEVICES)[0];
 
-  if (properties && isNaN(+properties))
+    if (properties && isNaN(+properties))
+    {
+      throw new Exception ("Context.createCommandQueue: Invalid argument: properties.");  // TODO
+    }
+    if (!properties) properties = 0;
+
+    var clDevice = this._unwrapInternalOrNull (device);
+    return this._wrapInternal (this._internal.createCommandQueue (clDevice, +properties),
+                               this);
+  }
+  catch (e)
   {
-    throw new Exception ("Context.createCommandQueue: Invalid argument: properties.");  // TODO
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
-  if (!properties) properties = 0;
-
-  var clDevice = this._unwrapInternalOrNull (device);
-  return this._wrapInternal (this._internal.createCommandQueue (clDevice, +properties),
-                             this);
 };
 
 
@@ -112,14 +128,22 @@ Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
 {
   TRACE (this, "createImage", arguments);
 
-  var clImageFormat = this._unwrapInternalOrNull (descriptor);
+  try
+  {
+    var clImageFormat = this._unwrapInternalOrNull (descriptor);
 
-  return this._wrapInternal (this._internal.createImage2D (memFlags,
-                                                           clImageFormat,
-                                                           clImageFormat.width,
-                                                           clImageFormat.height,
-                                                           clImageFormat.rowPitch,
-                                                           hostPtr));
+    return this._wrapInternal (this._internal.createImage2D (memFlags,
+                                                             clImageFormat,
+                                                             clImageFormat.width,
+                                                             clImageFormat.height,
+                                                             clImageFormat.rowPitch,
+                                                             hostPtr));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -127,12 +151,20 @@ Context.prototype.createProgram = function (source)
 {
   TRACE (this, "createProgram", arguments);
 
-  if (typeof (source) != "string")
+  try
   {
-    throw new Exception ("Context.createProgram: Invalid argument: source.");  // TODO
-  }
+    if (typeof (source) != "string")
+    {
+      throw new Exception ("Context.createProgram: Invalid argument: source.");  // TODO
+    }
 
-  return this._wrapInternal (this._internal.createProgramWithSource (source), this);
+    return this._wrapInternal (this._internal.createProgramWithSource (source), this);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -140,8 +172,16 @@ Context.prototype.createSampler = function (normalizedCoords, addressingMode, fi
 {
   TRACE (this, "createSampler", arguments);
 
-  return this._wrapInternal (this._internal.createSampler (normalizedCoords, addressingMode, filterMode),
-                             this);
+  try
+  {
+    return this._wrapInternal (this._internal.createSampler (normalizedCoords, addressingMode, filterMode),
+                               this);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -149,7 +189,15 @@ Context.prototype.createUserEvent = function ()
 {
   TRACE (this, "createUserEvent", arguments);
 
-  return this._wrapInternal (this._internal.createUserEvent ());
+  try
+  {
+    return this._wrapInternal (this._internal.createUserEvent ());
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -157,17 +205,24 @@ Context.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  //if (!this._owner) throw new Exception ();
-  switch (name)
+  try
   {
-    case ocl_info.CL_CONTEXT_NUM_DEVICES:               break;
-    case ocl_info.CL_CONTEXT_DEVICES:                   break;
-    case ocl_info.CL_CONTEXT_PROPERTIES:                return this._contextProperties;
-    default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLContext.getInfo");
-  }
+    switch (name)
+    {
+      case ocl_info.CL_CONTEXT_NUM_DEVICES:               break;
+      case ocl_info.CL_CONTEXT_DEVICES:                   break;
+      case ocl_info.CL_CONTEXT_PROPERTIES:                return this._contextProperties;
+      default:
+        throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLContext.getInfo");
+    }
 
-  return this._wrapInternal (this._internal.getInfo (name), this);
+    return this._wrapInternal (this._internal.getInfo (name), this);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -175,22 +230,28 @@ Context.prototype.getSupportedImageFormats = function (memFlags)
 {
   TRACE (this, "getSupportedImageFormats", arguments);
 
-  //if (!this._owner) throw new Exception ();
-
-  var list = this._internal.getSupportedImageFormats (memFlags,
-                                                      ocl_const.CL_MEM_OBJECT_IMAGE2D);
-
-  var rv = [];
-  for (var i = 0; i < list.length; ++i)
+  try
   {
-    rv.push (createWebCLImageDescriptor ({ channelOrder: list[i].channelOrder,
-                                         channelType: list[i].channelType,
-                                         width: 0,
-                                         height: 0,
-                                         rowPitch: 0 }));
-  }
+    var list = this._internal.getSupportedImageFormats (memFlags,
+                                                        ocl_const.CL_MEM_OBJECT_IMAGE2D);
 
-  return rv;
+    var rv = [];
+    for (var i = 0; i < list.length; ++i)
+    {
+      rv.push (createWebCLImageDescriptor ({ channelOrder: list[i].channelOrder,
+                                             channelType: list[i].channelType,
+                                             width: 0,
+                                             height: 0,
+                                             rowPitch: 0 }));
+    }
+
+    return rv;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -198,10 +259,18 @@ Context.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
-  this._unregister ();
+  try
+  {
+    this._unregister ();
 
-  this._internal.release ();
-  this._internal = null;
+    this._internal.release ();
+    this._internal = null;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -209,18 +278,26 @@ Context.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
 
-  this._forEachRegistered (function (o)
+  try
   {
-    o._unregister();
-    if ("release" in o)
+    this._forEachRegistered (function (o)
     {
-      o.release ();
-    }
-  });
+      o._unregister();
+      if ("release" in o)
+      {
+        o.release ();
+      }
+    });
 
-  this._clearRegistry ();
+    this._clearRegistry ();
 
-  this.release ();
+    this.release ();
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -231,4 +308,4 @@ Context.prototype.releaseAll = function ()
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Context]);
 
 
-} catch(e) { Components.utils.reportError ("context.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclcontext.js: "+EXCEPTIONSTR(e)); }

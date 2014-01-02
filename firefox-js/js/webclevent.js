@@ -69,9 +69,15 @@ Event.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  //if (!this._owner) throw new Exception ();
-
-  return this._wrapInternal (this._internal.getInfo (name));
+  try
+  {
+    return this._wrapInternal (this._internal.getInfo (name));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -79,15 +85,31 @@ Event.prototype.getProfilingInfo = function (name)
 {
   TRACE (this, "getProfilingInfo", arguments);
 
-  //if (!this._owner) throw new Exception ();
-
-  return this._wrapInternal (this._internal.getProfilingInfo (name));
+  try
+  {
+    return this._wrapInternal (this._internal.getProfilingInfo (name));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 Event.prototype.setCallback = function ()
 {
-  throw new Exception ("NOT IMPLEMENTED");
+  TRACE (this, "setCallback", arguments);
+
+  try
+  {
+    throw new Exception ("NOT IMPLEMENTED");
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -95,10 +117,18 @@ Event.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
-  this._unregister ();
+  try
+  {
+    this._unregister ();
 
-  this._internal.release ();
-  this._internal = null;
+    this._internal.release ();
+    this._internal = null;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -145,9 +175,15 @@ UserEvent.prototype.setStatus = function (executionStatus)
 {
   TRACE (this, "setStatus", arguments);
 
-  //if (!this._owner) throw new Exception ();
-
-  this._internal.setStatus (executionStatus);
+  try
+  {
+    this._internal.setStatus (executionStatus);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -159,4 +195,4 @@ UserEvent.prototype.setStatus = function (executionStatus)
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Event, UserEvent]);
 
 
-} catch(e) { Components.utils.reportError ("event.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclevent.js: "+EXCEPTIONSTR(e)); }

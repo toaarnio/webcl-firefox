@@ -150,11 +150,19 @@ WebCL.prototype.getPlatforms = function ()
 {
   TRACE (this, "getPlatforms", arguments);
 
-  this.ensureInitialized ();
-  this.ensureUsePermitted ();
-  this.ensureLibraryLoaded ();
+  try
+  {
+    this.ensureInitialized ();
+    this.ensureUsePermitted ();
+    this.ensureLibraryLoaded ();
 
-  return webclutils.wrapInternal (this._internal.getPlatforms (), this);
+    return webclutils.wrapInternal (this._internal.getPlatforms (), this);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -162,160 +170,186 @@ WebCL.prototype.createContext = function (properties)
 {
   TRACE (this, "createContext", arguments);
 
-  this.ensureInitialized ();
-  this.ensureUsePermitted ();
-  this.ensureLibraryLoaded ();
+  try
+  {
+    this.ensureInitialized ();
+    this.ensureUsePermitted ();
+    this.ensureLibraryLoaded ();
 
-  try {
+    try {
 
-    var devices = null, platform = null, deviceType = 0x1;
+      var devices = null, platform = null, deviceType = 0x1;
 
-    // STEP 1. Validate 'properties' as follows:
-    //
-    // if 'properties' is not undefined, null, or empty
-    //   throw if 'properties' is not an object
-    //   if 'properties.devices' is not undefined or null
-    //     throw if 'properties.devices' is not an array
-    //     throw if 'properties.devices' is an empty array
-    //     throw if 'properties.devices[i]' is not a WebCLDevice, for any i
-    //   else
-    //     if 'properties.platform' is not undefined or null
-    //       throw if 'properties.platform' is not a WebCLPlatform
-    //     if 'properties.deviceType' is not undefined or null
-    //       throw if 'properties.deviceType' is not a valid DEVICE_TYPE
+      // STEP 1. Validate 'properties' as follows:
+      //
+      // if 'properties' is not undefined, null, or empty
+      //   throw if 'properties' is not an object
+      //   if 'properties.devices' is not undefined or null
+      //     throw if 'properties.devices' is not an array
+      //     throw if 'properties.devices' is an empty array
+      //     throw if 'properties.devices[i]' is not a WebCLDevice, for any i
+      //   else
+      //     if 'properties.platform' is not undefined or null
+      //       throw if 'properties.platform' is not a WebCLPlatform
+      //     if 'properties.deviceType' is not undefined or null
+      //       throw if 'properties.deviceType' is not a valid DEVICE_TYPE
 
-    if (properties)
-    {
-      if (typeof(properties) !== "object") 
+      if (properties)
       {
-        DEBUG("WebCL.createContext: properties is not a valid object");
-        throw Exception ("properties must be typeof 'object'");
-      }
-      if (properties.devices)
-      {
-        if (Array.isArray(properties.devices) && properties.devices.length > 0)
+        if (typeof(properties) !== "object")
         {
-          devices = [];
-          for (var i = 0; i < properties.devices.length; ++i)
+          DEBUG("WebCL.createContext: properties is not a valid object");
+          throw Exception ("properties must be typeof 'object'");
+        }
+        if (properties.devices)
+        {
+          if (Array.isArray(properties.devices) && properties.devices.length > 0)
           {
-            var p = webclutils.unwrapInternalOrNull (properties.devices[i]);
-            if (p && p instanceof Device) {
-              devices.push (p);
+            devices = [];
+            for (var i = 0; i < properties.devices.length; ++i)
+            {
+              var p = webclutils.unwrapInternalOrNull (properties.devices[i]);
+              if (p && p instanceof Device) {
+                devices.push (p);
+              } else {
+                DEBUG("WebCL.createContext: properties.devices["+i+"]: Invalid device: " + p);
+                throw Exception ("properties.devices must only contain WebCLDevice elements");
+              }
+            }
+          }
+          else {
+            DEBUG("WebCL.createContext: properties.devices is not an array or null");
+            throw Exception ("properties.devices must be an array of valid WebCLDevices, or null");
+          }
+        }
+        else
+        {
+          if (properties.platform)
+          {
+            platform = webclutils.unwrapInternalOrNull (properties.platform);
+            if (!platform || !platform instanceof Platform) {
+              DEBUG("WebCL.createContext: properties.platform is not a valid WebCLPlatform or null");
+              throw Exception ("properties.platform must be a valid WebCLPlatform, or null");
+            }
+          }
+
+          if (properties.deviceType)
+          {
+            var dt = +properties.deviceType;
+            if (!isNaN(dt) && dt === 1 || dt === 2 || dt === 4 || dt === 8) {
+              deviceType = dt;
             } else {
-              DEBUG("WebCL.createContext: properties.devices["+i+"]: Invalid device: " + p);
-              throw Exception ("properties.devices must only contain WebCLDevice elements");
+              DEBUG("WebCL.createContext: properties.deviceType is not a valid DEVICE_TYPE enum");
+              throw Exception ("properties.deviceType must be a valid DEVICE_TYPE enum, or null");
             }
           }
         }
-        else {
-          DEBUG("WebCL.createContext: properties.devices is not an array or null");
-          throw Exception ("properties.devices must be an array of valid WebCLDevices, or null");
+      }
+
+      // STEP 2. Create a context based on pre-validated properties as follows:
+      //
+      // if 'devices' is non-null
+      //   create a context using 'devices'
+      // else
+      //   if 'platform' is non-null
+      //     create a context using 'platform' and 'deviceType'
+      //     return null if 'platform' does not have a device with 'deviceType'
+      //   else
+      //     create a context using 'deviceType'
+      //     return null if no platform has a device with 'deviceType'
+
+      var clCtx = null;
+
+      if (devices)
+      {
+        LOG("WebCL.createContext: creating a context on the given device(s)");
+        clCtx = this._internal.createContext([], devices);
+      }
+      else if (platform)
+      {
+        LOG("WebCL.createContext: creating a context on the given platform for deviceType " + deviceType);
+        try {
+          clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
+        } catch(e) {
+          // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
+          // TODO: alternatively, check that platform has the given type of device before calling createContext
+          LOG("WebCL.createContext: Could not create a context for deviceType " + deviceType + " on platform " + p);
+          return null;
         }
       }
       else
       {
-        if (properties.platform)
-        {
-          platform = webclutils.unwrapInternalOrNull (properties.platform);
-          if (!platform || !platform instanceof Platform) {
-            DEBUG("WebCL.createContext: properties.platform is not a valid WebCLPlatform or null");
-            throw Exception ("properties.platform must be a valid WebCLPlatform, or null");
+        // Loop through all platforms trying to find a device with the given deviceType.  We should
+        // really be able to pass in a null platform and let the OpenCL ICD driver find a matching
+        // device, but that doesn't seem to work in practice.
+        //
+        LOG("WebCL.createContext: creating a context for deviceType " + deviceType + " on any platform");
+        var platforms = this._internal.getPlatforms ();
+        for (var p=0; p < platforms.length && !clCtx; p++) {
+          platform = platforms[p];
+          try {
+            clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
+          } catch (e) {
+            // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
+            // TODO: alternatively, check that platform has the given type of device before calling createContext
+            LOG("WebCL.createContext: Could not create a context on platform " + p);
           }
         }
-        
-        if (properties.deviceType)
-        {
-          var dt = +properties.deviceType;
-          if (!isNaN(dt) && dt === 1 || dt === 2 || dt === 4 || dt === 8) {
-            deviceType = dt;
-          } else {
-            DEBUG("WebCL.createContext: properties.deviceType is not a valid DEVICE_TYPE enum");
-            throw Exception ("properties.deviceType must be a valid DEVICE_TYPE enum, or null");
-          }
+        if (!clCtx) {
+          LOG("Could not create a Context for deviceType " + deviceType + " on any WebCLPlatform.");
+          return null;
         }
       }
-    }
 
-    // STEP 2. Create a context based on pre-validated properties as follows:
-    //
-    // if 'devices' is non-null
-    //   create a context using 'devices'
-    // else 
-    //   if 'platform' is non-null
-    //     create a context using 'platform' and 'deviceType'
-    //     return null if 'platform' does not have a device with 'deviceType'
-    //   else
-    //     create a context using 'deviceType'
-    //     return null if no platform has a device with 'deviceType'
+      var webclCtx = webclutils.wrapInternal (clCtx, this);
 
-    var clCtx = null;
+      // Store the original context properties object.
+      // TODO: Should it be cloned?
+      webclCtx.wrappedJSObject._contextProperties = properties;
 
-    if (devices) 
-    {
-      LOG("WebCL.createContext: creating a context on the given device(s)");
-      clCtx = this._internal.createContext([], devices);
-    }
-    else if (platform)
-    {
-      LOG("WebCL.createContext: creating a context on the given platform for deviceType " + deviceType);
-      try {
-        clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
-      } catch(e) {
-        // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
-        // TODO: alternatively, check that platform has the given type of device before calling createContext
-        LOG("WebCL.createContext: Could not create a context for deviceType " + deviceType + " on platform " + p);
-        return null;
-      }
-    }
-    else
-    {
-      // Loop through all platforms trying to find a device with the given deviceType.  We should
-      // really be able to pass in a null platform and let the OpenCL ICD driver find a matching
-      // device, but that doesn't seem to work in practice.
-      // 
-      LOG("WebCL.createContext: creating a context for deviceType " + deviceType + " on any platform");
-      var platforms = this._internal.getPlatforms ();
-      for (var p=0; p < platforms.length && !clCtx; p++) {
-        platform = platforms[p];
-        try {
-          clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
-        } catch (e) {
-          // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
-          // TODO: alternatively, check that platform has the given type of device before calling createContext
-          LOG("WebCL.createContext: Could not create a context on platform " + p);
-        }
-      }
-      if (!clCtx) { 
-        LOG("Could not create a Context for deviceType " + deviceType + " on any WebCLPlatform.");
-        return null;
-      }
-    }
+      return webclCtx;
 
-    var webclCtx = webclutils.wrapInternal (clCtx, this);
-
-    // Store the original context properties object.
-    // TODO: Should it be cloned?
-    webclCtx.wrappedJSObject._contextProperties = properties;
-
-    return webclCtx;
-
-  } catch (e) { throw Exception ("WebCL.createContext failed: " + e); }
+    } catch (e) { throw Exception ("WebCL.createContext failed: " + e); }
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 WebCL.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
-  // TODO!
-  return [];
+
+  try
+  {
+    // TODO!
+    return [];
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 WebCL.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
-  // TODO;
-  return false;
+
+  try
+  {
+    // TODO;
+    return false;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -323,19 +357,27 @@ WebCL.prototype.waitForEvents = function (eventList, whenFinished)
 {
   TRACE (this, "waitForEvents", arguments);
 
-  this.ensureInitialized ();
-  this.ensureUsePermitted ();
-  this.ensureLibraryLoaded ();
-
-  var clEventWaitList = [];
-  if (eventList)
+  try
   {
-    clEventWaitList = this._convertEventWaitList (eventList);
+    this.ensureInitialized ();
+    this.ensureUsePermitted ();
+    this.ensureLibraryLoaded ();
+
+    var clEventWaitList = [];
+    if (eventList)
+    {
+      clEventWaitList = this._convertEventWaitList (eventList);
+    }
+
+    // TODO: whenFinished
+
+    this._internal.waitForEvents (clEventWaitList);
   }
-
-  // TODO: whenFinished
-
-  this._internal.waitForEvents (clEventWaitList);
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -343,37 +385,45 @@ WebCL.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
 
-  this.ensureInitialized ();
-  // NOTE: No need to ensure use permitted, in fact it should NOT be done or
-  //       we'll have unwanted permission prompts on page unload.
-  this.ensureLibraryLoaded ();
-
-  this._forEachRegistered (function (o)
+  try
   {
-    o._unregister();
+    this.ensureInitialized ();
+    // NOTE: No need to ensure use permitted, in fact it should NOT be done or
+    //       we'll have unwanted permission prompts on page unload.
+    this.ensureLibraryLoaded ();
 
-    if ("releaseAll" in o)
+    this._forEachRegistered (function (o)
     {
-      try { o.releaseAll (); } catch(e){ ERROR("WebCL.releaseAll: " +
-                                               o.toString() + ".releaseAll failed: " + e); }
-    }
-    else if ("release" in o)
+      o._unregister();
+
+      if ("releaseAll" in o)
+      {
+        try { o.releaseAll (); } catch(e){ ERROR("WebCL.releaseAll: " +
+                                                o.toString() + ".releaseAll failed: " + e); }
+      }
+      else if ("release" in o)
+      {
+        try { o.release (); } catch(e){ ERROR("WebCL.releaseAll: " +
+                                              o.toString() + ".releaseAll failed: " + e); }
+      }
+    });
+
+    this._clearRegistry ();
+
+
+    if (this._libWrapper)
     {
-      try { o.release (); } catch(e){ ERROR("WebCL.releaseAll: " +
-                                            o.toString() + ".releaseAll failed: " + e); }
+      try
+      {
+        this._libWrapper.unload ();
+      } catch (e) { /* TODO? */ }
+      this._libWrapper = null;
     }
-  });
-
-  this._clearRegistry ();
-
-
-  if (this._libWrapper)
+  }
+  catch (e)
   {
-    try
-    {
-      this._libWrapper.unload ();
-    } catch (e) { /* TODO? */ }
-    this._libWrapper = null;
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
 };
 

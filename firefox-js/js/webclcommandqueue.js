@@ -81,31 +81,39 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
 {
   TRACE (this, "enqueueCopyImage", arguments);
 
-  var clSrcImage = this._unwrapInternalOrNull (srcImage);
-  if (!webclutils.validateImage(clSrcImage)) throw new Exception ("Invalid argument: srcImage");
-
-  var clDstImage = this._unwrapInternalOrNull (dstImage);
-  if (!webclutils.validateImage(clDstImage)) throw new Exception ("Invalid argument: dstImage");
-
-  // TODO: validate srcOrigin, dstOrigin, region
-
-  var clEventWaitList = [];
-  if (eventWaitList)
+  try
   {
-    clEventWaitList = this._convertEventWaitList (eventWaitList);
-  }
+    var clSrcImage = this._unwrapInternalOrNull (srcImage);
+    if (!webclutils.validateImage(clSrcImage)) throw new Exception ("Invalid argument: srcImage");
 
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    var clDstImage = this._unwrapInternalOrNull (dstImage);
+    if (!webclutils.validateImage(clDstImage)) throw new Exception ("Invalid argument: dstImage");
+
+    // TODO: validate srcOrigin, dstOrigin, region
+
+    var clEventWaitList = [];
+    if (eventWaitList)
+    {
+      clEventWaitList = this._convertEventWaitList (eventWaitList);
+    }
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueCopyImage (clSrcImage, clDstImage,
+                                              srcOrigin, dstOrigin, region,
+                                              clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
   {
-    throw new Exception ("Invalid argument: event");
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
-
-  var ev = this._internal.enqueueCopyImage (clSrcImage, clDstImage,
-                                            srcOrigin, dstOrigin, region,
-                                            clEventWaitList);
-  this._handleEventOut (ev, eventOut);
 };
 
 
@@ -115,31 +123,39 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
 {
   TRACE (this, "enqueueCopyImageToBuffer", arguments);
 
-  var clSrcImage = this._unwrapInternalOrNull (srcImage);
-  if (!webclutils.validateImage(clSrcImage)) throw new Exception ("Invalid argument: srcImage");
-
-  var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-  if (!webclutils.validateBuffer(clDstBuffer)) throw new Exception ("Invalid argument: dstBuffer");
-
-  // TODO: validate srcOrigin, srcRegion, dstOffset
-
-  var clEventWaitList = [];
-  if (eventWaitList)
+  try
   {
-    clEventWaitList = this._convertEventWaitList (eventWaitList);
-  }
+    var clSrcImage = this._unwrapInternalOrNull (srcImage);
+    if (!webclutils.validateImage(clSrcImage)) throw new Exception ("Invalid argument: srcImage");
 
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
+    if (!webclutils.validateBuffer(clDstBuffer)) throw new Exception ("Invalid argument: dstBuffer");
+
+    // TODO: validate srcOrigin, srcRegion, dstOffset
+
+    var clEventWaitList = [];
+    if (eventWaitList)
+    {
+      clEventWaitList = this._convertEventWaitList (eventWaitList);
+    }
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueCopyImageToBuffer (clSrcImage, clDstBuffer,
+                                                      srcOrigin, srcRegion, dstOffset,
+                                                      clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
   {
-    throw new Exception ("Invalid argument: event");
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
-
-  var ev = this._internal.enqueueCopyImageToBuffer (clSrcImage, clDstBuffer,
-                                                    srcOrigin, srcRegion, dstOffset,
-                                                    clEventWaitList);
-  this._handleEventOut (ev, eventOut);
 }
 
 
@@ -149,31 +165,39 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
 {
   TRACE (this, "enqueueCopyBufferToImage", arguments);
 
-  var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
-  if (!webclutils.validateBuffer(clSrcBuffer)) throw new Exception ("Invalid argument: srcBuffer");
-
-  var clDstImage = this._unwrapInternalOrNull (dstImage);
-  if (!webclutils.validateImage(clDstImage)) throw new Exception ("Invalid argument: dstImage");
-
-  // TODO: validate srcOffset, dstOrigin, region
-
-  var clEventWaitList = [];
-  if (eventWaitList)
+  try
   {
-    clEventWaitList = this._convertEventWaitList (eventWaitList);
-  }
+    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
+    if (!webclutils.validateBuffer(clSrcBuffer)) throw new Exception ("Invalid argument: srcBuffer");
 
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    var clDstImage = this._unwrapInternalOrNull (dstImage);
+    if (!webclutils.validateImage(clDstImage)) throw new Exception ("Invalid argument: dstImage");
+
+    // TODO: validate srcOffset, dstOrigin, region
+
+    var clEventWaitList = [];
+    if (eventWaitList)
+    {
+      clEventWaitList = this._convertEventWaitList (eventWaitList);
+    }
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueCopyBufferToImage (clSrcBuffer, clDstImage,
+                                                      srcOffset, dstOrigin, region,
+                                                      clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
   {
-    throw new Exception ("Invalid argument: event");
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
-
-  var ev = this._internal.enqueueCopyBufferToImage (clSrcBuffer, clDstImage,
-                                                    srcOffset, dstOrigin, region,
-                                                    clEventWaitList);
-  this._handleEventOut (ev, eventOut);
 };
 
 
@@ -183,31 +207,39 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
 {
   TRACE (this, "enqueueReadBuffer", arguments);
 
-  var clBuffer = this._unwrapInternalOrNull (buffer);
-  if (!webclutils.validateBuffer(clBuffer))
-    throw new Exception ("Invalid argument: buffer");
-  if (!webclutils.validateNumber(bufferOffset))
-    throw new Exception ("Invalid argument: bufferOffset");
-  if (!webclutils.validateNumber(numBytes))
-    throw new Exception ("Invalid argument: numBytes");
-
-  // TODO: validate hostPtr
-
-  var clEventWaitList = [];
-  if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+  try
   {
-    throw new Exception ("Invalid argument: event");
-  }
+    var clBuffer = this._unwrapInternalOrNull (buffer);
+    if (!webclutils.validateBuffer(clBuffer))
+      throw new Exception ("Invalid argument: buffer");
+    if (!webclutils.validateNumber(bufferOffset))
+      throw new Exception ("Invalid argument: bufferOffset");
+    if (!webclutils.validateNumber(numBytes))
+      throw new Exception ("Invalid argument: numBytes");
 
-  var ev = this._internal.enqueueReadBuffer (clBuffer, !!blockingRead,
-                                             bufferOffset,
-                                             numBytes, hostPtr,
-                                             clEventWaitList);
-  this._handleEventOut (ev, eventOut);
+    // TODO: validate hostPtr
+
+    var clEventWaitList = [];
+    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueReadBuffer (clBuffer, !!blockingRead,
+                                              bufferOffset,
+                                              numBytes, hostPtr,
+                                              clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -220,29 +252,37 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
 {
   TRACE (this, "enqueueReadBufferRect", arguments);
 
-  var clBuffer = this._unwrapInternalOrNull (buffer);
-  if (!webclutils.validateBuffer(clBuffer)) throw new Exception ("Invalid argument: buffer");
-
-  // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
-  //       hostRowPitch, hostSlicePitch, hostPtr
-
-  var clEventWaitList = [];
-  if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+  try
   {
-    throw new Exception ("Invalid argument: event");
-  }
+    var clBuffer = this._unwrapInternalOrNull (buffer);
+    if (!webclutils.validateBuffer(clBuffer)) throw new Exception ("Invalid argument: buffer");
 
-  var ev = this._internal.enqueueReadBufferRect (clBuffer, !!blockingRead,
-                                                 bufferOrigin, hostOrigin, region,
-                                                 bufferRowPitch, bufferSlicePitch,
-                                                 hostRowPitch, hostSlicePitch,
-                                                 hostPtr,
-                                                 clEventWaitList);
-  this._handleEventOut (ev, eventOut);
+    // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
+    //       hostRowPitch, hostSlicePitch, hostPtr
+
+    var clEventWaitList = [];
+    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueReadBufferRect (clBuffer, !!blockingRead,
+                                                  bufferOrigin, hostOrigin, region,
+                                                  bufferRowPitch, bufferSlicePitch,
+                                                  hostRowPitch, hostSlicePitch,
+                                                  hostPtr,
+                                                  clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -252,27 +292,35 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
 {
   TRACE (this, "enqueueReadImage", arguments);
 
-  var clImage = this._unwrapInternalOrNull (image);
-  if (!webclutils.validateImage(clImage)) throw new Exception ("Invalid argument: image");
-
-  // TODO: validate origin, region, hostRowPitch, hostPtr
-
-  var clEventWaitList = [];
-  if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+  try
   {
-    throw new Exception ("Invalid argument: event");
-  }
+    var clImage = this._unwrapInternalOrNull (image);
+    if (!webclutils.validateImage(clImage)) throw new Exception ("Invalid argument: image");
 
-  var ev = this._internal.enqueueReadImage (clImage, !!blockingRead,
-                                            origin, region,
-                                            hostRowPitch, 0,
-                                            hostPtr,
-                                            clEventWaitList);
-  this._handleEventOut (ev, eventOut);
+    // TODO: validate origin, region, hostRowPitch, hostPtr
+
+    var clEventWaitList = [];
+    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueReadImage (clImage, !!blockingRead,
+                                              origin, region,
+                                              hostRowPitch, 0,
+                                              hostPtr,
+                                              clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -282,34 +330,42 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
 {
   TRACE (this, "enqueueWriteBuffer", arguments);
 
-  var clBuffer = this._unwrapInternalOrNull (buffer);
-  if (!webclutils.validateBuffer(clBuffer))
-    throw new Exception ("Invalid argument: buffer");
-  if (!webclutils.validateNumber(bufferOffset))
-    throw new Exception ("Invalid argument: bufferOffset");
-  if (!webclutils.validateNumber(numBytes))
-    throw new Exception ("Invalid argument: numBytes");
-
-  // TODO: validate hostPtr
-
-  var clEventWaitList = [];
-  if (eventWaitList)
+  try
   {
-    clEventWaitList = this._convertEventWaitList (eventWaitList);
-  }
+    var clBuffer = this._unwrapInternalOrNull (buffer);
+    if (!webclutils.validateBuffer(clBuffer))
+      throw new Exception ("Invalid argument: buffer");
+    if (!webclutils.validateNumber(bufferOffset))
+      throw new Exception ("Invalid argument: bufferOffset");
+    if (!webclutils.validateNumber(numBytes))
+      throw new Exception ("Invalid argument: numBytes");
 
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    // TODO: validate hostPtr
+
+    var clEventWaitList = [];
+    if (eventWaitList)
+    {
+      clEventWaitList = this._convertEventWaitList (eventWaitList);
+    }
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueWriteBuffer (clBuffer, !!blockingWrite,
+                                                bufferOffset,
+                                                numBytes, hostPtr,
+                                                clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
   {
-    throw new Exception ("Invalid argument: event");
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
-
-  var ev = this._internal.enqueueWriteBuffer (clBuffer, !!blockingWrite,
-                                              bufferOffset,
-                                              numBytes, hostPtr,
-                                              clEventWaitList);
-  this._handleEventOut (ev, eventOut);
 };
 
 
@@ -322,29 +378,37 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
 {
   TRACE (this, "enqueueWriteBufferRect", arguments);
 
-  var clBuffer = this._unwrapInternalOrNull (buffer);
-  if (!webclutils.validateBuffer(clBuffer)) throw new Exception ("Invalid argument: buffer");
-
-  // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
-  //       hostRowPitch, hostSlicePitch, hostPtr
-
-  var clEventWaitList = [];
-  if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+  try
   {
-    throw new Exception ("Invalid argument: event");
-  }
+    var clBuffer = this._unwrapInternalOrNull (buffer);
+    if (!webclutils.validateBuffer(clBuffer)) throw new Exception ("Invalid argument: buffer");
 
-  var ev = this._internal.enqueueWriteBufferRect (clBuffer, !!blockingWrite,
-                                                 bufferOrigin, hostOrigin, region,
-                                                 bufferRowPitch, bufferSlicePitch,
-                                                 hostRowPitch, hostSlicePitch,
-                                                 hostPtr,
-                                                 clEventWaitList);
-  this._handleEventOut (ev, eventOut);
+    // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
+    //       hostRowPitch, hostSlicePitch, hostPtr
+
+    var clEventWaitList = [];
+    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueWriteBufferRect (clBuffer, !!blockingWrite,
+                                                  bufferOrigin, hostOrigin, region,
+                                                  bufferRowPitch, bufferSlicePitch,
+                                                  hostRowPitch, hostSlicePitch,
+                                                  hostPtr,
+                                                  clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -354,27 +418,35 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
 {
   TRACE (this, "enqueueWriteImage", arguments);
 
-  var clImage = this._unwrapInternalOrNull (image);
-  if (!webclutils.validateImage(clImage)) throw new Exception ("Invalid argument: image");
-
-  // TODO: validate origin, region, hostRowPitch, hostPtr
-
-  var clEventWaitList = [];
-  if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+  try
   {
-    throw new Exception ("Invalid argument: event");
-  }
+    var clImage = this._unwrapInternalOrNull (image);
+    if (!webclutils.validateImage(clImage)) throw new Exception ("Invalid argument: image");
 
-  var ev = this._internal.enqueueWriteImage (clImage, !!blockingWrite,
-                                             origin, region,
-                                             hostRowPitch, 0,
-                                             hostPtr,
-                                             clEventWaitList);
-  this._handleEventOut (ev, eventOut);
+    // TODO: validate origin, region, hostRowPitch, hostPtr
+
+    var clEventWaitList = [];
+    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueWriteImage (clImage, !!blockingWrite,
+                                              origin, region,
+                                              hostRowPitch, 0,
+                                              hostPtr,
+                                              clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -384,35 +456,43 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
 {
   TRACE (this, "enqueueNDRangeKernel", arguments);
 
-  var clKernel = this._unwrapInternalOrNull (kernel);
-  if (!webclutils.validateKernel(clKernel))
-    throw new Exception ("Invalid argument: kernel");
-  if (!webclutils.validateNumber(workDim))
-    throw new Exception ("Invalid argument: workDim");
-  if (!webclutils.validateArray(globalWorkOffset, webclutils.validateNumber))
-    throw new Exception ("Invalid argument: globalWorkOffset");
-  if (!webclutils.validateArray(globalWorkSize, webclutils.validateNumber))
-    throw new Exception ("Invalid argument: globalWorkSize");
-  if (!webclutils.validateArray(localWorkSize, webclutils.validateNumber))
-    throw new Exception ("Invalid argument: localWorkSize");
-
-  var clEventWaitList = [];
-  if (eventWaitList)
+  try
   {
-    clEventWaitList = this._convertEventWaitList (eventWaitList);
-  }
+    var clKernel = this._unwrapInternalOrNull (kernel);
+    if (!webclutils.validateKernel(clKernel))
+      throw new Exception ("Invalid argument: kernel");
+    if (!webclutils.validateNumber(workDim))
+      throw new Exception ("Invalid argument: workDim");
+    if (!webclutils.validateArray(globalWorkOffset, webclutils.validateNumber))
+      throw new Exception ("Invalid argument: globalWorkOffset");
+    if (!webclutils.validateArray(globalWorkSize, webclutils.validateNumber))
+      throw new Exception ("Invalid argument: globalWorkSize");
+    if (!webclutils.validateArray(localWorkSize, webclutils.validateNumber))
+      throw new Exception ("Invalid argument: localWorkSize");
 
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    var clEventWaitList = [];
+    if (eventWaitList)
+    {
+      clEventWaitList = this._convertEventWaitList (eventWaitList);
+    }
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
+
+    var ev = this._internal.enqueueNDRangeKernel (clKernel, workDim,
+                                                  globalWorkOffset, globalWorkSize, localWorkSize,
+                                                  clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
   {
-    throw new Exception ("Invalid argument: event");
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
-
-  var ev = this._internal.enqueueNDRangeKernel (clKernel, workDim,
-                                                globalWorkOffset, globalWorkSize, localWorkSize,
-                                                clEventWaitList);
-  this._handleEventOut (ev, eventOut);
 };
 
 
@@ -420,22 +500,39 @@ CommandQueue.prototype.enqueueMarker = function (eventOut)
 {
   TRACE (this, "enqueueMarker", arguments);
 
-  // Validate outgoing event
-  var clEventOut = this._unwrapInternalOrNull (eventOut);
-  if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+  try
   {
-    throw new Exception ("Invalid argument: event");
-  }
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new Exception ("Invalid argument: event");
+    }
 
-  var ev = this._internal.enqueueMarker ();
-  this._handleEventOut (ev, eventOut);
+    var ev = this._internal.enqueueMarker ();
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 CommandQueue.prototype.enqueueBarrier = function ()
 {
   TRACE (this, "enqueueBarrier", arguments);
-  this._internal.enqueueBarrier ();
+
+  try
+  {
+    this._internal.enqueueBarrier ();
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -443,27 +540,53 @@ CommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 {
   TRACE (this, "enqueueWaitForEvents", arguments);
 
-  if (!Array.isArray(eventWaitList))
+  try
   {
-    throw new Exception ("Invalid argument: eventWaitList.");
-  }
+    if (!Array.isArray(eventWaitList))
+    {
+      throw new Exception ("Invalid argument: eventWaitList.");
+    }
 
-  var clEvents = this._convertEventWaitList (eventWaitList);
-  this._internal.enqueueWaitForEvents (clEvents);
+    var clEvents = this._convertEventWaitList (eventWaitList);
+    this._internal.enqueueWaitForEvents (clEvents);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 CommandQueue.prototype.finish = function ()
 {
   TRACE (this, "finish", arguments);
-  this._internal.finish ();
+
+  try
+  {
+    this._internal.finish ();
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 CommandQueue.prototype.flush = function ()
 {
   TRACE (this, "flush", arguments);
-  this._internal.flush ();
+
+  try
+  {
+    this._internal.flush ();
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -471,7 +594,15 @@ CommandQueue.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  return this._wrapInternal (this._internal.getInfo (name), this._owner);
+  try
+  {
+    return this._wrapInternal (this._internal.getInfo (name), this._owner);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -479,10 +610,18 @@ CommandQueue.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
-  this._unregister ();
+  try
+  {
+    this._unregister ();
 
-  this._internal.release ();
-  this._internal = null;
+    this._internal.release ();
+    this._internal = null;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -548,4 +687,4 @@ CommandQueue.prototype._convertEventWaitList = function (eventWaitList)
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([CommandQueue]);
 
 
-} catch(e) { Components.utils.reportError ("commandqueue.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclcommandqueue.js: "+EXCEPTIONSTR(e)); }
