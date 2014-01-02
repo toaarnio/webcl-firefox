@@ -17,7 +17,7 @@ all: typelib dist dist-src
 INTERFACES = IWebCL.idl IWebCLPlatform.idl IWebCLDevice.idl IWebCLContext.idl \
   IWebCLCommandQueue.idl  IWebCLEvent.idl IWebCLMemoryObject.idl IWebCLBuffer.idl \
   IWebCLImage.idl IWebCLProgram.idl IWebCLKernel.idl IWebCLSampler.idl \
-  IWebCLException.idl IWebCLImageDescriptor.idl
+  IWebCLImageDescriptor.idl
 TYPELIBS = $(INTERFACES:%.idl=dist/components/%.xpt)
 INTERFACE_FILES = $(INTERFACES:%=interfaces/%)
 
