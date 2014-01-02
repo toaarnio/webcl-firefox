@@ -73,18 +73,26 @@ Platform.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  switch (name)
+  try
   {
-    case ocl_info.CL_PLATFORM_PROFILE:                  return "WEBCL_PROFILE";
-    case ocl_info.CL_PLATFORM_VERSION:                  return "WebCL 1.0";
-    case ocl_info.CL_PLATFORM_NAME:                     break;
-    case ocl_info.CL_PLATFORM_VENDOR:                   break;
-    case ocl_info.CL_PLATFORM_EXTENSIONS:               break;
-    default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLPlatform.getInfo");
-  }
+    switch (name)
+    {
+      case ocl_info.CL_PLATFORM_PROFILE:                  return "WEBCL_PROFILE";
+      case ocl_info.CL_PLATFORM_VERSION:                  return "WebCL 1.0";
+      case ocl_info.CL_PLATFORM_NAME:                     break;
+      case ocl_info.CL_PLATFORM_VENDOR:                   break;
+      case ocl_info.CL_PLATFORM_EXTENSIONS:               break;
+      default:
+        throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLPlatform.getInfo");
+    }
 
-  return this._wrapInternal (this._internal.getInfo (name));
+    return this._wrapInternal (this._internal.getInfo (name));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -92,7 +100,15 @@ Platform.prototype.getDevices = function (deviceType)
 {
   TRACE (this, "getDevices", arguments);
 
-  return this._wrapInternal (this._internal.getDevices (deviceType || ocl_const.CL_DEVICE_TYPE_ALL));
+  try
+  {
+    return this._wrapInternal (this._internal.getDevices (deviceType || ocl_const.CL_DEVICE_TYPE_ALL));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -100,8 +116,16 @@ Platform.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
 
-  // TODO Platform.getSupportedExtensions
-  return [];
+  try
+  {
+    // TODO Platform.getSupportedExtensions
+    return [];
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -109,8 +133,16 @@ Platform.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
 
-  // TODO Platform.enableExtension
-  return false;
+  try
+  {
+    // TODO Platform.enableExtension
+    return false;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -120,4 +152,4 @@ Platform.prototype.enableExtension = function (extensionName)
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Platform]);
 
 
-} catch(e) { Components.utils.reportError ("device.js: "+e); }
+} catch(e) { ERROR ("webcldevice.js: "+e); }

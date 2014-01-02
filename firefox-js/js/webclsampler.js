@@ -69,9 +69,15 @@ Sampler.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  //if (!this._owner) throw new Exception ();
-
-  return this._wrapInternal (this._internal.getInfo (name));
+  try
+  {
+    return this._wrapInternal (this._internal.getInfo (name));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -79,10 +85,18 @@ Sampler.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
-  this._unregister ();
+  try
+  {
+    this._unregister ();
 
-  this._internal.release ();
-  this._internal = null;
+    this._internal.release ();
+    this._internal = null;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -94,4 +108,4 @@ Sampler.prototype.release = function ()
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Sampler]);
 
 
-} catch(e) { Components.utils.reportError ("sampler.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclsampler.js: "+EXCEPTIONSTR(e)); }

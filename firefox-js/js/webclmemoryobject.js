@@ -29,10 +29,6 @@ Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 
-var CLASSNAME =  "WebCLMemoryObject";
-var CID =        "{cf7372e6-f2ec-467d-99dc-9eeb756bc3e3}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLMemoryObject;1";
-
 
 function MemoryObject (owner)
 {
@@ -54,9 +50,9 @@ function MemoryObject (owner)
 MemoryObject.prototype = Object.create (Base.prototype);
 
 
-MemoryObject.prototype.classDescription = CLASSNAME;
-MemoryObject.prototype.classID =          Components.ID(CID);
-MemoryObject.prototype.contractID =       CONTRACTID;
+MemoryObject.prototype.classDescription = "WebCLMemoryObject";
+MemoryObject.prototype.classID =          Components.ID("{cf7372e6-f2ec-467d-99dc-9eeb756bc3e3}");
+MemoryObject.prototype.contractID =       "@webcl.nokiaresearch.com/IWebCLMemoryObject;1";
 MemoryObject.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLMemoryObject,
                                                                    Ci.nsISecurityCheckedComponent,
                                                                    Ci.nsISupportsWeakReference,
@@ -71,9 +67,15 @@ MemoryObject.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
 
-  //if (!this._owner) throw new Exception ();
-
-  return this._wrapInternal (this._internal.getInfo (name));
+  try
+  {
+    return this._wrapInternal (this._internal.getInfo (name));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -81,19 +83,23 @@ MemoryObject.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
-  this._unregister ();
+  try
+  {
+    this._unregister ();
 
-  this._internal.release ();
-  this._internal = null;
+    this._internal.release ();
+    this._internal = null;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 
 //==============================================================================
-
-var CLASSNAME =  "WebCLBuffer";
-var CID =        "{a05ce65b-1962-42bb-81cf-08b2d5ced245}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLBuffer;1";
 
 function Buffer (owner)
 {
@@ -114,9 +120,9 @@ function Buffer (owner)
 
 Buffer.prototype = Object.create (MemoryObject.prototype);
 
-Buffer.prototype.classDescription = CLASSNAME;
-Buffer.prototype.classID =          Components.ID(CID);
-Buffer.prototype.contractID =       CONTRACTID;
+Buffer.prototype.classDescription = "WebCLBuffer";
+Buffer.prototype.classID =          Components.ID("{a05ce65b-1962-42bb-81cf-08b2d5ced245}");
+Buffer.prototype.contractID =       "@webcl.nokiaresearch.com/IWebCLBuffer;1";
 Buffer.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLBuffer,
                                                              Ci.IWebCLMemoryObject,
                                                              Ci.nsISecurityCheckedComponent,
@@ -127,16 +133,22 @@ Buffer.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLBuffer,
 
 Buffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 {
-  return this._wrapInternal (this._internal.createSubBuffer (memFlags, origin, sizeInBytes));
+  TRACE (this, "createSubBuffer", arguments);
+
+  try
+  {
+    return this._wrapInternal (this._internal.createSubBuffer (memFlags, origin, sizeInBytes));
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
 
 //==============================================================================
-
-var CLASSNAME =  "WebCLImage";
-var CID =        "{af42d437-b62c-43de-985c-c65e28a82ead}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLImage;1";
 
 function Image (owner)
 {
@@ -156,9 +168,9 @@ function Image (owner)
 
 Image.prototype = Object.create (MemoryObject.prototype);
 
-Image.prototype.classDescription = CLASSNAME;
-Image.prototype.classID =          Components.ID(CID);
-Image.prototype.contractID =       CONTRACTID;
+Image.prototype.classDescription = "WebCLImage";
+Image.prototype.classID =          Components.ID("{af42d437-b62c-43de-985c-c65e28a82ead}");
+Image.prototype.contractID =       "@webcl.nokiaresearch.com/IWebCLImage;1";
 Image.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLImage,
                                                             Ci.nsISecurityCheckedComponent,
                                                             Ci.nsISupportsWeakReference,
@@ -168,20 +180,30 @@ Image.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLImage,
 
 Image.prototype.getInfo = function ()
 {
-  var imageFormat = this._internal.getImageInfo (ocl_const.CL_IMAGE_FORMAT);
-  var width = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_WIDTH);
-  var height = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_HEIGHT);
-  var rowPitch = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_ROW_PITCH);
+  TRACE (this, "getInfo", arguments);
 
-  var rv = {
-    channelOrder: +(imageFormat.image_channel_order) || ocl_const.CL_RGBA,
-    channelType:  +(imageFormat.image_channel_data_type) || ocl_const.CL_UNORM_INT8,
-    width:        +width || 0,
-    height:       +height || 0,
-    rowPitch:     +rowPitch || 0
-  };
+  try
+  {
+    var imageFormat = this._internal.getImageInfo (ocl_const.CL_IMAGE_FORMAT);
+    var width = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_WIDTH);
+    var height = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_HEIGHT);
+    var rowPitch = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_ROW_PITCH);
 
-  return rv;
+    var rv = {
+      channelOrder: +(imageFormat.image_channel_order) || ocl_const.CL_RGBA,
+      channelType:  +(imageFormat.image_channel_data_type) || ocl_const.CL_UNORM_INT8,
+      width:        +width || 0,
+      height:       +height || 0,
+      rowPitch:     +rowPitch || 0
+    };
+
+    return rv;
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -196,4 +218,4 @@ Image.prototype.getInfo = function ()
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([MemoryObject, Buffer, Image]);
 
 
-} catch(e) { Components.utils.reportError ("memoryobject.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclmemoryobject.js: "+EXCEPTIONSTR(e)); }

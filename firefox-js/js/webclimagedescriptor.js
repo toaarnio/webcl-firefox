@@ -87,4 +87,4 @@ WebCLImageDescriptor.prototype.getInterfaces = function (count)
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([WebCLImageDescriptor]);
 
 
-} catch(e) { Components.utils.reportError ("webclimagedescriptor.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclimagedescriptor.js: "+EXCEPTIONSTR(e)); }

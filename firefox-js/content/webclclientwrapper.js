@@ -86,56 +86,42 @@
     }
 
     var name = "WEBCL_IMPLEMENTATION_FAILURE", msg = "";
+
     try {
-      var originalDescription = "";
-      if (e && typeof(e) == "object") {
-        if ("toString" in e && typeof(e.toString) == "function")
-          originalDescription = e.toString();
-        else
-          originalDescription = Object.prototype.toString.apply (e);
+      var re = /\'WEBCLEXCEPTION\:([\w=]*)\'.*/.exec(e.message);
+      if (re)
+      {
+        var exData = JSON.parse(atob(re[1]));
+        if (exData)
+        {
+          switch (exData.type)
+          {
+            case "cl":
+              name = exData.name;
+              msg = exData.message;
+              break;
+
+            case "internal":
+              name = "WEBCL_IMPLEMENTATION_FAILURE";
+              msg = (exData.message ? exData.message : "Internal error.");
+              break;
+
+            case "invalidargument":
+              name = "INVALID_VALUE";
+              msg = exData.message;
+              break;
+
+            case "notimplemented":
+              name = "WEBCL_IMPLEMENTATION_FAILURE";
+              msg = exData.message;
+              break;
+
+            default:
+              throw "Invalid component exception type.";
+          }
+        }
       }
-      msg = originalDescription;
-    } catch(e2) { }
-
-    if (e && typeof(e) == "object")
-    {
-      try {
-        var re = /^\[xpconnect wrapped \(?([\w ,]+)\)?\]$/.exec (obj.toString());
-
-        if (re[1].indexOf("IWebCLInvalidArgumentException") != -1)
-        {
-          name = "INVALID_VALUE";
-          msg = e.msg;
-        }
-        else if (re[1].indexOf("IWebCLNotImplementedException") != -1)
-        {
-          name = "WEBCL_IMPLEMENTATION_FAILURE";
-          msg = e.msg;
-        }
-        else if (re[1].indexOf("IWebCLInternalErrorException") != -1)
-        {
-          name = "WEBCL_IMPLEMENTATION_FAILURE";
-          if (e && e.msg)
-            msg = e.msg;
-          else if (e && e.message)
-            msg = e.message;
-          else
-            msg = "Internal error.";
-        }
-        else if (re[1].indexOf("IWebCLException") != -1)
-        {
-          name = e.name;
-          msg = e.msg;
-        }
-        else
-        {
-          console.log ("WebCL wrapException  Unknown error" +
-                       (originalDescription ? ": "+originalDescription+"." : "."));
-          name = "WEBCL_IMPLEMENTATION_FAILURE";
-          msg = "Unknown error.";
-        }
-      } catch(e2) { }
-    }
+    } catch (e2) { msg = "_wrapException: Failed to process exception: " + e2; }
 
     return new _WebCLException (String(name), String(msg), String(ctx));
   };

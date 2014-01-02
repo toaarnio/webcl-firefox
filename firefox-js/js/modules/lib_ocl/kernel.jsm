@@ -182,7 +182,7 @@ Kernel.prototype.setArg = function (index, value)
   if (!isNaN(+value) && +value > 0)
   {
     // If value is a number, assume it's local arg size.
-    ptr = null;
+    ptr = new ctypes.voidptr_t (0);
     size = Math.floor(+value);
   }
   else if (value instanceof MemoryObject)

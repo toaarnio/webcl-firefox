@@ -300,6 +300,86 @@ function unwrapInternal (object, /*optional*/ maxRecursion)
 }
 
 
+function convertCLException (e)
+{
+  try
+  {
+    try { var s = String(e); } catch (e) { var s = "<invalid exception>"; }
+
+
+    var exData = { name: "", message: "", type:null, context: null };
+
+    if (typeof(e) == "string" && e.startsWith("WEBCLEXCEPTION:"))
+    {
+      // Nothing needs to be done to WebCLException instances
+      return e;
+    }
+    else if (e instanceof CLError || e instanceof CLUnsupportedInfo)
+    {
+      exData.name = e.name;
+      exData.message = "";
+      exData.type = "cl";
+      exData.context = e.context;
+    }
+    else if (e instanceof CLInternalError)
+    {
+      exData.name = "";
+      exData.message = e.msg;
+      exData.type = "internal";
+      exData.context = e.context;
+    }
+    else if (e instanceof CLInvalidArgument)
+    {
+      exData.name = e.argName;
+      exData.message = e.msg;
+      exData.type = "invalidargument";
+      exData.context = e.context;
+    }
+    else if (e instanceof CLNotImplemented)
+    {
+      exData.name = e.name;
+      exData.message = e.msg;
+      exData.type = "notimplemented";
+      exData.context = e.context;
+    }
+    else if (e instanceof CLException)
+    {
+      LOG ("convertCLException: Unexpected CLException instance ("+s+")");
+      exData.name = e.name;
+      exData.message = e.msg;
+      exData.type = "notimplemented";
+      exData.context = e.context;
+    }
+    else if (e instanceof Error)
+    {
+      // input is a generic exception, probably internal error.
+      LOG ("convertCLException: Error ("+s+")");
+      exData.type = "internal";
+    }
+    else if (e instanceof Exception)
+    {
+      // input is an XPCOM exception, probably internal error
+      LOG ("convertCLException: Exception ("+s+")");
+      exData.type = "internal";
+      exData.msg = e.message;
+    }
+    else
+    {
+      // Unexpected: input is something else, probably internal error
+      LOG ("convertCLException: Unknown object ("+s+")");
+      exData.type = "internal";
+    }
+
+    return "WEBCLEXCEPTION:" + btoa(JSON.stringify(exData));
+  }
+  catch (e)
+  {
+    ERROR ("convertCLException failed: " + s);
+    return "WEBCLEXCEPTION:";
+  }
+}
+
+
 
 function validateEvent (obj)
 {
@@ -364,6 +444,7 @@ var webclutils = {
   wrapInternal:                 wrapInternal,
   unwrapInternalOrNull:         unwrapInternalOrNull,
   unwrapInternal:               unwrapInternal,
+  convertCLException:           convertCLException,
 
   validateEvent:                validateEvent,
   validateKernel:               validateKernel,
