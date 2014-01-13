@@ -260,7 +260,7 @@ function unwrapInternalOrNull (object, /*optional*/ maxRecursion)
         o instanceof Ci.IWebCLMemoryObject ||
         o instanceof Ci.IWebCLBuffer || o instanceof Ci.IWebCLImage ||
         o instanceof Ci.IWebCLProgram || o instanceof Ci.IWebCLKernel ||
-        o instanceof Ci.IWebCLSampler || o instanceof Ci.IWebCLException
+        o instanceof Ci.IWebCLSampler
     )
     {
       if (o.wrappedJSObject) o = o.wrappedJSObject;
