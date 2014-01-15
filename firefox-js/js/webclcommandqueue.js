@@ -461,13 +461,13 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
     var clKernel = this._unwrapInternalOrNull (kernel);
     if (!webclutils.validateKernel(clKernel))
       throw new Exception ("Invalid argument: kernel");
-    if (!webclutils.validateNumber(workDim))
+    if (!webclutils.validateNumber(workDim) || workDim  < 1 || workDim > 3)
       throw new Exception ("Invalid argument: workDim");
-    if (!webclutils.validateArray(globalWorkOffset, webclutils.validateNumber))
+    if (globalWorkOffset && !webclutils.validateArray(globalWorkOffset, webclutils.validateNumber))
       throw new Exception ("Invalid argument: globalWorkOffset");
     if (!webclutils.validateArray(globalWorkSize, webclutils.validateNumber))
       throw new Exception ("Invalid argument: globalWorkSize");
-    if (!webclutils.validateArray(localWorkSize, webclutils.validateNumber))
+    if (localWorkSize && !webclutils.validateArray(localWorkSize, webclutils.validateNumber))
       throw new Exception ("Invalid argument: localWorkSize");
 
     var clEventWaitList = [];

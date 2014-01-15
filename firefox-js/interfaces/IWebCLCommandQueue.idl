@@ -149,7 +149,7 @@ interface IWebCLCommandQueue : nsISupports
                     in CLuint                                workDim,
                     in CLuint_List                           globalWorkOffset,
                     in CLuint_List                           globalWorkSize,
-                    in CLuint_List                           localWorkSize,
+                    [optional] in CLuint_List                localWorkSize,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
