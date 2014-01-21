@@ -20,7 +20,8 @@
 interface IWebCLContext : nsISupports
 {
   nsIVariant createBuffer (in CLenum memFlags, in CLuint sizeInBytes, [optional] in nsIVariant hostPtr);
-  nsIVariant createCommandQueue ([optional] in nsIVariant device, [optional] in CLenum properties);
+  // NOTE: properties should not be CLenum or any invalid value is consumed by XPConnect.
+  nsIVariant createCommandQueue ([optional] in nsIVariant device, [optional] in nsIVariant properties);
   nsIVariant createImage (in CLenum memFlags, in nsIVariant descriptor, [optional] in nsIVariant hostPtr);
   nsIVariant createProgram (in string source);
   nsIVariant createSampler (in CLboolean normalizedCoords, in CLenum addressingMode, in CLenum filterMode);

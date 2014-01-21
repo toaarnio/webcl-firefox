@@ -27,6 +27,9 @@ Cu.import ("resource://nrcwebcl/modules/logger.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+
+
 var CLASSNAME =  "WebCLSampler";
 var CID =        "{dc9b25aa-2bdc-4efd-b295-b450c75d252c}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLSampler;1";
@@ -81,16 +84,23 @@ Sampler.prototype.getInfo = function (name)
 };
 
 
-Sampler.prototype.release = function ()
-{
-  TRACE (this, "release", arguments);
 
+//------------------------------------------------------------------------------
+// Internal functions
+
+
+Sampler.prototype._getRefCount = function ()
+{
   try
   {
-    this._unregister ();
-
-    this._internal.release ();
-    this._internal = null;
+    if (this._internal)
+    {
+      return this._internal.getInfo (ocl_info.CL_SAMPLER_REFERENCE_COUNT);
+    }
+    else
+    {
+      return 0;
+    }
   }
   catch (e)
   {
@@ -99,10 +109,6 @@ Sampler.prototype.release = function ()
   }
 };
 
-
-
-//------------------------------------------------------------------------------
-// Internal functions
 
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Sampler]);

@@ -34,6 +34,8 @@ function loadLazyModules ()
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/context.jsm");
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/event.jsm");
+
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_common.jsm");
 }
 
 
@@ -51,6 +53,13 @@ function CommandQueue (internal, lib)
 
   this._internal = internal || null;
   this._lib = lib || null;
+}
+
+
+CommandQueue.prototype.getIdentity = function ()
+{
+  TRACE (this, "getIdentity", arguments);
+  return ocl_common.getObjectIdentity (this);
 }
 
 

@@ -141,26 +141,22 @@ function wrapInternal (value, owner)
   else if (value instanceof Platform)
   {
     if (!value) throw new CLInternalError ("Invalid internal", "WebCLPlatform");
-    var rv = createWebCLPlatform (owner);
-    rv.wrappedJSObject._internal = value;
+    var rv = createWebCLPlatform (owner, value);
   }
   else if (value instanceof Device)
   {
     if (!value) throw new CLInternalError ("Invalid internal", "WebCLDevice");
-    var rv = createWebCLDevice (owner);
-    rv.wrappedJSObject._internal = value;
+    var rv = createWebCLDevice (owner, value);
   }
   else if (value instanceof Context)
   {
     if (!value) throw new CLInternalError ("Invalid internal", "WebCLContext");
-    var rv = createWebCLContext (owner);
-    rv.wrappedJSObject._internal = value;
+    var rv = createWebCLContext (owner, value);
   }
   else if (value instanceof CommandQueue)
   {
     if (!value) throw new CLInternalError ("Invalid internal", "WebCLCommandQueue");
-    var rv = createWebCLCommandQueue (owner);
-    rv.wrappedJSObject._internal = value;
+    var rv = createWebCLCommandQueue (owner, value);
   }
   else if (value instanceof CLEvent)
   {
@@ -172,15 +168,14 @@ function wrapInternal (value, owner)
     switch (type)
     {
       case ocl_const.CL_COMMAND_USER:
-        var rv = createWebCLUserEvent (owner);
+        var rv = createWebCLUserEvent (owner, value);
         break;
 
       default:
-        var rv = createWebCLEvent (owner);
+        var rv = createWebCLEvent (owner, value);
         break;
     }
 
-    rv.wrappedJSObject._internal = value;
   }
   else if (value instanceof MemoryObject)
   {
@@ -193,37 +188,33 @@ function wrapInternal (value, owner)
     switch (type)
     {
       case ocl_const.CL_MEM_OBJECT_BUFFER:
-        var rv = createWebCLBuffer (owner);
+        var rv = createWebCLBuffer (owner, value);
         break;
 
       case ocl_const.CL_MEM_OBJECT_IMAGE2D:
-        var rv = createWebCLImage (owner);
+        var rv = createWebCLImage (owner, value);
         break;
 
       default:
-        var rv = createWebCLMemoryObject (owner);
+        var rv = createWebCLMemoryObject (owner, value);
         break;
     }
 
-    rv.wrappedJSObject._internal = value;
   }
   else if (value instanceof Program)
   {
     if (!value) throw new CLInternalError ("Invalid internal", "WebCLProgram");
-    var rv = createWebCLProgram (owner);
-    rv.wrappedJSObject._internal = value;
+    var rv = createWebCLProgram (owner, value);
   }
   else if (value instanceof Kernel)
   {
     if (!value) throw new CLInternalError ("Invalid internal", "WebCLKernel");
-    var rv = createWebCLKernel (owner);
-    rv.wrappedJSObject._internal = value;
+    var rv = createWebCLKernel (owner, value);
   }
   else if (value instanceof Sampler)
   {
     if (!value) throw new CLInternalError ("Invalid internal", "WebCLSampler");
-    var rv = createWebCLSampler (owner);
-    rv.wrappedJSObject._internal = value;
+    var rv = createWebCLSampler (owner, value);
   }
 
   return rv;

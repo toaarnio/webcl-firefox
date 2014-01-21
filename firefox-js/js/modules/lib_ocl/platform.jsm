@@ -30,6 +30,8 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 function loadLazyModules ()
 {
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
+
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_common.jsm");
 }
 
 
@@ -47,6 +49,13 @@ function Platform (internal, lib)
 
   this._internal = internal || null;
   this._lib = lib || null;
+}
+
+
+Platform.prototype.getIdentity = function ()
+{
+  TRACE (this, "getIdentity", arguments);
+  return ocl_common.getObjectIdentity (this);
 }
 
 

@@ -79,25 +79,6 @@ MemoryObject.prototype.getInfo = function (name)
 };
 
 
-MemoryObject.prototype.release = function ()
-{
-  TRACE (this, "release", arguments);
-
-  try
-  {
-    this._unregister ();
-
-    this._internal.release ();
-    this._internal = null;
-  }
-  catch (e)
-  {
-    try { ERROR(String(e)); }catch(e){}
-    throw webclutils.convertCLException (e);
-  }
-};
-
-
 
 //==============================================================================
 
@@ -213,6 +194,28 @@ Image.prototype.getInfo = function ()
 
 //------------------------------------------------------------------------------
 // Internal functions
+
+
+MemoryObject.prototype._getRefCount = function ()
+{
+  try
+  {
+    if (this._internal)
+    {
+      return this._internal.getInfo (ocl_info.CL_MEM_REFERENCE_COUNT);
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
+};
+
 
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([MemoryObject, Buffer, Image]);

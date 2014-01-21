@@ -191,16 +191,23 @@ Program.prototype.createKernelsInProgram = function ()
 };
 
 
-Program.prototype.release = function ()
-{
-  TRACE (this, "release", arguments);
 
+//------------------------------------------------------------------------------
+// Internal functions
+
+
+Program.prototype._getRefCount = function ()
+{
   try
   {
-    this._unregister ();
-
-    this._internal.release ();
-    this._internal = null;
+    if (this._internal)
+    {
+      return this._internal.getInfo (ocl_info.CL_PROGRAM_REFERENCE_COUNT);
+    }
+    else
+    {
+      return 0;
+    }
   }
   catch (e)
   {
@@ -209,10 +216,6 @@ Program.prototype.release = function ()
   }
 };
 
-
-
-//------------------------------------------------------------------------------
-// Internal functions
 
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Program]);

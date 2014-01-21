@@ -31,6 +31,7 @@ function Base ()
 {
   // Note: Set by owner in _registerObject.
   this._owner = null;
+  this._identity = null;
 }
 
 addMixin (Base.prototype, SecurityCheckedComponentMixin);
@@ -38,18 +39,8 @@ addMixin (Base.prototype, SecurityCheckedComponentMixin);
 
 Base.prototype._register = function (owner)
 {
-  TRACE (this, "_register", arguments);
-
-  if (!owner) return;
-
-  if (owner.wrappedJSObject) owner = owner.wrappedJSObject;
-
-  if (this._owner)
-  {
-    this._owner._unregisterObject (this);
-  }
-
-  owner._registerObject (this);
+  // TODO: REMOVE COMPLETELY
+  throw "Base.prototype._register: DEPRECATED!";
 }
 
 
@@ -59,7 +50,7 @@ Base.prototype._unregister = function ()
 
   if (this._owner)
   {
-    this._owner._unregisterObject (this);
+    this._owner._unregisterObject (this._identity);
     this._owner = null; // just in case...
   }
 };
@@ -83,6 +74,67 @@ Base.prototype._unwrapInternal = function (value)
 {
   TRACE (this, "_unwrapInternal", arguments);
   return webclutils.unwrapInternal (value);
+};
+
+
+Base.prototype._getIdentity = function ()
+{
+  TRACE (this, "_getIdentity", arguments);
+  //return (this._internal ? this._internal.getIdentity() : null);
+  return this._identity;
+};
+
+
+Base.prototype.release = function ()
+{
+  try
+  {
+    let doUnreg = false;
+
+    if (this._internal)
+    {
+      let cnt = this._getRefCount ();
+
+      if (cnt > 1)
+      {
+        this._internal.release ();
+      }
+      else if (cnt == 1)
+      {
+        this._internal.release ();
+        this._internal = null;
+
+        doUnreg = true;
+      }
+    }
+    else
+    {
+      doUnreg = true;
+    }
+
+    if (doUnreg)
+    {
+      if (this._owner)
+      {
+        if ("_forEachRegistered" in this)
+        {
+          this._forEachRegistered (function (o)
+          {
+            this._owner._registerObject (o);
+          });
+
+          this._clearRegistry ();
+        }
+
+        this._unregister ();
+      }
+    }
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 

@@ -209,11 +209,6 @@
         {
           return _wrapInternalObject (rv);
         }
-
-        if (fname == "release")
-        {
-          this._internal = null;
-        }
       }
       catch (e)
       {

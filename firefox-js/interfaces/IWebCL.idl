@@ -35,6 +35,8 @@ interface IWebCL : nsISupports
 
   void releaseAll ();
 
+  // For debugging: dump current object tree to log
+  void dumpTree ();
 
   const long SUCCESS = 0;
   const long DEVICE_NOT_FOUND = -1;

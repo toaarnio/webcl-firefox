@@ -28,6 +28,7 @@ Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 
 var CLASSNAME =  "WebCLKernel";
 var CID =        "{5d1be1d7-aad2-4eb3-918b-e9551079d634}";
@@ -153,16 +154,23 @@ Kernel.prototype.setArg = function (index, value)
 };
 
 
-Kernel.prototype.release = function ()
-{
-  TRACE (this, "release", arguments);
 
+//------------------------------------------------------------------------------
+// Internal functions
+
+
+Kernel.prototype._getRefCount = function ()
+{
   try
   {
-    this._unregister ();
-
-    this._internal.release ();
-    this._internal = null;
+    if (this._internal)
+    {
+      return this._internal.getInfo (ocl_info.CL_KERNEL_REFERENCE_COUNT);
+    }
+    else
+    {
+      return 0;
+    }
   }
   catch (e)
   {
@@ -171,10 +179,6 @@ Kernel.prototype.release = function ()
   }
 };
 
-
-
-//------------------------------------------------------------------------------
-// Internal functions
 
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Kernel]);

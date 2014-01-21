@@ -41,6 +41,8 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/platform.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/context.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+
 DEBUG ("webcl.js: modules loaded");
 
 } catch (e) { ERROR ("webcl.js: Failed to load modules: " + EXCEPTIONSTR(e) + "."); throw e; }
@@ -176,8 +178,6 @@ WebCL.prototype.createContext = function (properties)
     this.ensureUsePermitted ();
     this.ensureLibraryLoaded ();
 
-    try {
-
       var devices = null, platform = null, deviceType = 0x1;
 
       // STEP 1. Validate 'properties' as follows:
@@ -273,7 +273,7 @@ WebCL.prototype.createContext = function (properties)
         } catch(e) {
           // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
           // TODO: alternatively, check that platform has the given type of device before calling createContext
-          LOG("WebCL.createContext: Could not create a context for deviceType " + deviceType + " on platform " + p);
+          LOG("WebCL.createContext: Could not create a context for deviceType " + deviceType + " on platform " + p + "("+e+")");
           return null;
         }
       }
@@ -308,8 +308,6 @@ WebCL.prototype.createContext = function (properties)
       webclCtx.wrappedJSObject._contextProperties = properties;
 
       return webclCtx;
-
-    } catch (e) { throw Exception ("WebCL.createContext failed: " + e); }
   }
   catch (e)
   {
@@ -387,38 +385,32 @@ WebCL.prototype.releaseAll = function ()
 
   try
   {
-    this.ensureInitialized ();
+    if (!this._initialized)
+    {
+      // No need to do anything if we haven't been initialized.
+      return;
+    }
+
     // NOTE: No need to ensure use permitted, in fact it should NOT be done or
     //       we'll have unwanted permission prompts on page unload.
-    this.ensureLibraryLoaded ();
 
     this._forEachRegistered (function (o)
     {
-      o._unregister();
-
+      if (o.wrappedJSObject) o = o.wrappedJSObject;
       if ("releaseAll" in o)
       {
-        try { o.releaseAll (); } catch(e){ ERROR("WebCL.releaseAll: " +
-                                                o.toString() + ".releaseAll failed: " + e); }
+        o.releaseAll ();
       }
-      else if ("release" in o)
+      else
       {
-        try { o.release (); } catch(e){ ERROR("WebCL.releaseAll: " +
-                                              o.toString() + ".releaseAll failed: " + e); }
+        while (o._getRefCount())
+        {
+          o.release ();
+        }
       }
     });
 
     this._clearRegistry ();
-
-
-    if (this._libWrapper)
-    {
-      try
-      {
-        this._libWrapper.unload ();
-      } catch (e) { /* TODO? */ }
-      this._libWrapper = null;
-    }
   }
   catch (e)
   {

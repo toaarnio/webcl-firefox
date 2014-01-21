@@ -102,15 +102,27 @@ Context.prototype.createCommandQueue = function (device, properties)
   {
     if (device && !device instanceof Ci.IWebCLDevice)
     {
-      throw new Exception ("Context.createCommandQueue: Invalid argument: device.");  // TODO
+      //throw new Exception ("Context.createCommandQueue: Invalid argument: device.");  // TODO
+      throw new CLInvalidArgument ("device");
     }
     if (!device) device = this.getInfo (ocl_info.CL_CONTEXT_DEVICES)[0];
 
-    if (properties && isNaN(+properties))
+    if (properties === undefined)
     {
-      throw new Exception ("Context.createCommandQueue: Invalid argument: properties.");  // TODO
+      properties = 0;
     }
-    if (!properties) properties = 0;
+    else
+    {
+      // NOTE: Should it be accepted that e.g. +[] and +"" eval to 0?
+      //       The "object" test catches objects and arrays,
+      //       strict equality to "" catches empty strings and what ever passes
+      //       through must be possible to convert to Number.
+      if (typeof(properties) == "object" || properties === "" ||
+          isNaN(+properties))
+      {
+        throw new CLInvalidArgument ("properties");
+      }
+    }
 
     var clDevice = this._unwrapInternalOrNull (device);
     return this._wrapInternal (this._internal.createCommandQueue (clDevice, +properties),
@@ -132,11 +144,28 @@ Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
   {
     var clImageFormat = this._unwrapInternalOrNull (descriptor);
 
+    if (clImageFormat == null)
+    {
+      if (descriptor.width === undefined || isNaN(+descriptor.width)
+          || descriptor.height === undefined || isNaN(+descriptor.height))
+      {
+        throw new CLInvalidArgument ("descriptor");
+      }
+
+      clImageFormat = {
+        width:        descriptor.width,
+        height:       descriptor.height,
+        rowPitch:     descriptor.rowPitch     || 0,
+        channelOrder: descriptor.channelOrder || 0x10B5,
+        channelType:  descriptor.channelType  || 0x10D2
+      };
+    }
+
     return this._wrapInternal (this._internal.createImage2D (memFlags,
                                                              clImageFormat,
-                                                             clImageFormat.width,
-                                                             clImageFormat.height,
-                                                             clImageFormat.rowPitch,
+                                                             +clImageFormat.width,
+                                                             +clImageFormat.height,
+                                                             (+clImageFormat.rowPitch) || 0,
                                                              hostPtr));
   }
   catch (e)
@@ -153,9 +182,10 @@ Context.prototype.createProgram = function (source)
 
   try
   {
-    if (typeof (source) != "string")
+    if (!source || typeof (source) != "string")
     {
-      throw new Exception ("Context.createProgram: Invalid argument: source.");  // TODO
+      //throw new Exception ("Context.createProgram: Invalid argument: source.");  // TODO
+      throw new CLInvalidArgument ("source");
     }
 
     return this._wrapInternal (this._internal.createProgramWithSource (source), this);
@@ -255,25 +285,6 @@ Context.prototype.getSupportedImageFormats = function (memFlags)
 };
 
 
-Context.prototype.release = function ()
-{
-  TRACE (this, "release", arguments);
-
-  try
-  {
-    this._unregister ();
-
-    this._internal.release ();
-    this._internal = null;
-  }
-  catch (e)
-  {
-    try { ERROR(String(e)); }catch(e){}
-    throw webclutils.convertCLException (e);
-  }
-};
-
-
 Context.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
@@ -282,16 +293,26 @@ Context.prototype.releaseAll = function ()
   {
     this._forEachRegistered (function (o)
     {
-      o._unregister();
-      if ("release" in o)
+      if (o.wrappedJSObject) o = o.wrappedJSObject;
+      if ("releaseAll" in o)
       {
-        o.release ();
+        o.releaseAll ();
+      }
+      else
+      {
+        while (o._getRefCount())
+        {
+          o.release ();
+        }
       }
     });
 
     this._clearRegistry ();
 
-    this.release ();
+    while (this._getRefCount())
+    {
+      this.release ();
+    }
   }
   catch (e)
   {
@@ -303,6 +324,28 @@ Context.prototype.releaseAll = function ()
 
 //------------------------------------------------------------------------------
 // Internal functions
+
+
+Context.prototype._getRefCount = function ()
+{
+  try
+  {
+    if (this._internal)
+    {
+      return this._internal.getInfo (ocl_info.CL_CONTEXT_REFERENCE_COUNT);
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
+};
+
 
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Context]);

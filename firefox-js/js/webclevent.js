@@ -27,6 +27,8 @@ Cu.import ("resource://nrcwebcl/modules/logger.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+
 var CLASSNAME =  "WebCLEvent";
 var CID =        "{cf7372e6-f2ec-467d-99dc-9eeb756bc3e3}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLEvent;1";
@@ -113,25 +115,6 @@ Event.prototype.setCallback = function ()
 };
 
 
-Event.prototype.release = function ()
-{
-  TRACE (this, "release", arguments);
-
-  try
-  {
-    this._unregister ();
-
-    this._internal.release ();
-    this._internal = null;
-  }
-  catch (e)
-  {
-    try { ERROR(String(e)); }catch(e){}
-    throw webclutils.convertCLException (e);
-  }
-};
-
-
 
 //==============================================================================
 
@@ -190,6 +173,28 @@ UserEvent.prototype.setStatus = function (executionStatus)
 
 //------------------------------------------------------------------------------
 // Internal functions
+
+
+Event.prototype._getRefCount = function ()
+{
+  try
+  {
+    if (this._internal)
+    {
+      return this._internal.getInfo (ocl_info.CL_EVENT_REFERENCE_COUNT);
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
+};
+
 
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Event, UserEvent]);

@@ -31,6 +31,8 @@ Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+
 
 var CLASSNAME =  "WebCLCommandQueue";
 var CID =        "{751b06c0-cac3-4123-87ae-2b8c22832d52}";
@@ -606,16 +608,23 @@ CommandQueue.prototype.getInfo = function (name)
 };
 
 
-CommandQueue.prototype.release = function ()
-{
-  TRACE (this, "release", arguments);
 
+//------------------------------------------------------------------------------
+// Internal functions
+
+
+CommandQueue.prototype._getRefCount = function ()
+{
   try
   {
-    this._unregister ();
-
-    this._internal.release ();
-    this._internal = null;
+    if (this._internal)
+    {
+      return this._internal.getInfo (ocl_info.CL_QUEUE_REFERENCE_COUNT);
+    }
+    else
+    {
+      return 0;
+    }
   }
   catch (e)
   {
@@ -625,11 +634,6 @@ CommandQueue.prototype.release = function ()
 };
 
 
-
-//------------------------------------------------------------------------------
-// Internal functions
-
-
 CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
 {
   if (!clEvent) return;
@@ -637,6 +641,7 @@ CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
   if (webclEvent)
   {
     // Ensure webcl event is unwrapped
+    let originalEvent = webclEvent
     if (webclEvent.wrappedJSObject) webclEvent = webclEvent.wrappedJSObject;
 
     if (!webclEvent instanceof Ci.IWebCLEvent)
@@ -653,7 +658,8 @@ CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
 
     // Setup internals and re-register event to our owner.
     webclEvent._internal = clEvent;
-    webclEvent._register (this._owner);
+    //webclEvent._register (this._owner);
+    this._owner._registerObject (originalEvent);
   }
   else
   {

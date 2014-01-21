@@ -186,6 +186,14 @@ Device.prototype.enableExtension = function (extensionName)
 };
 
 
+Device.prototype._getRefCount = function ()
+{
+  // WebCLDevice doesn't support refcounting.
+  return 0;
+};
+
+
+
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Device]);
 
 

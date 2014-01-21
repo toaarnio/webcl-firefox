@@ -38,6 +38,8 @@ function loadLazyModules ()
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/memoryobject.jsm");
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/program.jsm");
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/sampler.jsm");
+
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_common.jsm");
 }
 
 
@@ -56,6 +58,13 @@ function Context (internal, lib)
   this._internal = internal || null;
   this._lib = lib || null;
 }
+
+
+Context.prototype.getIdentity = function ()
+{
+  TRACE (this, "getIdentity", arguments);
+  return ocl_common.getObjectIdentity (this);
+};
 
 
 Context.prototype.getInfo = function (name)

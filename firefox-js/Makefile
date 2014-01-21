@@ -36,7 +36,7 @@ COMPONENTS = webcl.js webclplatform.js webcldevice.js webclcontext.js webclcomma
 MODULES = logger.jsm common.jsm webclutils.jsm base.jsm webclconstructors.jsm \
   mixin.jsm
 MODULES_OCL = ocl_constants.jsm ocl_symbols.jsm ocl_types.jsm ocl_getinfo.jsm \
-  ocl_exception.jsm ocl_libloader.jsm \
+  ocl_exception.jsm ocl_libloader.jsm ocl_common.jsm \
   wrapper.jsm platform.jsm device.jsm commandqueue.jsm context.jsm event.jsm \
   kernel.jsm memoryobject.jsm program.jsm sampler.jsm
 MIXINS = owner.jsm securitycheckedcomponent.jsm
