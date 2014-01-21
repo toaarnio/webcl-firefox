@@ -33,8 +33,19 @@ var ocl_common =
         return;
       }
 
-      let t = ctypes.cast(obj._internal, ctypes.uint64_t);
-      return String(ctypes.UInt64.hi(t.value)) + ctypes.UInt64.lo(t.value);
+      switch (obj._internal.constructor.size)
+      {
+        case 8:
+          let t = ctypes.cast(obj._internal, ctypes.uint64_t);
+          return String(ctypes.UInt64.hi(t.value)) + ctypes.UInt64.lo(t.value);
+
+        case 4:
+          return String (ctypes.cast(obj._internal, ctypes.uint32_t).value);
+
+        default:
+          ERROR ("ocl_common.getObjectIdentity: Unexpected internal size: "
+                 + obj._internal.constructor.size + " bytes.");
+      }
     }
     catch (e)
     {
