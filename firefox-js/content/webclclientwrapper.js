@@ -475,7 +475,7 @@
   }
   _Kernel.prototype = Object.create (_Base.prototype);
 
-  _Kernel.prototype.getWorkGroupInfo = _createDefaultFunctionWrapper ("getKernelWorkGroupInfo");
+  _Kernel.prototype.getWorkGroupInfo = _createDefaultFunctionWrapper ("getWorkGroupInfo");
   _Kernel.prototype.getArgInfo = _createDefaultFunctionWrapper ("getArgInfo");
   _Kernel.prototype.release = _createDefaultFunctionWrapper ("release");
   _Kernel.prototype.setArg = _createDefaultFunctionWrapper ("setArg");

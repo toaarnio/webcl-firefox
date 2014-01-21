@@ -168,7 +168,7 @@ Context.prototype.createCommandQueue = function (device, properties)
                                                        device._internal,
                                                        +properties,
                                                        clErr.address());
-  if (clErr.value) throw new CLError (clErr.value, null, "Program.createKernel");
+  if (clErr.value) throw new CLError (clErr.value, null, "Context.createCommandQueue");
 
   return new CommandQueue (clCommandQueue, this._lib);
 };
