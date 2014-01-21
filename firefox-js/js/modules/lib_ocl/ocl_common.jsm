@@ -49,7 +49,7 @@ var ocl_common =
     }
     catch (e)
     {
-      DEBUG("Context.getIdentity failed: " + EXCEPTIONSTR(e));
+      DEBUG("ocl_common.getIdentity failed: " + EXCEPTIONSTR(e));
       return null;
     }
   }
