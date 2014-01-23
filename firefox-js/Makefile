@@ -1,3 +1,5 @@
+BUILD_DATE = $(shell date +%Y-%m-%e)
+
 include buildconfig.inc
 
 ifeq ($(COMPONENT_NAME),)
@@ -11,7 +13,7 @@ ifeq ($(SRC_PACKAGE),)
 endif
 
 
-all: typelib dist dist-src
+all: timestamp typelib dist dist-src
 
 
 INTERFACES = IWebCL.idl IWebCLPlatform.idl IWebCLDevice.idl IWebCLContext.idl \
@@ -21,6 +23,8 @@ INTERFACES = IWebCL.idl IWebCLPlatform.idl IWebCLDevice.idl IWebCLContext.idl \
 TYPELIBS = $(INTERFACES:%.idl=dist/components/%.xpt)
 INTERFACE_FILES = $(INTERFACES:%=interfaces/%)
 
+timestamp:
+	(cd content; sed 's/YYYY-MM-DD/$(BUILD_DATE)/' webclclientwrapper.js >tmp.js; mv tmp.js webclclientwrapper.js)
 
 typelib: $(TYPELIBS)
 
