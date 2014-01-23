@@ -258,7 +258,7 @@
 
 
   // == WebCL ====================================================================
-  this.WebCL = { version : "2013-12-31" };
+  this.WebCL = { version : "2014-01-23" };
   this.webCL = WebCL;
   this.webcl = WebCL;
 
