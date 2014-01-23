@@ -35,7 +35,7 @@ var CID =        "{5d1be1d7-aad2-4eb3-918b-e9551079d634}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLKernel;1";
 
 
-function Kernel (owner)
+function Kernel ()
 {
   if (!this instanceof Kernel) return new Kernel ();
 
@@ -71,6 +71,7 @@ Kernel.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLKernel,
 Kernel.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -87,6 +88,7 @@ Kernel.prototype.getInfo = function (name)
 Kernel.prototype.getWorkGroupInfo = function (device, name)
 {
   TRACE (this, "getWorkGroupInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -105,6 +107,7 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
 Kernel.prototype.getArgInfo = function ()
 {
   TRACE (this, "getArgInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -121,6 +124,7 @@ Kernel.prototype.getArgInfo = function ()
 Kernel.prototype.setArg = function (index, value)
 {
   TRACE (this, "setArg", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {

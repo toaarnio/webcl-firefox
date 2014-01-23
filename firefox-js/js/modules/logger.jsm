@@ -12,7 +12,7 @@
  */
 
 
-var EXPORTED_SYMBOLS = [ "INFO", "LOG", "ERROR", "DEBUG", "TRACE", "EXCEPTIONSTR", "PUTS" ];
+var EXPORTED_SYMBOLS = [ "INFO", "LOG", "ERROR", "DEBUG", "TRACE", "EXCEPTIONSTR", "PUTS", "ABORT", "ASSERT" ];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -192,6 +192,7 @@ function EXCEPTIONSTR (e)
 Cu.import ("resource://gre/modules/ctypes.jsm");
 var libc = ctypes.open("libc.so.6");
 var puts = libc.declare("puts", ctypes.default_abi, ctypes.int, ctypes.char.ptr);
+var abort = libc.declare("abort", ctypes.default_abi, ctypes.void_t);
 */
 
 function PUTS (msg)
@@ -210,3 +211,28 @@ function PUTS (msg)
   }
 }
 
+function ABORT ()
+{
+  if (abort)
+  {
+    abort ();
+  }
+}
+
+function ASSERT (cond, msg)
+{
+  if (!cond)
+  {
+    if (abort)
+    {
+      PUTS ("ASSERTATION FAILED" + (msg ? ": " + msg : ""));
+      ABORT ();
+    }
+    else
+    {
+      var msg = "ASSERTATION FAILED" + (msg ? ": " + msg : "");
+      ERROR (msg);
+      throw (msg);
+    }
+  }
+}

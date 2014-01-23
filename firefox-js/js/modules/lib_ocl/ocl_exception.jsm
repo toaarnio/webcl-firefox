@@ -12,7 +12,7 @@
  */
 
 
-var EXPORTED_SYMBOLS = [ "CLException", "CLError", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented" ];
+var EXPORTED_SYMBOLS = [ "CLException", "CLInvalidated", "CLError", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented" ];
 
 
 const Cu = Components.utils;
@@ -34,6 +34,20 @@ function CLException (msg, context)
 CLException.prototype.toString = function ()
 {
   return (this.context ? this.context + ": " : "CLException: ") + this.msg;
+};
+
+
+
+function CLInvalidated (msg)
+{
+  CLException.apply (this);
+  this.msg = msg ? String(msg) : "";
+}
+CLInvalidated.prototype = Object.create (CLException.prototype);
+
+CLInvalidated.prototype.toString = function ()
+{
+  return "Invalid object" + (msg ? ": " + msg : "") + ".";
 };
 
 

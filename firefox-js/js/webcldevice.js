@@ -37,7 +37,7 @@ var CID =        "{f5352722-9a35-405b-95ae-54d5b4995576}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLDevice;1";
 
 
-function Device (owner)
+function Device ()
 {
   if (!this instanceof Device) return new Device ();
 
@@ -72,6 +72,7 @@ Device.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLDevice,
 Device.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -155,6 +156,7 @@ Device.prototype.getInfo = function (name)
 Device.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -172,6 +174,7 @@ Device.prototype.getSupportedExtensions = function ()
 Device.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {

@@ -30,7 +30,7 @@ Cu.import ("resource://nrcwebcl/modules/base.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 
 
-function MemoryObject (owner)
+function MemoryObject ()
 {
   if (!this instanceof MemoryObject) return new MemoryObject ();
 
@@ -66,6 +66,7 @@ MemoryObject.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLMemo
 MemoryObject.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -115,6 +116,7 @@ Buffer.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLBuffer,
 Buffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 {
   TRACE (this, "createSubBuffer", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -162,6 +164,7 @@ Image.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLImage,
 Image.prototype.getInfo = function ()
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {

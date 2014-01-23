@@ -36,7 +36,7 @@ var CID =        "{6ab8b8cf-4d87-40a0-af8a-cc0bf5251fa3}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLPlatform;1";
 
 
-function Platform (owner)
+function Platform ()
 {
   if (!this instanceof Platform) return new Platform ();
 
@@ -72,6 +72,7 @@ Platform.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLPlatform
 Platform.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -99,6 +100,7 @@ Platform.prototype.getInfo = function (name)
 Platform.prototype.getDevices = function (deviceType)
 {
   TRACE (this, "getDevices", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -115,6 +117,7 @@ Platform.prototype.getDevices = function (deviceType)
 Platform.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -132,6 +135,7 @@ Platform.prototype.getSupportedExtensions = function ()
 Platform.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {

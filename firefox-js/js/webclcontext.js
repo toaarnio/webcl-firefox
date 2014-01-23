@@ -82,6 +82,7 @@ Context.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLContext,
 Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 {
   TRACE (this, "createBuffer", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -99,6 +100,7 @@ Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 Context.prototype.createCommandQueue = function (device, properties)
 {
   TRACE (this, "createCommandQueue", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -109,7 +111,7 @@ Context.prototype.createCommandQueue = function (device, properties)
     }
     if (!device) device = this.getInfo (ocl_info.CL_CONTEXT_DEVICES)[0];
 
-    if (properties === undefined)
+    if (properties === undefined || properties === null)
     {
       properties = 0;
     }
@@ -141,6 +143,7 @@ Context.prototype.createCommandQueue = function (device, properties)
 Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
 {
   TRACE (this, "createImage", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -181,6 +184,7 @@ Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
 Context.prototype.createProgram = function (source)
 {
   TRACE (this, "createProgram", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -203,6 +207,7 @@ Context.prototype.createProgram = function (source)
 Context.prototype.createSampler = function (normalizedCoords, addressingMode, filterMode)
 {
   TRACE (this, "createSampler", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -220,6 +225,7 @@ Context.prototype.createSampler = function (normalizedCoords, addressingMode, fi
 Context.prototype.createUserEvent = function ()
 {
   TRACE (this, "createUserEvent", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -236,6 +242,7 @@ Context.prototype.createUserEvent = function ()
 Context.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -261,6 +268,7 @@ Context.prototype.getInfo = function (name)
 Context.prototype.getSupportedImageFormats = function (memFlags)
 {
   TRACE (this, "getSupportedImageFormats", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -290,7 +298,7 @@ Context.prototype.getSupportedImageFormats = function (memFlags)
 Context.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
-  if(!this._ensureValidObject ()) throw CLInternalError("Invalidated.");
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -331,6 +339,7 @@ Context.prototype.releaseAll = function ()
 
 Context.prototype._getRefCount = function ()
 {
+  if(!this._ensureValidObject ()) throw CLInvalidated();
   try
   {
     if (this._internal)

@@ -278,7 +278,7 @@ function unwrapInternalOrNull (object, /*optional*/ maxRecursion)
       // Try a 2nd stage unwrapping on the "_internal" member. If we don't get
       // anything out of that, then we'll just return the object as such.
 
-      rv = unwrapInternal (o._internal, --maxRecursion);
+      rv = unwrapInternal (o._internal, maxRecursion-1);
     }
 
   }

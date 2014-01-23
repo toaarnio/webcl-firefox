@@ -39,7 +39,7 @@ var CID =        "{751b06c0-cac3-4123-87ae-2b8c22832d52}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLCommandQueue;1";
 
 
-function CommandQueue (owner)
+function CommandQueue ()
 {
   if (!this instanceof CommandQueue) return new CommandQueue ();
 
@@ -82,6 +82,7 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
                                                     eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyImage", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -124,6 +125,7 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
                                                             eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyImageToBuffer", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -166,6 +168,7 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
                                                             eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyBufferToImage", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -208,6 +211,7 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
                                                      eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadBuffer", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -253,6 +257,7 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
                                                          eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadBufferRect", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -293,6 +298,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
                                                     hostPtr, eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadImage", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -331,6 +337,7 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
                                                       eventWaitList, eventOut)
 {
   TRACE (this, "enqueueWriteBuffer", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -379,6 +386,7 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
                                                           eventWaitList, eventOut)
 {
   TRACE (this, "enqueueWriteBufferRect", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -419,6 +427,7 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
                                                     hostPtr, eventWaitList, eventOut)
 {
   TRACE (this, "enqueueWriteImage", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -457,6 +466,7 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
                                                         eventWaitList, eventOut)
 {
   TRACE (this, "enqueueNDRangeKernel", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -501,6 +511,7 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
 CommandQueue.prototype.enqueueMarker = function (eventOut)
 {
   TRACE (this, "enqueueMarker", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -525,6 +536,7 @@ CommandQueue.prototype.enqueueMarker = function (eventOut)
 CommandQueue.prototype.enqueueBarrier = function ()
 {
   TRACE (this, "enqueueBarrier", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -541,6 +553,7 @@ CommandQueue.prototype.enqueueBarrier = function ()
 CommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 {
   TRACE (this, "enqueueWaitForEvents", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -563,6 +576,7 @@ CommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 CommandQueue.prototype.finish = function ()
 {
   TRACE (this, "finish", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -579,6 +593,7 @@ CommandQueue.prototype.finish = function ()
 CommandQueue.prototype.flush = function ()
 {
   TRACE (this, "flush", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -595,6 +610,7 @@ CommandQueue.prototype.flush = function ()
 CommandQueue.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -615,6 +631,7 @@ CommandQueue.prototype.getInfo = function (name)
 
 CommandQueue.prototype._getRefCount = function ()
 {
+  if(!this._ensureValidObject ()) throw CLInvalidated();
   try
   {
     if (this._internal)
@@ -651,13 +668,14 @@ CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
 
     // If the event object was already in use, release the internals. This will
     // also cause it to be unregistered!
-    if (webclEvent._internal)
+    if (webclEvent._internal && !webclEvent._invalid)
     {
       webclEvent.release ();
     }
 
     // Setup internals and re-register event to our owner.
     webclEvent._internal = clEvent;
+    webclEvent._identity = clEvent.getIdentity();
     //webclEvent._register (this._owner);
     this._owner._registerObject (originalEvent);
   }

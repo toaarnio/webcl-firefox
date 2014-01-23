@@ -36,7 +36,7 @@ var CID =        "{74d49a1e-31e0-41d5-8e98-8980a077fcb2}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLProgram;1";
 
 
-function Program (owner)
+function Program ()
 {
   if (!this instanceof Program) return new Program ();
 
@@ -72,6 +72,7 @@ Program.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLProgram,
 Program.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -88,6 +89,7 @@ Program.prototype.getInfo = function (name)
 Program.prototype.getBuildInfo = function (device, name)
 {
   TRACE (this, "getBuildInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -112,6 +114,7 @@ Program.prototype.getBuildInfo = function (device, name)
 Program.prototype.build = function (devices, options, fnWhenFinished)
 {
   TRACE (this, "build", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -162,6 +165,7 @@ Program.prototype.build = function (devices, options, fnWhenFinished)
 Program.prototype.createKernel = function (kernelName)
 {
   TRACE (this, "createKernel", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -178,6 +182,7 @@ Program.prototype.createKernel = function (kernelName)
 Program.prototype.createKernelsInProgram = function ()
 {
   TRACE (this, "createKernelsInProgram", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {

@@ -117,6 +117,7 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim,
                                                         globalWorkOffset, globalWorkSize,
                                                         localWorkSize, eventWaitList)
 {
+  TRACE (this, "enqueueNDRangeKernel", arguments);
   // TODO: validate kernel
 
   var clGlobalWorkOffset = globalWorkOffset ? T.cl_uint.array()(globalWorkOffset) : null;
@@ -162,6 +163,7 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim,
 
 CommandQueue.prototype.enqueueTask = function (kernel, eventWaitList)
 {
+  TRACE (this, "enqueueTask", arguments);
   // TODO: validate kernel
 
   var clEventWaitListInfo = processEventWaitList (eventWaitList);
@@ -184,6 +186,7 @@ CommandQueue.prototype.enqueueTask = function (kernel, eventWaitList)
 CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite, offset,
                                                       numBytes, data, eventWaitList)
 {
+  TRACE (this, "enqueueWriteBuffer", arguments);
   var clEventWaitListInfo = processEventWaitList (eventWaitList);
 
   try {
@@ -210,6 +213,7 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite, off
 CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead, offset,
                                                      numBytes, data, eventWaitList)
 {
+  TRACE (this, "enqueueReadBuffer", arguments);
   var clEventWaitListInfo = processEventWaitList (eventWaitList);
 
   try {
@@ -239,6 +243,7 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
                                                           hostRowPitch, hostSlicePitch,
                                                           data, eventWaitList)
 {
+  TRACE (this, "enqueueWriteBufferRect", arguments);
   // TODO: validate buffer
 
   if (!Array.isArray (bufferOrigin) && bufferOrigin.length == 3)
@@ -285,6 +290,7 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
                                                          hostRowPitch, hostSlicePitch,
                                                          data, eventWaitList)
 {
+  TRACE (this, "enqueueReadBufferRect", arguments);
   // TODO: validate buffer
 
   if (!Array.isArray (bufferOrigin) && bufferOrigin.length == 3)
@@ -330,6 +336,7 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
                                                      inputRowPitch, inputSlicePitch,
                                                      data, eventWaitList)
 {
+  TRACE (this, "enqueueWriteImage", arguments);
   // TODO: validate image
 
   if (!Array.isArray (origin) && origin.length == 3)
@@ -370,6 +377,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
                                                     rowPitch, slicePitch,
                                                     data, eventWaitList)
 {
+  TRACE (this, "enqueueReadImage", arguments);
   // TODO: validate image
 
   if (!Array.isArray (origin) && origin.length == 3)
@@ -409,6 +417,7 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
                                                     srcOrigin, dstOrigin, region,
                                                     eventWaitList)
 {
+  TRACE (this, "enqueueCopyImage", arguments);
   // TODO: validate srcImage
   // TODO: validate dstImage
 
@@ -444,6 +453,7 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
                                                             srcOrigin, region, dstOffset,
                                                             eventWaitList)
 {
+  TRACE (this, "enqueueCopyImageToBuffer", arguments);
   // TODO: validate srcImage
   // TODO: validate dstBuffer
 
@@ -475,6 +485,7 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
                                                             srcOffset, dstOrigin, region,
                                                             eventWaitList)
 {
+  TRACE (this, "enqueueCopyBufferToImage", arguments);
   // TODO: validate srcBuffer
   // TODO: validate dstImage
 
@@ -506,6 +517,7 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
 CommandQueue.prototype.enqueueMapBuffer = function (buffer, blockingMap, mapFlags,
                                                     offset, numBytes, eventWaitList)
 {
+  TRACE (this, "enqueueMapBuffer", arguments);
   // TODO: validate buffer
 
   var clEventWaitListInfo = processEventWaitList (eventWaitList);
@@ -533,6 +545,7 @@ CommandQueue.prototype.enqueueMapImage = function (image, blockingMap, mapFlags,
                                                    origin, region,
                                                    eventWaitList)
 {
+  TRACE (this, "enqueueMapImage", arguments);
   // TODO: validate image
 
   if (!Array.isArray (origin) && origin.length == 3)
@@ -574,6 +587,7 @@ CommandQueue.prototype.enqueueMapImage = function (image, blockingMap, mapFlags,
 // mappedPtr: ctypes.voidptr_t
 CommandQueue.prototype.enqueueUnmapMemObject = function (memObj, mappedPtr, eventWaitList)
 {
+  TRACE (this, "enqueueUnmapMemObject", arguments);
   // TODO: validate memObj
   // TODO: validate mappedPtr?
 
@@ -594,6 +608,7 @@ CommandQueue.prototype.enqueueUnmapMemObject = function (memObj, mappedPtr, even
 
 CommandQueue.prototype.enqueueMarker = function ()
 {
+  TRACE (this, "enqueueMarker", arguments);
   var clEventOut = new T.cl_event();
   var clErr = this._lib.clEnqueueWaitForEvents (this._internal,
                                                 clEventOut.address());
@@ -605,6 +620,7 @@ CommandQueue.prototype.enqueueMarker = function ()
 
 CommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 {
+  TRACE (this, "enqueueWaitForEvents", arguments);
   var clEventWaitListInfo = processEventWaitList (eventWaitList);
   var clErr = this._lib.clEnqueueWaitForEvents (this._internal,
                                                 clEventWaitListInfo.length,

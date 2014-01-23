@@ -70,6 +70,7 @@ Event.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLEvent,
 Event.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -86,6 +87,7 @@ Event.prototype.getInfo = function (name)
 Event.prototype.getProfilingInfo = function (name)
 {
   TRACE (this, "getProfilingInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -102,6 +104,7 @@ Event.prototype.getProfilingInfo = function (name)
 Event.prototype.setCallback = function ()
 {
   TRACE (this, "setCallback", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {
@@ -157,6 +160,9 @@ UserEvent.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLUserEve
 UserEvent.prototype.setStatus = function (executionStatus)
 {
   TRACE (this, "setStatus", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
+
+  if (!this._internal) return; // TODO
 
   try
   {

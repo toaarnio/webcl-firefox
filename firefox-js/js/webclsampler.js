@@ -35,7 +35,7 @@ var CID =        "{dc9b25aa-2bdc-4efd-b295-b450c75d252c}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLSampler;1";
 
 
-function Sampler (owner)
+function Sampler ()
 {
   if (!this instanceof Sampler) return new Sampler ();
 
@@ -71,6 +71,7 @@ Sampler.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLSampler,
 Sampler.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
   try
   {

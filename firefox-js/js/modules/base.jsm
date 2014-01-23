@@ -54,8 +54,9 @@ Base.prototype._register = function (owner)
 Base.prototype._unregister = function ()
 {
   TRACE (this, "_unregister", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
 
-  if (this._owner)
+  if (this._owner && this._identity)
   {
     this._owner._unregisterObject (this._identity);
     this._owner = null; // just in case...
@@ -94,9 +95,13 @@ Base.prototype._getIdentity = function ()
 
 Base.prototype.release = function ()
 {
+  TRACE (this, "release", arguments);
+  if(!this._ensureValidObject ()) throw CLInvalidated();
+
   try
   {
     let doUnreg = false;
+    let doRelease = false;
 
     if (this._internal)
     {
@@ -108,10 +113,7 @@ Base.prototype.release = function ()
       }
       else if (cnt == 1)
       {
-        this._internal.release ();
-        this._internal = null;
-        this._invalid = true;
-
+        doRelease = true;
         doUnreg = true;
       }
     }
@@ -126,7 +128,7 @@ Base.prototype.release = function ()
       {
         if ("_forEachRegistered" in this)
         {
-          let owner = this._owner;
+          var owner = this._owner;
           this._forEachRegistered (function (o)
           {
             owner._registerObject (o);
@@ -137,6 +139,13 @@ Base.prototype.release = function ()
 
         this._unregister ();
       }
+    }
+
+    if (doRelease)
+    {
+      this._internal.release ();
+      this._internal = null;
+      this._invalid = true;
     }
   }
   catch (e)
