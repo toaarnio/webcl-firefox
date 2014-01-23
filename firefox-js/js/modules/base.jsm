@@ -32,9 +32,16 @@ function Base ()
   // Note: Set by owner in _registerObject.
   this._owner = null;
   this._identity = null;
+  this._invalid = false;
 }
 
 addMixin (Base.prototype, SecurityCheckedComponentMixin);
+
+
+Base.prototype._ensureValidObject = function ()
+{
+  return !this._invalid;
+};
 
 
 Base.prototype._register = function (owner)
@@ -103,6 +110,7 @@ Base.prototype.release = function ()
       {
         this._internal.release ();
         this._internal = null;
+        this._invalid = true;
 
         doUnreg = true;
       }
@@ -118,9 +126,10 @@ Base.prototype.release = function ()
       {
         if ("_forEachRegistered" in this)
         {
+          let owner = this._owner;
           this._forEachRegistered (function (o)
           {
-            this._owner._registerObject (o);
+            owner._registerObject (o);
           });
 
           this._clearRegistry ();

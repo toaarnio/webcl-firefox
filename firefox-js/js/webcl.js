@@ -70,6 +70,7 @@ function WebCL ()
   this._os = getRuntimeOS ();
 
   this._internal = null;
+  this._objectRegistry = {};
 }
 
 addMixin (WebCL.prototype, OwnerMixin);

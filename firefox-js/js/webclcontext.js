@@ -41,7 +41,7 @@ var CID =        "{0e5fba5c-091f-40db-a6a9-700ba50393d0}";
 var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLContext;1";
 
 
-function Context (owner)
+function Context ()
 {
   if (!this instanceof Context) return new Context ();
 
@@ -57,6 +57,8 @@ function Context (owner)
                      ];
 
   this._contextProperties = null;
+
+  this._objectRegistry = {};
 }
 
 Context.prototype = Object.create (Base.prototype);
@@ -288,6 +290,7 @@ Context.prototype.getSupportedImageFormats = function (memFlags)
 Context.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
+  if(!this._ensureValidObject ()) throw CLInternalError("Invalidated.");
 
   try
   {

@@ -87,7 +87,7 @@ function addMixin (target, source)
       {
         if (typeof (source[propName]) == "function")
         {
-          target[propName] = source[propName].bind(target);
+          target[propName] = source[propName];
         }
         else
         {

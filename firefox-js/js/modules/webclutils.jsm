@@ -128,6 +128,13 @@ function wrapInternal (value, owner)
 {
   TRACE ("common", "wrapInternal", arguments);
 
+  if (owner && owner.wrappedJSObject) owner = owner.wrappedJSObject;
+  if (owner && !("_registerObject" in owner))
+  {
+    ERROR ("wrapInternal: owner doesn't seem right.");
+    throw CLInternalError ("Invalid owner.");
+  }
+
   var rv = value;
 
   if (Array.isArray(value))

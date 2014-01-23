@@ -31,9 +31,6 @@ try {
 
 var OwnerMixin =
 {
-  classDescription: "OwnerMixin",
-  _objectRegistry: {},
-
   _registerObject: function (obj, key)
   {
     TRACE (this, "_registerObject", arguments);
@@ -66,12 +63,15 @@ var OwnerMixin =
         throw new Error ("Object already registered");
       }
 
-      this._objectRegistry[key] = originalObject;
-
       if (obj._owner)
       {
-        obj._owner._unregisterObject (obj);
+        obj._owner._unregisterObject (key);
       }
+
+      DEBUG (this.classDescription+"._registerObject: Registering object "+
+             obj.classDescription+", key=" + key);
+
+      this._objectRegistry[key] = originalObject;
 
       obj._owner = this;
     }
@@ -126,6 +126,9 @@ var OwnerMixin =
       var target = this._objectRegistry[key];
       if (target.wrappedJSObject) target = target.wrappedJSObject;
 
+      DEBUG (this.classDescription+"._unregisterObject: Unregistering object "+
+             target.classDescription+", key=" + key);
+
       delete this._objectRegistry[key];
 
       target._owner = null;
@@ -149,7 +152,7 @@ var OwnerMixin =
       {
         return this._objectRegistry[key];
       }
-      DEBUG (this.classDescription + "._findObjectByKey: Invalid key \"" + key + "\"");
+      //DEBUG (this.classDescription + "._findObjectByKey: Invalid key \"" + key + "\"");
     }
     catch (e)
     {
@@ -164,11 +167,14 @@ var OwnerMixin =
     if (!callback || typeof(callback) != "function") callback = function () {};
 
     // Modifications to _objectRegistry must not affect iteration here.
-    var keys = Object.keys (this._objectRegistry);
-    var values = [];
+    let keys = Object.keys (this._objectRegistry);
+    let values = [];
     for (let i = 0; i < keys.length; ++i)
     {
-      values.push (this._objectRegistry[keys[i]]);
+      if (this._objectRegistry.hasOwnProperty(keys[i]))
+      {
+        values.push (this._objectRegistry[keys[i]]);
+      }
     }
     keys.length = 0;
 
@@ -187,42 +193,49 @@ var OwnerMixin =
 
 
 
-  dumpTree: function (prefix, mark, bullet)
+  dumpTree: function (prefix, filler, bullet, maxRecursion)
   {
     if (!prefix) prefix = "";
-    if (!mark) mark = "  ";
-    if (!bullet) bullet = "*";
+    if (!filler) filler = "  ";
+    if (!bullet) bullet = " * ";
+    if (maxRecursion === undefined) maxRecursion = 7;
 
-    var identity;
+    var identity = "";
     try {
-      identity = this;
-      while (identity._internal) identity = identity._internal;
-      identity = "  (" + identity + ")";
+      var identity = "  (" + this.wrappedJSObject._getIdentity() + ")";
     } catch(e){ identity = ""; }
-    LOG (prefix + " * " + this.classDescription + identity);
+    LOG (prefix + bullet + this.classDescription + identity);
 
-    _dumpTreeInternal (this, prefix+mark, mark, " * ");
+    _dumpTreeInternal (this, prefix+filler, filler, bullet, maxRecursion);
   }
 
 };
 
 
-function _dumpTreeInternal (instance, prefix, mark, bullet)
+function _dumpTreeInternal (instance, prefix, filler, bullet, maxRecursion)
 {
   try
   {
     if (!prefix) prefix = "";
-    if (!mark) mark = "  ";
-    if (!bullet) bullet = "*";
+    if (!filler) filler = "  ";
+    if (!bullet) bullet = " * ";
+    if (maxRecursion === undefined) maxRecursion = 10;
+
+    if (maxRecursion == 0)
+    {
+      LOG (this.classDescription+".dumpTree: Maximum recursion level reached!");
+      return;
+    }
 
     instance._forEachRegistered (function (o)
     {
       if (o.wrappedJSObject) o = o.wrappedJSObject;
-      LOG (prefix + " * " + o.classDescription + o._getIdentity());
+      LOG (prefix + bullet + o.classDescription +
+           "  (" + o._getIdentity() + ")");
 
       if (o && o._forEachRegistered && typeof(o._forEachRegistered) == "function")
       {
-        _dumpTreeInternal (o, prefix+mark, mark);
+        _dumpTreeInternal (o, prefix+filler, filler, bullet, maxRecursion-1);
       }
     });
   }
