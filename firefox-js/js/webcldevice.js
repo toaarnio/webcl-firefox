@@ -72,7 +72,7 @@ Device.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLDevice,
 Device.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -156,7 +156,7 @@ Device.prototype.getInfo = function (name)
 Device.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -174,7 +174,7 @@ Device.prototype.getSupportedExtensions = function ()
 Device.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {

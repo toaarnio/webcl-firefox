@@ -66,7 +66,7 @@ MemoryObject.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLMemo
 MemoryObject.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -116,7 +116,7 @@ Buffer.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLBuffer,
 Buffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 {
   TRACE (this, "createSubBuffer", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -164,7 +164,7 @@ Image.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLImage,
 Image.prototype.getInfo = function ()
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -203,7 +203,7 @@ MemoryObject.prototype._getRefCount = function ()
 {
   try
   {
-    if (this._internal)
+    if (this._internal && !this._invalid)
     {
       return this._internal.getInfo (ocl_info.CL_MEM_REFERENCE_COUNT);
     }

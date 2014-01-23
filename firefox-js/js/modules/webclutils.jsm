@@ -340,6 +340,13 @@ function convertCLException (e)
       exData.type = "notimplemented";
       exData.context = e.context;
     }
+    else if (e instanceof CLInvalidated)
+    {
+      exData.name = e.name;
+      exData.message = e.msg;
+      exData.type = "invalidobject";
+      exData.context = e.context;
+    }
     else if (e instanceof CLException)
     {
       LOG ("convertCLException: Unexpected CLException instance ("+s+")");

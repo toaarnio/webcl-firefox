@@ -70,7 +70,7 @@ Event.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLEvent,
 Event.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -87,7 +87,7 @@ Event.prototype.getInfo = function (name)
 Event.prototype.getProfilingInfo = function (name)
 {
   TRACE (this, "getProfilingInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -104,7 +104,7 @@ Event.prototype.getProfilingInfo = function (name)
 Event.prototype.setCallback = function ()
 {
   TRACE (this, "setCallback", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -160,7 +160,7 @@ UserEvent.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLUserEve
 UserEvent.prototype.setStatus = function (executionStatus)
 {
   TRACE (this, "setStatus", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   if (!this._internal) return; // TODO
 
@@ -185,7 +185,7 @@ Event.prototype._getRefCount = function ()
 {
   try
   {
-    if (this._internal)
+    if (this._internal && !this._invalid)
     {
       return this._internal.getInfo (ocl_info.CL_EVENT_REFERENCE_COUNT);
     }

@@ -116,6 +116,11 @@
               msg = exData.message;
               break;
 
+            case "invalidobject":
+              name = "INVALID_VALUE";
+              msg = "Invalid/released object.";
+              break;
+
             default:
               throw "Invalid component exception type.";
           }

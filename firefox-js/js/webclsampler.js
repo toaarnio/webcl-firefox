@@ -71,7 +71,7 @@ Sampler.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLSampler,
 Sampler.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -94,7 +94,7 @@ Sampler.prototype._getRefCount = function ()
 {
   try
   {
-    if (this._internal)
+    if (this._internal && !this._invalid)
     {
       return this._internal.getInfo (ocl_info.CL_SAMPLER_REFERENCE_COUNT);
     }

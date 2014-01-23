@@ -72,7 +72,7 @@ Platform.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLPlatform
 Platform.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -100,7 +100,7 @@ Platform.prototype.getInfo = function (name)
 Platform.prototype.getDevices = function (deviceType)
 {
   TRACE (this, "getDevices", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -117,7 +117,7 @@ Platform.prototype.getDevices = function (deviceType)
 Platform.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -135,7 +135,7 @@ Platform.prototype.getSupportedExtensions = function ()
 Platform.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {

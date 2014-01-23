@@ -71,7 +71,7 @@ Kernel.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLKernel,
 Kernel.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -88,7 +88,7 @@ Kernel.prototype.getInfo = function (name)
 Kernel.prototype.getWorkGroupInfo = function (device, name)
 {
   TRACE (this, "getWorkGroupInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -107,7 +107,7 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
 Kernel.prototype.getArgInfo = function ()
 {
   TRACE (this, "getArgInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -124,7 +124,7 @@ Kernel.prototype.getArgInfo = function ()
 Kernel.prototype.setArg = function (index, value)
 {
   TRACE (this, "setArg", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -167,7 +167,7 @@ Kernel.prototype._getRefCount = function ()
 {
   try
   {
-    if (this._internal)
+    if (this._internal && !this._invalid)
     {
       return this._internal.getInfo (ocl_info.CL_KERNEL_REFERENCE_COUNT);
     }

@@ -54,7 +54,7 @@ Base.prototype._register = function (owner)
 Base.prototype._unregister = function ()
 {
   TRACE (this, "_unregister", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   if (this._owner && this._identity)
   {
@@ -96,7 +96,7 @@ Base.prototype._getIdentity = function ()
 Base.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {

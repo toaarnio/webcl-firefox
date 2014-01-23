@@ -72,7 +72,7 @@ Program.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLProgram,
 Program.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -89,7 +89,7 @@ Program.prototype.getInfo = function (name)
 Program.prototype.getBuildInfo = function (device, name)
 {
   TRACE (this, "getBuildInfo", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -114,7 +114,7 @@ Program.prototype.getBuildInfo = function (device, name)
 Program.prototype.build = function (devices, options, fnWhenFinished)
 {
   TRACE (this, "build", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -165,7 +165,7 @@ Program.prototype.build = function (devices, options, fnWhenFinished)
 Program.prototype.createKernel = function (kernelName)
 {
   TRACE (this, "createKernel", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -182,7 +182,7 @@ Program.prototype.createKernel = function (kernelName)
 Program.prototype.createKernelsInProgram = function ()
 {
   TRACE (this, "createKernelsInProgram", arguments);
-  if(!this._ensureValidObject ()) throw CLInvalidated();
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -205,7 +205,7 @@ Program.prototype._getRefCount = function ()
 {
   try
   {
-    if (this._internal)
+    if (this._internal && !this._invalid)
     {
       return this._internal.getInfo (ocl_info.CL_PROGRAM_REFERENCE_COUNT);
     }
