@@ -96,7 +96,7 @@ Base.prototype._getIdentity = function ()
 Base.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
+  if(!this._ensureValidObject ()) return;
 
   try
   {

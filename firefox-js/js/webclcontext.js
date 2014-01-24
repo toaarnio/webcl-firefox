@@ -298,7 +298,7 @@ Context.prototype.getSupportedImageFormats = function (memFlags)
 Context.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
+  if(!this._ensureValidObject ()) return;
 
   try
   {
