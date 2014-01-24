@@ -13,7 +13,7 @@ ifeq ($(SRC_PACKAGE),)
 endif
 
 
-all: timestamp typelib dist dist-src
+all: typelib dist dist-src
 
 
 INTERFACES = IWebCL.idl IWebCLPlatform.idl IWebCLDevice.idl IWebCLContext.idl \
@@ -22,9 +22,6 @@ INTERFACES = IWebCL.idl IWebCLPlatform.idl IWebCLDevice.idl IWebCLContext.idl \
   IWebCLImageDescriptor.idl
 TYPELIBS = $(INTERFACES:%.idl=dist/components/%.xpt)
 INTERFACE_FILES = $(INTERFACES:%=interfaces/%)
-
-timestamp:
-	(cd content; sed 's/YYYY-MM-DD/$(BUILD_DATE)/' webclclientwrapper.js >tmp.js; mv tmp.js webclclientwrapper.js)
 
 typelib: $(TYPELIBS)
 
@@ -66,6 +63,7 @@ $(PACKAGE): install.rdf chrome.manifest $(TYPELIBS) $(SOURCE_FILES) COPYING $(wi
 	@mkdir -p dist/defaults/preferences
 	@cp defaults/preferences/*.js dist/defaults/preferences/
 	@cp -r content dist/
+	@(cd dist/content; sed 's/YYYY-MM-DD/$(BUILD_DATE)/' webclclientwrapper.js >tmp.js; mv tmp.js webclclientwrapper.js)
 	@cp install.rdf chrome.manifest COPYING dist/
 	@cd dist && zip -r ../$@ install.rdf chrome.manifest \
 	    components content resources defaults COPYING -x@../zipexclude.lst
