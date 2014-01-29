@@ -99,7 +99,16 @@ Platform.prototype.getDevices = function (deviceType)
 
   if (deviceType === undefined)
   {
-    deviceType = ocl_const.CL_DEVICE_TYPE_DEFAULT;
+    deviceType = ocl_const.CL_DEVICE_TYPE_ALL;
+  }
+
+  if (deviceType !== ocl_const.CL_DEVICE_TYPE_ALL && 
+     deviceType !== ocl_const.CL_DEVICE_TYPE_DEFAULT &&
+     deviceType !== ocl_const.CL_DEVICE_TYPE_CPU &&
+     deviceType !== ocl_const.CL_DEVICE_TYPE_GPU &&
+     deviceType !== ocl_const.CL_DEVICE_TYPE_ACCELERATOR) 
+  {
+    throw new CLError(ocl_const.CL_INVALID_DEVICE_TYPE, null, "Platform.getDevices");
   }
 
   var n = new T.cl_uint (0);
