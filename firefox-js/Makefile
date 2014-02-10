@@ -1,4 +1,4 @@
-BUILD_DATE = $(shell date +%Y-%m-%e)
+BUILD_DATE = $(shell date +%Y-%m-%d)
 
 include buildconfig.inc
 
