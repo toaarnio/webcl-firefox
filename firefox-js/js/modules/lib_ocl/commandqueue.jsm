@@ -374,7 +374,7 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
 
 CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
                                                     origin, region,
-                                                    rowPitch, slicePitch,
+                                                    hostRowPitch, hostSlicePitch,
                                                     data, eventWaitList)
 {
   TRACE (this, "enqueueReadImage", arguments);
@@ -402,7 +402,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
   var clErr = this._lib.clEnqueueReadImage (this._internal, image._internal,
                                             !!blockingRead,
                                             clOriginPtr, clRegionPtr,
-                                            +inputRowPitch, +inputSlicePitch,
+                                            +hostRowPitch, +hostSlicePitch,
                                             clData || null,
                                             clEventWaitListInfo.length,
                                             clEventWaitListInfo.dataPtr,
