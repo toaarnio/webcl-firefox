@@ -103,7 +103,7 @@ MemoryObject.prototype.getInfo = function (name)
       // cl_mem
       case ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT:
         var val = getInfo_plain (this._lib.clGetMemObjectInfo, this._internal, name, T.cl_mem);
-        rv = new MemoryObject (val, this._lib);
+        rv = val.isNull() ? null : new MemoryObject (val, this._lib);
         break;
 
       case ocl_info.CL_MEM_D3D10_RESOURCE_KHR:
