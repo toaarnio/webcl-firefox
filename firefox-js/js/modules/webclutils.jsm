@@ -422,9 +422,26 @@ function validateArray (arr, itemValidator)
   return false;
 }
 
+function validateArrayLength (arr, lengthValidator)
+{
+  if (Array.isArray(arr))
+  {
+    if (lengthValidator && typeof(lengthValidator) == "function")
+    {
+      if (lengthValidator(arr)) return true;
+    }
+  }
+  return false;
+}
+
+function validateArrayBufferView (arr) // TODO more robust type validation
+{
+  return (typeof(arr) === 'object' && typeof(arr.BYTES_PER_ELEMENT) === 'number')
+}
+
 function validateNumber (n)
 {
-  return (!isNaN(+n));
+  return (n !== null) && (!isNaN(+n));
 }
 
 
@@ -456,6 +473,7 @@ var webclutils = {
   validateBuffer:               validateBuffer,
   validateImage:                validateImage,
   validateArray:                validateArray,
+  validateArrayLength:          validateArrayLength,
+  validateArrayBufferView:      validateArrayBufferView,
   validateNumber:               validateNumber
 };
-
