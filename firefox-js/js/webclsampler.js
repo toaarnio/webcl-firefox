@@ -37,7 +37,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLSampler;1";
 
 function Sampler ()
 {
-  if (!this instanceof Sampler) return new Sampler ();
+  if (!(this instanceof Sampler)) return new Sampler ();
 
   Base.apply(this);
 

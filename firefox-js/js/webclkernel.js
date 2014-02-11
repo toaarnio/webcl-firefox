@@ -37,7 +37,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLKernel;1";
 
 function Kernel ()
 {
-  if (!this instanceof Kernel) return new Kernel ();
+  if (!(this instanceof Kernel)) return new Kernel ();
 
   Base.apply(this);
 

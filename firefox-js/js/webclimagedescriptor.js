@@ -38,7 +38,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLImageDescriptor;1";
 
 function WebCLImageDescriptor ()
 {
-  if (!this instanceof WebCLImageDescriptor) return new WebCLImageDescriptor ();
+  if (!(this instanceof WebCLImageDescriptor)) return new WebCLImageDescriptor ();
 
   this.wrappedJSObject = this;
 

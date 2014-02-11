@@ -57,7 +57,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCL;1";
 
 function WebCL ()
 {
-  if (!this instanceof WebCL) return new WebCL ();
+  if (!(this instanceof WebCL)) return new WebCL ();
 
   this.wrappedJSObject = this;
 
@@ -228,7 +228,7 @@ WebCL.prototype.createContext = function (properties)
           if (properties.platform)
           {
             platform = webclutils.unwrapInternalOrNull (properties.platform);
-            if (!platform || !platform instanceof Platform) {
+            if (!platform || !(platform instanceof Platform)) {
               DEBUG("WebCL.createContext: properties.platform is not a valid WebCLPlatform or null");
               throw Exception ("properties.platform must be a valid WebCLPlatform, or null");
             }
@@ -406,6 +406,7 @@ WebCL.prototype.releaseAll = function ()
       {
         while (o._getRefCount())
         {
+          o._unregister ();
           o.release ();
         }
       }

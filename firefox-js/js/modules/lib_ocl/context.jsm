@@ -154,7 +154,7 @@ Context.prototype.createCommandQueue = function (device, properties)
 {
   TRACE (this, "createCommandQueue", arguments);
 
-  if (!device || !device instanceof Device)
+  if (!device || !(device instanceof Device))
   {
     throw new CLInvalidArgument ("device", null, "Context.createCommandQueue");
   }

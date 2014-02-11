@@ -45,7 +45,7 @@ try {
 
 function CommandQueue (internal, lib)
 {
-  if (!this instanceof CommandQueue) return new CommandQueue (internal, lib);
+  if (!(this instanceof CommandQueue)) return new CommandQueue (internal, lib);
   loadLazyModules ();
 
   this.classDescription = "CommandQueue";

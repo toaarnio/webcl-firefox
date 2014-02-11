@@ -38,7 +38,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLPlatform;1";
 
 function Platform ()
 {
-  if (!this instanceof Platform) return new Platform ();
+  if (!(this instanceof Platform)) return new Platform ();
 
   Base.apply(this);
 

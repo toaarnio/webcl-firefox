@@ -38,7 +38,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLProgram;1";
 
 function Program ()
 {
-  if (!this instanceof Program) return new Program ();
+  if (!(this instanceof Program)) return new Program ();
 
   Base.apply(this);
 

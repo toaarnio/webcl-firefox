@@ -43,7 +43,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLContext;1";
 
 function Context ()
 {
-  if (!this instanceof Context) return new Context ();
+  if (!(this instanceof Context)) return new Context ();
 
   Base.apply(this);
 
@@ -104,7 +104,7 @@ Context.prototype.createCommandQueue = function (device, properties)
 
   try
   {
-    if (device && !device instanceof Ci.IWebCLDevice)
+    if (device && !(device instanceof Ci.IWebCLDevice))
     {
       //throw new Exception ("Context.createCommandQueue: Invalid argument: device.");  // TODO
       throw new CLInvalidArgument ("device");
@@ -313,6 +313,7 @@ Context.prototype.releaseAll = function ()
       {
         while (o._getRefCount())
         {
+          o._unregister ();
           o.release ();
         }
       }
@@ -322,6 +323,7 @@ Context.prototype.releaseAll = function ()
 
     while (this._getRefCount())
     {
+      this._unregister ();
       this.release ();
     }
   }

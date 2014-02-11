@@ -40,7 +40,7 @@ try
 
 function LibOCLWrapper (libName)
 {
-  if (!this instanceof LibOCLWrapper) return new LibOCLWrapper(libName);
+  if (!(this instanceof LibOCLWrapper)) return new LibOCLWrapper(libName);
 
   this.classDescription = "OpenCLWrapper";
 
@@ -98,7 +98,7 @@ LibOCLWrapper.prototype.createContext = function (properties, devices, callback,
   {
     if (i > 0 && ctypes.cast(clProps[i-1], ctypes.int).value == ocl_const.CL_CONTEXT_PLATFORM)
     {
-      if (!properties[i] instanceof Platform)
+      if (!(properties[i] instanceof Platform))
       {
         throw new CLInvalidArgument ("properties", "Invalid platform object at index " + i + " on ", "createContext");
       }
@@ -113,7 +113,7 @@ LibOCLWrapper.prototype.createContext = function (properties, devices, callback,
 
   for (i = 0; i < devices.length; ++i)
   {
-    if (!devices[i] instanceof Device)
+    if (!(devices[i] instanceof Device))
     {
       throw new CLInvalidArgument ("devices", "Invalid device object at index " + i + " on ", "createContext");
     }
@@ -150,7 +150,7 @@ LibOCLWrapper.prototype.createContextFromType = function (properties, deviceType
   {
     if (i > 0 && ctypes.cast(clProps[i-1], ctypes.int).value == ocl_const.CL_CONTEXT_PLATFORM)
     {
-      if (!properties[i] instanceof Platform)
+      if (!(properties[i] instanceof Platform))
       {
         throw new CLInvalidArgument ("properties", "Invalid platform object at index " + i + " on ", "createContextFromType");
       }
@@ -189,7 +189,7 @@ LibOCLWrapper.prototype.waitForEvents = function (eventList)
 
   for (var i = 0; i < eventList.length; ++i)
   {
-    if (!eventList[i] instanceof CLEvent)
+    if (!(eventList[i] instanceof CLEvent))
     {
       throw new CLInvalidArgument ("eventList", "Invalid event object at index " + i + " on ", "waitForEvents");
     }

@@ -70,6 +70,13 @@
               case "IWebCLBuffer":       return new _Buffer (obj);
               case "IWebCLImage":        return new _Image (obj);
               case "IWebCLSampler":      return new _Sampler (obj);
+              case "IWebCLImageDescriptor": return {
+                                                     channelOrder: +obj.channelOrder || WebCL.RGBA,
+                                                     channelType:  +obj.channelType  || WebCL.UNORM_INT8,
+                                                     width:    +obj.width    || 0,
+                                                     height:   +obj.height   || 0,
+                                                     rowPitch: +obj.rowPitch || 0
+                                                   };
             }
           }
         }

@@ -41,7 +41,7 @@ try {
 
 function MemoryObject (internal, lib)
 {
-  if (!this instanceof MemoryObject) return new MemoryObject (internal);
+  if (!(this instanceof MemoryObject)) return new MemoryObject (internal);
   loadLazyModules ();
 
   this.classDescription = "MemoryObject";
@@ -136,7 +136,7 @@ MemoryObject.prototype.getImageInfo = function (name)
     {
       // cl_image_format
       case ocl_info.CL_IMAGE_FORMAT:
-        var val = getInfo_plain (this._lib.clGetImageInfo, this._internal, name, T.size_t)
+        var val = getInfo_plain (this._lib.clGetImageInfo, this._internal, name, T.cl_image_format)
         // TODO: NOT TESTED!
         rv = { image_channel_order: val.image_channel_order.value,
                image_channel_data_type: val.image_channel_data_type.value };

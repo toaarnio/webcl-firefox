@@ -44,7 +44,7 @@ try {
 
 function Kernel (internal, lib)
 {
-  if (!this instanceof Kernel) return new Kernel (internal);
+  if (!(this instanceof Kernel)) return new Kernel (internal);
   loadLazyModules ();
 
   this.classDescription = "Kernel";

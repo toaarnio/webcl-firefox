@@ -26,13 +26,14 @@ Cu.import ("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import ("resource://nrcwebcl/modules/logger.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
+Cu.import ("resource://nrcwebcl/modules/webclconstructors.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 
 
 function MemoryObject ()
 {
-  if (!this instanceof MemoryObject) return new MemoryObject ();
+  if (!(this instanceof MemoryObject)) return new MemoryObject ();
 
   Base.apply(this);
 
@@ -85,7 +86,7 @@ MemoryObject.prototype.getInfo = function (name)
 
 function Buffer (owner)
 {
-  if (!this instanceof Buffer) return new Buffer ();
+  if (!(this instanceof Buffer)) return new Buffer ();
 
   MemoryObject.apply(this);
 
@@ -135,7 +136,7 @@ Buffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 
 function Image (owner)
 {
-  if (!this instanceof Image) return new Image ();
+  if (!(this instanceof Image)) return new Image ();
 
   MemoryObject.apply(this);
 
@@ -168,12 +169,12 @@ Image.prototype.getInfo = function ()
 
   try
   {
-    var imageFormat = this._internal.getImageInfo (ocl_const.CL_IMAGE_FORMAT);
-    var width = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_WIDTH);
-    var height = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_HEIGHT);
-    var rowPitch = this._internal.getImageInfo (this, ocl_const.CL_IMAGE_ROW_PITCH);
+    var imageFormat = this._internal.getImageInfo (ocl_info.CL_IMAGE_FORMAT);
+    var width = this._internal.getImageInfo (ocl_info.CL_IMAGE_WIDTH);
+    var height = this._internal.getImageInfo (ocl_info.CL_IMAGE_HEIGHT);
+    var rowPitch = this._internal.getImageInfo (ocl_info.CL_IMAGE_ROW_PITCH);
 
-    var rv = {
+    var values = {
       channelOrder: +(imageFormat.image_channel_order) || ocl_const.CL_RGBA,
       channelType:  +(imageFormat.image_channel_data_type) || ocl_const.CL_UNORM_INT8,
       width:        +width || 0,
@@ -181,7 +182,9 @@ Image.prototype.getInfo = function ()
       rowPitch:     +rowPitch || 0
     };
 
-    return rv;
+    // NOTE: No need to wrapInternal since createWebCLImageDescriptor gives us
+    //       a proper XPCOM object.
+    return createWebCLImageDescriptor (values);
   }
   catch (e)
   {

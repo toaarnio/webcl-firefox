@@ -36,7 +36,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLEvent;1";
 
 function Event ()
 {
-  if (!this instanceof Event) return new Event ();
+  if (!(this instanceof Event)) return new Event ();
 
   Base.apply(this);
 
@@ -124,7 +124,7 @@ Event.prototype.setCallback = function ()
 
 function UserEvent ()
 {
-  if (!this instanceof UserEvent) return new UserEvent ();
+  if (!(this instanceof UserEvent)) return new UserEvent ();
 
   Event.apply(this);
 

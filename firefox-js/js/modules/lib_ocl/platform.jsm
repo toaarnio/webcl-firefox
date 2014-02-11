@@ -41,7 +41,7 @@ try {
 
 function Platform (internal, lib)
 {
-  if (!this instanceof Platform) return new Platform (internal);
+  if (!(this instanceof Platform)) return new Platform (internal);
   loadLazyModules ();
 
   this.classDescription = "Platform";

@@ -43,7 +43,7 @@ try {
 
 function Program (internal, lib)
 {
-  if (!this instanceof Program) return new Program (internal);
+  if (!(this instanceof Program)) return new Program (internal);
   loadLazyModules ();
 
   this.classDescription = "Program";
@@ -220,7 +220,7 @@ Program.prototype.buildProgram = function (devices, options, callback, userData)
   var clDeviceList = T.cl_device_id.array(devices.length)();
   for (var i = 0; i < devices.length; ++i)
   {
-    if (!devices[i] instanceof Device)
+    if (!(devices[i] instanceof Device))
     {
       throw new CLInvalidArgument ("devices",
                                    "Invalid device object at index " + i + " on ", "Program.buildProgram");

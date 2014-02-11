@@ -43,7 +43,7 @@ var OwnerMixin =
 
       if (obj.wrappedJSObject) obj = obj.wrappedJSObject;
 
-      if (!obj instanceof Base)
+      if (!(obj instanceof Base))
       {
         throw new Error ("Object not instance of Base");
       }
@@ -87,6 +87,7 @@ var OwnerMixin =
   _unregisterObject: function (objOrKey)
   {
     TRACE (this, "_unregisterObject", arguments);
+
     try
     {
       if (!objOrKey) return false;
@@ -98,7 +99,7 @@ var OwnerMixin =
         let obj = objOrKey;
         if (obj.wrappedJSObject) obj = obj.wrappedJSObject;
 
-        if (!obj instanceof Base)
+        if (!(obj instanceof Base))
         {
           throw new Error ("Object not instance of Base");
         }

@@ -41,7 +41,7 @@ try {
 
 function Sampler (internal, lib)
 {
-  if (!this instanceof Sampler) return new Sampler (internal);
+  if (!(this instanceof Sampler)) return new Sampler (internal);
   loadLazyModules ();
 
   this.classDescription = "Sampler";

@@ -43,7 +43,7 @@ try {
 
 function CLEvent (internal, lib)
 {
-  if (!this instanceof CLEvent) return new CLEvent (internal);
+  if (!(this instanceof CLEvent)) return new CLEvent (internal);
   loadLazyModules ();
 
   this.classDescription = "Event";

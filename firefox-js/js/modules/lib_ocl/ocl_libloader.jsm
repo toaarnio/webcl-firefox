@@ -194,7 +194,7 @@ function unloadLibrary (instance)
 {
   TRACE ("libwrapper", "unload", arguments);
 
-  if (!instance || ! instance instanceof LibraryInstance)
+  if (!instance || !(instance instanceof LibraryInstance))
   {
     throw new Error ("Invalid library wrapper instance.");
   }

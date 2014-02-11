@@ -120,6 +120,10 @@ function TRACE_processArgs (args)
         }
         break;
 
+      case "function":
+        a.push ("[function]");
+        break;
+
       default:
         a.push (String(t));
         break;

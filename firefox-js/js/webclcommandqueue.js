@@ -41,7 +41,7 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLCommandQueue;1";
 
 function CommandQueue ()
 {
-  if (!this instanceof CommandQueue) return new CommandQueue ();
+  if (!(this instanceof CommandQueue)) return new CommandQueue ();
 
   Base.apply(this);
 

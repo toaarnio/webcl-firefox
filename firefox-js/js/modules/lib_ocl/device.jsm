@@ -41,7 +41,7 @@ try {
 
 function Device (internal, lib)
 {
-  if (!this instanceof Device) return new Device (internal);
+  if (!(this instanceof Device)) return new Device (internal);
   loadLazyModules ();
 
   this.classDescription = "Device";
