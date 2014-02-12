@@ -23,6 +23,7 @@
 [scriptable, uuid(af42d437-b62c-43de-985c-c65e28a82ead)]
 interface IWebCLImage : nsISupports
 {
+  string getExternalIdentity ();
   IWebCLImageDescriptor getInfo();
   void release ();
 };

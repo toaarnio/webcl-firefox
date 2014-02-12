@@ -20,5 +20,6 @@
 [scriptable, uuid(a05ce65b-1962-42bb-81cf-08b2d5ced245)]
 interface IWebCLBuffer : IWebCLMemoryObject
 {
+  string getExternalIdentity ();
   IWebCLBuffer createSubBuffer (in CLenum memFlags, in CLuint origin, in CLuint sizeInBytes);
 };

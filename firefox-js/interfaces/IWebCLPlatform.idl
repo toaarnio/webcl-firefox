@@ -18,6 +18,7 @@
 [scriptable, uuid(6ab8b8cf-4d87-40a0-af8a-cc0bf5251fa3)]
 interface IWebCLPlatform : nsISupports
 {
+  string getExternalIdentity ();
   nsIVariant getInfo (in CLenum name);
   nsIVariant getDevices ([optional] in CLenum deviceType);
   nsIVariant getSupportedExtensions ();

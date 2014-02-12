@@ -25,6 +25,7 @@ typedef nsIVariant IWebCLKernel_List;
 [scriptable, uuid(74d49a1e-31e0-41d5-8e98-8980a077fcb2)]
 interface IWebCLProgram : nsISupports
 {
+  string getExternalIdentity ();
   nsIVariant getInfo (in CLenum name);
 
   nsIVariant getBuildInfo (in IWebCLDevice device, in CLenum name);

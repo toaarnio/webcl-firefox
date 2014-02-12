@@ -18,6 +18,7 @@
 [scriptable, uuid(f5352722-9a35-405b-95ae-54d5b4995576)]
 interface IWebCLDevice : nsISupports
 {
+  string getExternalIdentity ();
   nsIVariant getInfo (in long name);
   nsIVariant getSupportedExtensions ();
   CLboolean enableExtension (in string extensionName);

@@ -20,6 +20,7 @@ typedef nsIVariant WebCLCallback;
 [scriptable, uuid(cf7372e6-f2ec-467d-99dc-9eeb756bc3e3)]
 interface IWebCLEvent : nsISupports
 {
+  string getExternalIdentity ();
   nsIVariant getInfo (in CLenum name);
   nsIVariant getProfilingInfo (in CLenum name);
   void setCallback (in CLenum commandExecCallbackType, in WebCLCallback notify);

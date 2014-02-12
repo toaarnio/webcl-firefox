@@ -19,6 +19,9 @@
 [scriptable, uuid(0e5fba5c-091f-40db-a6a9-700ba50393d0)]
 interface IWebCLContext : nsISupports
 {
+  string getExternalIdentity ();
+  nsIVariant getManagedExternalIdentityList ();
+
   nsIVariant createBuffer (in CLenum memFlags, in CLuint sizeInBytes, [optional] in nsIVariant hostPtr);
   // NOTE: properties should not be CLenum or any invalid value is consumed by XPConnect.
   nsIVariant createCommandQueue ([optional] in nsIVariant device, [optional] in nsIVariant properties);

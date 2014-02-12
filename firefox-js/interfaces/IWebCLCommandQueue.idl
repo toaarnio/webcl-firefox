@@ -29,6 +29,7 @@ typedef nsIVariant ArrayBufferView;
 [scriptable, uuid(751b06c0-cac3-4123-87ae-2b8c22832d52)]
 interface IWebCLCommandQueue : nsISupports
 {
+  string getExternalIdentity ();
   void enqueueCopyBuffer(
                     in IWebCLBuffer                          srcBuffer,
                     in IWebCLBuffer                          dstBuffer,

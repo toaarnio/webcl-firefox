@@ -22,6 +22,7 @@ interface IWebCLContext;
 interface IWebCL : nsISupports
 {
   void init (in nsIDOMWindow domWindow);
+  nsIVariant getManagedExternalIdentityList ();
 
   nsIVariant getPlatforms ();
 

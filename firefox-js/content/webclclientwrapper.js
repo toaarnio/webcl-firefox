@@ -58,18 +58,18 @@
             //       own interface listed before inherited interface.
             switch (ifaceList[i])
             {
-              case "IWebCLPlatform":     return new _Platform (obj);
-              case "IWebCLDevice":       return new _Device (obj);
-              case "IWebCLContext":      return new _Context (obj);
-              case "IWebCLProgram":      return new _Program (obj);
-              case "IWebCLKernel":       return new _Kernel (obj);
-              case "IWebCLCommandQueue": return new _CommandQueue (obj);
-              case "IWebCLEvent":        return new _Event (obj);
-              case "IWebCLUserEvent":    return new _UserEvent (obj);
-              case "IWebCLMemoryObject": return new _MemoryObject (obj);
-              case "IWebCLBuffer":       return new _Buffer (obj);
-              case "IWebCLImage":        return new _Image (obj);
-              case "IWebCLSampler":      return new _Sampler (obj);
+              case "IWebCLPlatform":     return _createPlatformInstance (obj);
+              case "IWebCLDevice":       return _createDeviceInstance (obj);
+              case "IWebCLContext":      return _createContextInstance (obj);
+              case "IWebCLProgram":      return _createProgramInstance (obj);
+              case "IWebCLKernel":       return _createKernelInstance (obj);
+              case "IWebCLCommandQueue": return _createCommandQueueInstance (obj);
+              case "IWebCLEvent":        return _createEventInstance (obj);
+              case "IWebCLUserEvent":    return _createUserEventInstance (obj);
+              case "IWebCLMemoryObject": return _createMemoryObjectInstance (obj);
+              case "IWebCLBuffer":       return _createBufferInstance (obj);
+              case "IWebCLImage":        return _createImageInstance (obj);
+              case "IWebCLSampler":      return _createSamplerInstance (obj);
               case "IWebCLImageDescriptor": return {
                                                      channelOrder: +obj.channelOrder || WebCL.RGBA,
                                                      channelType:  +obj.channelType  || WebCL.UNORM_INT8,
@@ -207,7 +207,8 @@
     }
   }
 
-  var _createDefaultFunctionWrapper = function (fname)
+
+  function _createDefaultFunctionWrapper (fname, preProcFn, postProcFn)
   {
     return function ()
     {
@@ -216,7 +217,44 @@
         _validateInternal (this);
 
         var args = Array.prototype.slice.call(arguments);
+
+        if (preProcFn && typeof(preProcFn) == "function")
+        {
+          args = preProcFn (args);
+        }
+
+
+        // Special handling for release & releaseAll
+        try
+        {
+          if (fname === "releaseAll")
+          {
+            var managedWrapperList = this._internal.getManagedExternalIdentityList ();
+            for (var i = 0; i < managedWrapperList.length; ++i)
+            {
+              _unregisterWrapperInstance (managedWrapperList[i]);
+            }
+
+            _unregisterWrapperInstance (this._identity);
+          }
+          else if (fname === "release")
+          {
+            _unregisterWrapperInstance (this._identity);
+          }
+        }
+        catch (e)
+        {
+          console.log ("WebCL wrapper internal error: Failed to unregister wrapper on " + fname + ": " + e);
+        }
+
+
         var rv = this._internal[fname].apply (this._internal, _unwrapInternalObject(args));
+
+        if (postProcFn && typeof(postProcFn) == "function")
+        {
+          rv = postProcFn (rv, args);
+        }
+
         if (rv !== undefined)
         {
           return _wrapInternalObject (rv);
@@ -228,6 +266,7 @@
       }
     };
   }
+
 
   var alreadyWarned = {};
 
@@ -364,6 +403,13 @@
     try
     {
       if (!_ensureWebCLAvailable ()) return;
+
+      var managedWrapperList = _handle.getManagedExternalIdentityList ();
+      for (var i = 0; i < managedWrapperList.length; ++i)
+      {
+        _unregisterWrapperInstance (managedWrapperList[i]);
+      }
+
       _handle.releaseAll ();
     }
     catch (e)
@@ -379,8 +425,7 @@
   {
     this._internal = internal;
     this._name = "object";
-
-    // TODO: Implement instance equality. Detect owners by "releaseAll".
+    this._identity = (internal ? internal.getExternalIdentity () : null);
   }
 
   _Base.prototype.getInfo = _createDefaultFunctionWrapper ("getInfo");
@@ -392,7 +437,7 @@
   // == Platform =================================================================
   function _Platform (internal)
   {
-    if (!this instanceof _Platform) return;
+    if (!(this instanceof _Platform)) return;
     _Base.call (this, internal);
 
     this._name = "WebCLPlatform";
@@ -408,7 +453,7 @@
   // == Device ===================================================================
   function _Device (internal)
   {
-    if (!this instanceof _Device) return;
+    if (!(this instanceof _Device)) return;
     _Base.call (this, internal);
 
     this._name = "WebCLDevice";
@@ -422,7 +467,7 @@
 
   // == Context ==================================================================
   function _Context (internal) {
-    if (!this instanceof _Context) return; // TODO
+    if (!(this instanceof _Context)) return; // TODO
     _Base.call (this, internal);
 
     this._name = "WebCLContext";
@@ -463,7 +508,7 @@
 
   // == Program ==================================================================
   function _Program (internal) {
-    if (!this instanceof _Program) return;
+    if (!(this instanceof _Program)) return;
     _Base.call (this, internal);
 
     this._name = "WebCLProgram";
@@ -480,7 +525,7 @@
 
   // == Kernel ===================================================================
   function _Kernel (internal) {
-    if (!this instanceof _Kernel) return;
+    if (!(this instanceof _Kernel)) return;
     _Base.call (this, internal);
 
     this._name = "WebCLKernel";
@@ -496,29 +541,29 @@
 
   // == CommandQueue =============================================================
   function _CommandQueue (internal) {
-    if (!this instanceof _CommandQueue) return;
+    if (!(this instanceof _CommandQueue)) return;
     _Base.call (this, internal);
 
     this._name = "WebCLCommandQueue";
   }
   _CommandQueue.prototype = Object.create (_Base.prototype);
 
-  _CommandQueue.prototype.enqueueCopyBuffer = _createDefaultFunctionWrapper ("enqueueCopyBuffer");
-  _CommandQueue.prototype.enqueueCopyBufferRect = _createDefaultFunctionWrapper ("enqueueCopyBufferRect");
-  _CommandQueue.prototype.enqueueCopyImage = _createDefaultFunctionWrapper ("enqueueCopyImage");
-  _CommandQueue.prototype.enqueueCopyImageToBuffer = _createDefaultFunctionWrapper ("enqueueCopyImageToBuffer");
-  _CommandQueue.prototype.enqueueCopyBufferToImage = _createDefaultFunctionWrapper ("enqueueCopyBufferToImage");
+  _CommandQueue.prototype.enqueueCopyBuffer = _createDefaultFunctionWrapper ("enqueueCopyBuffer", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueCopyBufferRect = _createDefaultFunctionWrapper ("enqueueCopyBufferRect", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueCopyImage = _createDefaultFunctionWrapper ("enqueueCopyImage", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueCopyImageToBuffer = _createDefaultFunctionWrapper ("enqueueCopyImageToBuffer", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueCopyBufferToImage = _createDefaultFunctionWrapper ("enqueueCopyBufferToImage", null, _commandQueue_eventPostProc);
 
-  _CommandQueue.prototype.enqueueReadBuffer = _createDefaultFunctionWrapper ("enqueueReadBuffer");
-  _CommandQueue.prototype.enqueueReadBufferRect = _createDefaultFunctionWrapper ("enqueueReadBufferRect");
-  _CommandQueue.prototype.enqueueReadImage = _createDefaultFunctionWrapper ("enqueueReadImage");
+  _CommandQueue.prototype.enqueueReadBuffer = _createDefaultFunctionWrapper ("enqueueReadBuffer", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueReadBufferRect = _createDefaultFunctionWrapper ("enqueueReadBufferRect", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueReadImage = _createDefaultFunctionWrapper ("enqueueReadImage", null, _commandQueue_eventPostProc);
 
-  _CommandQueue.prototype.enqueueWriteBuffer = _createDefaultFunctionWrapper ("enqueueWriteBuffer");
-  _CommandQueue.prototype.enqueueWriteBufferRect = _createDefaultFunctionWrapper ("enqueueWriteBufferRect");
-  _CommandQueue.prototype.enqueueWriteImage = _createDefaultFunctionWrapper ("enqueueWriteImage");
+  _CommandQueue.prototype.enqueueWriteBuffer = _createDefaultFunctionWrapper ("enqueueWriteBuffer", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueWriteBufferRect = _createDefaultFunctionWrapper ("enqueueWriteBufferRect", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueWriteImage = _createDefaultFunctionWrapper ("enqueueWriteImage", null, _commandQueue_eventPostProc);
 
-  _CommandQueue.prototype.enqueueNDRangeKernel = _createDefaultFunctionWrapper ("enqueueNDRangeKernel");
-  _CommandQueue.prototype.enqueueMarker = _createDefaultFunctionWrapper ("enqueueMarker");
+  _CommandQueue.prototype.enqueueNDRangeKernel = _createDefaultFunctionWrapper ("enqueueNDRangeKernel", null, _commandQueue_eventPostProc);
+  _CommandQueue.prototype.enqueueMarker = _createDefaultFunctionWrapper ("enqueueMarker", null, _commandQueue_eventPostProc);
   _CommandQueue.prototype.enqueueBarrier = _createDefaultFunctionWrapper ("enqueueBarrier");
   _CommandQueue.prototype.enqueueWaitForEvents = _createDefaultFunctionWrapper ("enqueueWaitForEvents");
   _CommandQueue.prototype.finish = _createDefaultFunctionWrapper ("finish");
@@ -526,10 +571,23 @@
   _CommandQueue.prototype.release = _createDefaultFunctionWrapper ("release");
 
 
+  // Upgrade event parameters with identity.
+  function _commandQueue_eventPostProc (rv, args)
+  {
+    var ev = args[args.length-1];
+    if (ev && ev instanceof WebCLEvent)
+    {
+      if (ev._internal)
+      {
+        ev._identity = ev._internal.getExternalIdentity ();
+      }
+    }
+  }
+
 
   // == Event ====================================================================
   function _Event (internal) {
-    if (!this instanceof _Event) return;
+    if (!(this instanceof _Event)) return;
 
     if (!internal)
     {
@@ -550,7 +608,7 @@
 
   // == UserEvent ================================================================
   function _UserEvent (internal) {
-    if (!this instanceof _UserEvent) return;
+    if (!(this instanceof _UserEvent)) return;
     _Event.call (this, internal);
 
     this._name = "WebCLUserEvent";
@@ -562,7 +620,7 @@
 
   // == MemoryObject =============================================================
   function _MemoryObject (internal) {
-    if (!this instanceof _MemoryObject) return;
+    if (!(this instanceof _MemoryObject)) return;
     _Base.call (this, internal);
 
     this._name = "WebCLMemoryObject";
@@ -576,7 +634,7 @@
   // == Buffer ===================================================================
   function _Buffer (internal)
   {
-    if (!this instanceof _Buffer) return;
+    if (!(this instanceof _Buffer)) return;
     _MemoryObject.call (this, internal);
 
     this._name = "WebCLBuffer";
@@ -590,7 +648,7 @@
   // == Image ====================================================================
   function _Image (internal)
   {
-    if (!this instanceof _Image) return;
+    if (!(this instanceof _Image)) return;
     _MemoryObject.call (this, internal);
 
     this._name = "WebCLImage";
@@ -601,7 +659,7 @@
 
   // == Sampler ==================================================================
   function _Sampler (internal) {
-    if (!this instanceof _Sampler) return;
+    if (!(this instanceof _Sampler)) return;
     _Base.call (this, internal);
 
     this._name = "WebCLSampler";
@@ -609,6 +667,239 @@
   _Sampler.prototype = Object.create (_Base.prototype);
 
   _Sampler.prototype.release = _createDefaultFunctionWrapper ("release");
+
+
+
+  // == Life cycle management ====================================================
+  // These functions should be used when creating wrappers for WebCL internal (XPCOM) objects.
+  // Existing objects will be re-used.
+
+  function _createPlatformInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Platform (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createDeviceInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Device (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createContextInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Context (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createProgramInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Program (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createKernelInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Kernel (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createCommandQueueInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _CommandQueue (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createEventInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Event (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createUserEventInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _UserEvent (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createMemoryObjectInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _MemoryObject (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createBufferInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Buffer (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createImageInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Image (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createSamplerInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Sampler (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+
+  function _lookForExistingWrapperInstance (obj)
+  {
+    if (!obj || typeof(obj) != "object" || typeof(obj.getExternalIdentity) != "function")
+    {
+      var msg = "Bad object: expected internal WebCL object, got " + obj;
+      console.log ("WebCL wrapper internal error: " + msg);
+      throw new WebCLException (null, msg);
+    }
+
+    var identity = obj.getExternalIdentity ();
+    if (identity in gWrapperRegistry)
+    {
+      return gWrapperRegistry[identity].wrapper;
+    }
+
+    return null;
+  }
+
+
+  function _registerWrapperInstance (wrapper)
+  {
+    if (!(wrapper instanceof _Base))
+    {
+      var msg = "Bad wrapper instance, expected _Base, got: " + wrapper;
+      console.log ("WebCL wrapper internal error: " + msg);
+      throw new WebCLException (null, msg);
+    }
+
+    if (!wrapper._identity)
+    {
+      // Missing identity
+      // console.log ("_registerWrapperInstance: missing identity!");
+      return;
+    }
+
+    if (wrapper._identity in gWrapperRegistry)
+    {
+      // Identity already in registry
+      // console.log ("_registerWrapperInstance: identity already in registry: " + wrapper._identity + "!");
+      return;
+    }
+
+    // Create new container in registry
+    gWrapperRegistry[wrapper._identity] = { wrapper: wrapper, refCnt: 1 };
+  }
+
+
+  function _unregisterWrapperInstance (wrapperOrIdentity)
+  {
+    var identity = null;
+    if (wrapperOrIdentity instanceof _Base)
+    {
+      identity = wrapperOrIdentity._identity;
+    }
+    else
+    {
+      identity = wrapperOrIdentity;
+    }
+
+    if (identity && identity in gWrapperRegistry)
+    {
+      var container = gWrapperRegistry[identity];
+      if (container.refCnt > 1)
+      {
+        --container.refCnt;
+      }
+      else
+      {
+        container.refCnt = 0;
+        container.wrapper = null;
+        delete gWrapperRegistry[identity];
+      }
+    }
+    else
+    {
+      // console.log ("_unregisterWrapperInstance: identity " + identity + " not found!");
+    }
+  }
+
+
+  var gWrapperRegistry = {};
 
 
 

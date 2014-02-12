@@ -27,11 +27,30 @@ Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
 Cu.import ("resource://nrcwebcl/modules/mixins/securitycheckedcomponent.jsm");
 
 
+// TODO: implement better identity generation
+var gExternalIdentitySeed = 1;
+
+
 function Base ()
 {
+  // _owner: (Object) Resource manager object controlling this object's life cycle
   // Note: Set by owner in _registerObject.
   this._owner = null;
+
+  // _identity: (String) Internal identity used as resource management key. Stringified from
+  //                     CData pointer value.
   this._identity = null;
+
+  // _externalIdentity: (String) External identity, exposed to client script. For security reasons
+  //                             we don't want to expose actual memory addresses. Identities could
+  //                             be unified, but then we'd just need to maintain separate "external"
+  //                             identity on lower level, since the underlaying CData pointer is
+  //                             required for working with OpenCL.
+  this._externalIdentity = String (gExternalIdentitySeed++);
+
+  // _invalid: (Boolean) True if object has been invalidated and general API functionality should
+  //                     not be allowed. Object becomes invalidated after being released. This
+  //                     mechanism is designed to guard against use through dangling references.
   this._invalid = false;
 }
 
@@ -154,6 +173,12 @@ Base.prototype.release = function ()
     throw webclutils.convertCLException (e);
   }
 };
+
+
+Base.prototype.getExternalIdentity = function ()
+{
+  return String(this._externalIdentity);
+}
 
 
 

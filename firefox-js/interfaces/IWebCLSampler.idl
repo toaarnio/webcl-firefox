@@ -18,6 +18,7 @@
 [scriptable, uuid(dc9b25aa-2bdc-4efd-b295-b450c75d252c)]
 interface IWebCLSampler : nsISupports
 {
+  string getExternalIdentity ();
   nsIVariant getInfo (in CLenum name);
   void release ();
 };

@@ -18,6 +18,7 @@
 [scriptable, uuid(e677e482-49e5-40de-ba4f-0e71f301286b)]
 interface IWebCLMemoryObject : nsISupports
 {
+  string getExternalIdentity ();
   nsIVariant getInfo (in CLenum name);
   void release ();
 };

@@ -192,7 +192,10 @@ var OwnerMixin =
     this._objectRegistry = {};
   },
 
-
+  getManagedExternalIdentityList: function ()
+  {
+    return _getManagedExternalIdentityListInternal (this, []);
+  },
 
   dumpTree: function (prefix, filler, bullet, maxRecursion)
   {
@@ -211,6 +214,29 @@ var OwnerMixin =
   }
 
 };
+
+
+function _getManagedExternalIdentityListInternal (instance, list)
+{
+  if (!list || !Array.isArray(list)) list = [];
+
+  instance._forEachRegistered (function (o)
+  {
+    if (o.wrappedJSObject) o = o.wrappedJSObject;
+
+    if ("getExternalIdentity" in o)
+    {
+      list.push (o.getExternalIdentity ());
+    }
+
+    if (o && ("getManagedExternalIdentityList" in o))
+    {
+      _getManagedExternalIdentityListInternal (o, list);
+    }
+  });
+
+  return list;
+}
 
 
 function _dumpTreeInternal (instance, prefix, filler, bullet, maxRecursion)
