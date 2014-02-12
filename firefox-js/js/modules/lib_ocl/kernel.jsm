@@ -188,7 +188,7 @@ Kernel.prototype.setArg = function (index, value)
     className = className.substring(0, className.lastIndexOf("]"));
   }
 
-  if (!isNaN(+value) && +value > 0)
+  if (typeof(value) === 'number' && !isNaN(+value) && +value >= 0)
   {
     // If value is a number, assume it's local arg size.
     ptr = new ctypes.voidptr_t (0);
