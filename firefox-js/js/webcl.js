@@ -42,6 +42,8 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/context.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
+
 
 DEBUG ("webcl.js: modules loaded");
 
@@ -562,7 +564,7 @@ WebCL.prototype._convertEventWaitList = function (eventWaitList)
     if (!webclutils.validateEvent (p))
     {
       // TODO: handle errors better...
-      throw new Exception ("Invalid argument: eventWaitList[" + i + "].");
+      throw new CLInvalidArgument ("eventWaitList[" + i + "].");
     }
     clEvents.push (p);
   }

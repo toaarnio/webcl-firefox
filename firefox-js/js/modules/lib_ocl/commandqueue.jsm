@@ -481,6 +481,58 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
 };
 
 
+CommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
+                                                     srcOffset, dstOffset, numBytes,
+                                                     eventWaitList)
+{
+  TRACE (this, "enqueueCopyBuffer", arguments);
+  // TODO: validate args
+
+  var clEventWaitListInfo = processEventWaitList (eventWaitList);
+
+  var clEventOut = new T.cl_event();
+  var clErr = this._lib.clEnqueueCopyBuffer (this._internal,
+                                             srcBuffer._internal, dstBuffer._internal,
+                                             +srcOffset, +dstOffset, +numBytes,
+                                             clEventWaitListInfo.length,
+                                             clEventWaitListInfo.dataPtr,
+                                             clEventOut.address());
+  if (clErr) throw new CLError (clErr, null, "CommandQueue.enqueueCopyBuffer");
+
+  return new CLEvent (clEventOut, this._lib);
+};
+
+
+CommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
+                                                         srcOrigin, dstOrigin, region,
+                                                         srcRowPitch, srcSlicePitch,
+                                                         dstRowPitch, dstSlicePitch,
+                                                         eventWaitList)
+{
+  TRACE (this, "enqueueCopyBufferRect", arguments);
+  // TODO: validate args
+
+  var clSrcOriginPtr = ctypes.cast (T.size_t.array()(srcOrigin).address(), T.size_t.ptr);
+  var clDstOriginPtr = ctypes.cast (T.size_t.array()(dstOrigin).address(), T.size_t.ptr);
+  var clRegionPtr = ctypes.cast (T.size_t.array()(region).address(), T.size_t.ptr);
+
+  var clEventWaitListInfo = processEventWaitList (eventWaitList);
+
+  var clEventOut = new T.cl_event();
+  var clErr = this._lib.clEnqueueCopyBufferRect (this._internal,
+                                                 srcBuffer._internal, dstBuffer._internal,
+                                                 clSrcOriginPtr, clDstOriginPtr, clRegionPtr,
+                                                 +srcRowPitch, +srcSlicePitch,
+                                                 +dstRowPitch, +dstSlicePitch,
+                                                 clEventWaitListInfo.length,
+                                                 clEventWaitListInfo.dataPtr,
+                                                 clEventOut.address());
+  if (clErr) throw new CLError (clErr, null, "CommandQueue.enqueueCopyBufferRect");
+
+  return new CLEvent (clEventOut, this._lib);
+};
+
+
 CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
                                                             srcOffset, dstOrigin, region,
                                                             eventWaitList)

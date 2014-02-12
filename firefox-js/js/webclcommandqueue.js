@@ -72,8 +72,106 @@ CommandQueue.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLComm
 // IWebCLCommandQueue
 
 
-// TODO: CommandQueue.prototype.enqueueCopyBuffer = function ()
-// TODO: CommandQueue.prototype.enqueueCopyBufferRect = function ()
+CommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
+                                                     srcOffset, dstOffset, numBytes,
+                                                     eventWaitList, eventOut)
+{
+  TRACE (this, "enqueueCopyBuffer", arguments);
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
+
+  try
+  {
+    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
+    if (!webclutils.validateBuffer(clSrcBuffer)) throw new CLInvalidArgument ("srcBuffer");
+
+    var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
+    if (!webclutils.validateBuffer(clDstBuffer)) throw new CLInvalidArgument ("dstBuffer");
+
+    if (!webclutils.validateNumber (srcOffset))  throw new CLInvalidArgument ("srcOffset");
+    if (!webclutils.validateNumber (dstOffset))  throw new CLInvalidArgument ("dstOffset");
+    if (!webclutils.validateNumber (numBytes))  throw new CLInvalidArgument ("numBytes");
+
+    var clEventWaitList = [];
+    if (eventWaitList)
+    {
+      clEventWaitList = this._convertEventWaitList (eventWaitList);
+    }
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new CLInvalidArgument ("event");
+    }
+
+    var ev = this._internal.enqueueCopyBuffer (clSrcBuffer, clDstBuffer,
+                                               srcOffset, dstOffset, numBytes,
+                                               clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
+};
+
+
+CommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
+                                                         srcOrigin, dstOrigin, region,
+                                                         srcRowPitch, srcSlicePitch,
+                                                         dstRowPitch, dstSlicePitch,
+                                                         eventWaitList, eventOut)
+{
+  TRACE (this, "enqueueCopyBufferRect", arguments);
+  if(!this._ensureValidObject ()) throw new CLInvalidated();
+
+  try
+  {
+    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
+    if (!webclutils.validateBuffer(clSrcBuffer)) throw new CLInvalidArgument ("srcBuffer");
+
+    var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
+    if (!webclutils.validateBuffer(clDstBuffer)) throw new CLInvalidArgument ("dstBuffer");
+
+    if (!webclutils.validateArrayLength(srcOrigin, function(arr) { return arr.length === 3; }))
+      throw new CLInvalidArgument ("srcOrigin");
+    if (!webclutils.validateArrayLength(dstOrigin, function(arr) { return arr.length === 3; }))
+      throw new CLInvalidArgument ("dstOrigin");
+    if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 3; }))
+      throw new CLInvalidArgument ("region");
+
+    if (!webclutils.validateNumber (srcRowPitch))  throw new CLInvalidArgument ("srcRowPitch");
+    if (!webclutils.validateNumber (srcSlicePitch))  throw new CLInvalidArgument ("srcSlicePitch");
+    if (!webclutils.validateNumber (dstRowPitch))  throw new CLInvalidArgument ("dstRowPitch");
+    if (!webclutils.validateNumber (dstSlicePitch))  throw new CLInvalidArgument ("dstSlicePitch");
+
+    var clEventWaitList = [];
+    if (eventWaitList)
+    {
+      clEventWaitList = this._convertEventWaitList (eventWaitList);
+    }
+
+    // Validate outgoing event
+    var clEventOut = this._unwrapInternalOrNull (eventOut);
+    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
+    {
+      throw new CLInvalidArgument ("event");
+    }
+
+    var ev = this._internal.enqueueCopyBufferRect (clSrcBuffer, clDstBuffer,
+                                                   srcOrigin, dstOrigin, region,
+                                                   srcRowPitch, srcSlicePitch,
+                                                   dstRowPitch, dstSlicePitch,
+                                                   clEventWaitList);
+    this._handleEventOut (ev, eventOut);
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
+};
 
 
 CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
@@ -87,10 +185,10 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
   try
   {
     var clSrcImage = this._unwrapInternalOrNull (srcImage);
-    if (!webclutils.validateImage(clSrcImage)) throw new Exception ("Invalid argument: srcImage");
+    if (!webclutils.validateImage(clSrcImage)) throw new CLInvalidArgument ("srcImage");
 
     var clDstImage = this._unwrapInternalOrNull (dstImage);
-    if (!webclutils.validateImage(clDstImage)) throw new Exception ("Invalid argument: dstImage");
+    if (!webclutils.validateImage(clDstImage)) throw new CLInvalidArgument ("dstImage");
 
     // TODO: validate srcOrigin, dstOrigin, region
 
@@ -104,7 +202,7 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueCopyImage (clSrcImage, clDstImage,
@@ -130,10 +228,10 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
   try
   {
     var clSrcImage = this._unwrapInternalOrNull (srcImage);
-    if (!webclutils.validateImage(clSrcImage)) throw new Exception ("Invalid argument: srcImage");
+    if (!webclutils.validateImage(clSrcImage)) throw new CLInvalidArgument ("srcImage");
 
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-    if (!webclutils.validateBuffer(clDstBuffer)) throw new Exception ("Invalid argument: dstBuffer");
+    if (!webclutils.validateBuffer(clDstBuffer)) throw new CLInvalidArgument ("dstBuffer");
 
     // TODO: validate srcOrigin, srcRegion, dstOffset
 
@@ -147,7 +245,7 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueCopyImageToBuffer (clSrcImage, clDstBuffer,
@@ -173,10 +271,10 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
   try
   {
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
-    if (!webclutils.validateBuffer(clSrcBuffer)) throw new Exception ("Invalid argument: srcBuffer");
+    if (!webclutils.validateBuffer(clSrcBuffer)) throw new CLInvalidArgument ("srcBuffer");
 
     var clDstImage = this._unwrapInternalOrNull (dstImage);
-    if (!webclutils.validateImage(clDstImage)) throw new Exception ("Invalid argument: dstImage");
+    if (!webclutils.validateImage(clDstImage)) throw new CLInvalidArgument ("dstImage");
 
     // TODO: validate srcOffset, dstOrigin, region
 
@@ -190,7 +288,7 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueCopyBufferToImage (clSrcBuffer, clDstImage,
@@ -217,11 +315,11 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
   {
     var clBuffer = this._unwrapInternalOrNull (buffer);
     if (!webclutils.validateBuffer(clBuffer))
-      throw new Exception ("Invalid argument: buffer");
+      throw new CLInvalidArgument ("buffer");
     if (!webclutils.validateNumber(bufferOffset))
-      throw new Exception ("Invalid argument: bufferOffset");
+      throw new CLInvalidArgument ("bufferOffset");
     if (!webclutils.validateNumber(numBytes))
-      throw new Exception ("Invalid argument: numBytes");
+      throw new CLInvalidArgument ("numBytes");
 
     // TODO: validate hostPtr
 
@@ -232,7 +330,7 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueReadBuffer (clBuffer, !!blockingRead,
@@ -262,7 +360,7 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
   try
   {
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    if (!webclutils.validateBuffer(clBuffer)) throw new Exception ("Invalid argument: buffer");
+    if (!webclutils.validateBuffer(clBuffer)) throw new CLInvalidArgument ("buffer");
 
     // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
     //       hostRowPitch, hostSlicePitch, hostPtr
@@ -274,7 +372,7 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueReadBufferRect (clBuffer, !!blockingRead,
@@ -320,7 +418,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     */
     var clImage = this._unwrapInternalOrNull (image);
     if (!webclutils.validateImage(clImage))
-      throw new Exception ("Invalid argument: image");  // TODO: throw INVALID_MEM_OBJECT
+      throw new CLInvalidArgument ("image");  // TODO: throw INVALID_MEM_OBJECT
 
     var descriptor = image.getInfo ();
     var numChannels = 4;                   // TODO support formats other than RGBA
@@ -374,7 +472,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var clOrigin = [ origin[0], origin[1], 0 ];
@@ -405,11 +503,11 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
   {
     var clBuffer = this._unwrapInternalOrNull (buffer);
     if (!webclutils.validateBuffer(clBuffer))
-      throw new Exception ("Invalid argument: buffer");
+      throw new CLInvalidArgument ("buffer");
     if (!webclutils.validateNumber(bufferOffset))
-      throw new Exception ("Invalid argument: bufferOffset");
+      throw new CLInvalidArgument ("bufferOffset");
     if (!webclutils.validateNumber(numBytes))
-      throw new Exception ("Invalid argument: numBytes");
+      throw new CLInvalidArgument ("numBytes");
 
     // TODO: validate hostPtr
 
@@ -423,7 +521,7 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueWriteBuffer (clBuffer, !!blockingWrite,
@@ -453,7 +551,7 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
   try
   {
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    if (!webclutils.validateBuffer(clBuffer)) throw new Exception ("Invalid argument: buffer");
+    if (!webclutils.validateBuffer(clBuffer)) throw new CLInvalidArgument ("buffer");
 
     // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
     //       hostRowPitch, hostSlicePitch, hostPtr
@@ -465,7 +563,7 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueWriteBufferRect (clBuffer, !!blockingWrite,
@@ -494,7 +592,7 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
   try
   {
     var clImage = this._unwrapInternalOrNull (image);
-    if (!webclutils.validateImage(clImage)) throw new Exception ("Invalid argument: image");
+    if (!webclutils.validateImage(clImage)) throw new CLInvalidArgument ("image");
 
     // TODO: validate origin, region, hostRowPitch, hostPtr
 
@@ -505,7 +603,7 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueWriteImage (clImage, !!blockingWrite,
@@ -534,15 +632,15 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
   {
     var clKernel = this._unwrapInternalOrNull (kernel);
     if (!webclutils.validateKernel(clKernel))
-      throw new Exception ("Invalid argument: kernel");
+      throw new CLInvalidArgument ("kernel");
     if (!webclutils.validateNumber(workDim) || workDim  < 1 || workDim > 3)
-      throw new Exception ("Invalid argument: workDim");
+      throw new CLInvalidArgument ("workDim");
     if (globalWorkOffset && !webclutils.validateArray(globalWorkOffset, webclutils.validateNumber))
-      throw new Exception ("Invalid argument: globalWorkOffset");
+      throw new CLInvalidArgument ("globalWorkOffset");
     if (!webclutils.validateArray(globalWorkSize, webclutils.validateNumber))
-      throw new Exception ("Invalid argument: globalWorkSize");
+      throw new CLInvalidArgument ("globalWorkSize");
     if (localWorkSize && !webclutils.validateArray(localWorkSize, webclutils.validateNumber))
-      throw new Exception ("Invalid argument: localWorkSize");
+      throw new CLInvalidArgument ("localWorkSize");
 
     var clEventWaitList = [];
     if (eventWaitList)
@@ -554,7 +652,7 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueNDRangeKernel (clKernel, workDim,
@@ -581,7 +679,7 @@ CommandQueue.prototype.enqueueMarker = function (eventOut)
     var clEventOut = this._unwrapInternalOrNull (eventOut);
     if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
     {
-      throw new Exception ("Invalid argument: event");
+      throw new CLInvalidArgument ("event");
     }
 
     var ev = this._internal.enqueueMarker ();
@@ -621,7 +719,7 @@ CommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
   {
     if (!Array.isArray(eventWaitList))
     {
-      throw new Exception ("Invalid argument: eventWaitList.");
+      throw new CLInvalidArgument ("eventWaitList.");
     }
 
     var clEvents = this._convertEventWaitList (eventWaitList);
@@ -724,7 +822,7 @@ CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
 
     if (!webclEvent instanceof Ci.IWebCLEvent)
     {
-      throw new Exception ("Invalid argument: event"); // TODO!
+      throw new CLInvalidArgument ("event"); // TODO!
     }
 
     // If the event object was already in use, release the internals. This will
@@ -757,7 +855,7 @@ CommandQueue.prototype._convertEventWaitList = function (eventWaitList)
     if (!webclutils.validateEvent (p))
     {
       // TODO: handle errors better...
-      throw new Exception ("Invalid argument: eventWaitList[" + i + "].");
+      throw new CLInvalidArgument ("eventWaitList[" + i + "].");
     }
     clEvents.push (p);
   }
