@@ -14,7 +14,6 @@
 
 try {
 
-
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
@@ -32,6 +31,7 @@ Cu.import ("resource://nrcwebcl/modules/base.jsm");
 Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
 
 var CLASSNAME =  "WebCLCommandQueue";
@@ -302,10 +302,70 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
 
   try
   {
+    /*
+    INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
+    INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as image
+    INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as all events in eventWaitList
+    INVALID_MEM_OBJECT -- if image is not a valid WebCLImage object
+    INVALID_IMAGE_SIZE -- if the image dimensions of image are not supported by this WebCLCommandQueue
+  x INVALID_VALUE -- if origin or region does not have exactly two elements
+    INVALID_VALUE -- if any part of the region being read, specified by origin and region, is out of bounds of image
+  x INVALID_VALUE -- if any part of the region being written, specified by region and hostRowPitch, is out of bounds of hostPtr
+  x INVALID_VALUE -- if hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0
+    INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
+    INVALID_EVENT_WAIT_LIST -- if blockingRead is true, and any event in eventWaitList is a WebCLUserEvent or a newly created (non-activated) WebCLEvent
+    EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST -- if blockingRead is true and the execution status of any event in eventWaitList 
+      is a negative integer value
+    INVALID_EVENT -- if event is not a newly created empty WebCLEvent
+    */
     var clImage = this._unwrapInternalOrNull (image);
-    if (!webclutils.validateImage(clImage)) throw new Exception ("Invalid argument: image");
+    if (!webclutils.validateImage(clImage))
+      throw new Exception ("Invalid argument: image");  // TODO: throw INVALID_MEM_OBJECT
 
-    // TODO: validate origin, region, hostRowPitch, hostPtr
+    var descriptor = image.getInfo ();
+    var numChannels = 4;                   // TODO support formats other than RGBA
+    var bytesPerPixel = numChannels * 1;   // TODO support other than one-byte-per-color formats
+    var width = 64;                        // TODO get the real width from descriptor
+    var height = 64;                       // TODO get the real height from descriptor
+
+    if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
+      throw new CLInvalidArgument("origin", "origin must be an Array with exactly two elements'");
+
+    if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 2; }))
+      throw new CLInvalidArgument("region", "region must be an Array with exactly two elements");
+
+    if (!webclutils.validateArray(origin, webclutils.validateNumber))
+      throw new CLInvalidArgument("origin", "origin must be an Array with elements of type 'number'");
+
+    if (!webclutils.validateArray(region, webclutils.validateNumber))
+      throw new CLInvalidArgument("region", "region must be an Array with elements of type 'number'");
+
+    if (!webclutils.validateArray(origin, function(v) { return v >= 0; }))
+      throw new CLInvalidArgument("origin", "all elements of origin must be non-negative");
+
+    if (!webclutils.validateArray(region, function(v) { return v >= 0; }))
+      throw new CLInvalidArgument("origin", "all elements of region must be non-negative");
+
+    if (!(webclutils.validateNumber(hostRowPitch) && ((hostRowPitch & 0x80000000) === 0)))
+      throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must be non-negative and less than 2^31");
+
+    if (!webclutils.validateArrayBufferView(hostPtr)) 
+      throw new CLInvalidArgument("hostPtr", "hostPtr must be an instance of ArrayBufferView");
+
+    if (origin[0] + region[0] > width || origin[1] + region[1] > height)
+      throw new CLInvalidArgument("region", "area specified by origin and region must fit inside image");
+
+    if (hostRowPitch !== 0 && hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0)
+      throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must be zero or a multiple of hostPtr.BYTES_PER_ELEMENT");
+
+    if (hostRowPitch !== 0 && hostRowPitch < bytesPerPixel*width)
+      throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must not be less than bytesPerPixel * width");
+
+    if (hostRowPitch === 0 && region[0]*region[1] > hostPtr.length)
+      throw new CLInvalidArgument("region", "area specified by region must fit inside hostPtr");
+
+    if (hostRowPitch !== 0 && hostRowPitch*region[1] > hostPtr.byteLength)
+      throw new CLInvalidArgument("region", "area specified by region and hostRowPitch must fit inside hostPtr");
 
     var clEventWaitList = [];
     if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
@@ -317,8 +377,10 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
       throw new Exception ("Invalid argument: event");
     }
 
+    var clOrigin = [ origin[0], origin[1], 0 ];
+    var clRegion = [ region[0], region[1], 1 ];
     var ev = this._internal.enqueueReadImage (clImage, !!blockingRead,
-                                              origin, region,
+                                              clOrigin, clRegion,
                                               hostRowPitch, 0,
                                               hostPtr,
                                               clEventWaitList);
