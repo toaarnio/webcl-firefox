@@ -420,11 +420,12 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (!webclutils.validateImage(clImage))
       throw new CLInvalidArgument ("image");  // TODO: throw INVALID_MEM_OBJECT
 
-    var descriptor = image.getInfo ();
+    var descriptor = image.getInfo();
+    var width = descriptor.width;
+    var height = descriptor.height;
+    var rowPitch = descriptor.rowPitch;
     var numChannels = 4;                   // TODO support formats other than RGBA
     var bytesPerPixel = numChannels * 1;   // TODO support other than one-byte-per-color formats
-    var width = 64;                        // TODO get the real width from descriptor
-    var height = 64;                       // TODO get the real height from descriptor
 
     if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
       throw new CLInvalidArgument("origin", "origin must be an Array with exactly two elements'");
@@ -456,8 +457,8 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (hostRowPitch !== 0 && hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0)
       throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must be zero or a multiple of hostPtr.BYTES_PER_ELEMENT");
 
-    if (hostRowPitch !== 0 && hostRowPitch < bytesPerPixel*width)
-      throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must not be less than bytesPerPixel * width");
+    if (hostRowPitch !== 0 && hostRowPitch < rowPitch)
+      throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must not be less than image.getInfo().rowPitch");
 
     if (hostRowPitch === 0 && region[0]*region[1] > hostPtr.length)
       throw new CLInvalidArgument("region", "area specified by region must fit inside hostPtr");
