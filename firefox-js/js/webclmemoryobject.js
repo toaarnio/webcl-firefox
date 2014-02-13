@@ -162,11 +162,23 @@ Image.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLImage,
                                                           ]);
 
 
-Image.prototype.getInfo = function ()
+Image.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
 
+  if (name !== 0) {
+    try
+    {
+      return this._wrapInternal (this._internal.getInfo (name));
+    }
+    catch (e)
+    {
+      try { ERROR(String(e)); }catch(e){}
+      throw webclutils.convertCLException (e);
+    }
+  }
+  
   try
   {
     var imageFormat = this._internal.getImageInfo (ocl_info.CL_IMAGE_FORMAT);

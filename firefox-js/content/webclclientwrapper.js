@@ -655,6 +655,33 @@
   }
   _Image.prototype = Object.create (_MemoryObject.prototype);
 
+  _Image.prototype.getInfo = function (name)
+  {
+    if (name === undefined || 
+        name === WebCL.MEM_TYPE || 
+        name === WebCL.MEM_FLAGS ||
+        name === WebCL.MEM_CONTEXT ||
+        name === WebCL.MEM_ASSOCIATED_MEMOBJECT ||
+        name === WebCL.MEM_OFFSET)
+    {
+      try
+      {
+        _validateInternal (this);
+        var rv = this._internal.getInfo (name);
+        return _wrapInternalObject (rv);
+      }
+      catch (e)
+      {
+        throw _wrapException (e, this._name+".getInfo");
+      }
+    }
+    else
+    {
+      throw new WebCLException ("INVALID_VALUE", "WebCLImage.getInfo: invalid query enum '"+name+"'");
+    }
+  };
+
+
 
 
   // == Sampler ==================================================================
