@@ -404,7 +404,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
     INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as image
     INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as all events in eventWaitList
-    INVALID_MEM_OBJECT -- if image is not a valid WebCLImage object
+  x INVALID_MEM_OBJECT -- if image is not a valid WebCLImage object
     INVALID_IMAGE_SIZE -- if the image dimensions of image are not supported by this WebCLCommandQueue
   x INVALID_VALUE -- if origin or region does not have exactly two elements
     INVALID_VALUE -- if any part of the region being read, specified by origin and region, is out of bounds of image
@@ -418,7 +418,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     */
     var clImage = this._unwrapInternalOrNull (image);
     if (!webclutils.validateImage(clImage))
-      throw new CLInvalidArgument ("image");  // TODO: throw INVALID_MEM_OBJECT
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "image must be a valid WebCLImage object", null);
 
     var descriptor = image.getInfo();
     var width = descriptor.width;
@@ -428,7 +428,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     var bytesPerPixel = numChannels * 1;   // TODO support other than one-byte-per-color formats
 
     if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
-      throw new CLInvalidArgument("origin", "origin must be an Array with exactly two elements'");
+      throw new CLInvalidArgument("origin", "origin must be an Array with exactly two elements");
 
     if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 2; }))
       throw new CLInvalidArgument("region", "region must be an Array with exactly two elements");
