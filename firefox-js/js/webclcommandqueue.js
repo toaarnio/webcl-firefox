@@ -449,7 +449,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
       throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must be non-negative and less than 2^31");
 
     if (!webclutils.validateArrayBufferView(hostPtr)) 
-      throw new CLInvalidArgument("hostPtr", "hostPtr must be an instance of ArrayBufferView");
+      throw new CLInvalidArgument("hostPtr", "hostPtr must be an instance of ArrayBufferView, was '" + hostPtr + "'");
 
     if (origin[0] + region[0] > width || origin[1] + region[1] > height)
       throw new CLInvalidArgument("region", "area specified by origin and region must fit inside image");
@@ -460,11 +460,11 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (hostRowPitch !== 0 && hostRowPitch < rowPitch)
       throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must not be less than image.getInfo().rowPitch");
 
-    if (hostRowPitch === 0 && region[0]*region[1] > hostPtr.length)
-      throw new CLInvalidArgument("region", "area specified by region must fit inside hostPtr");
+    if (hostRowPitch === 0 && region[0]*region[1]*numChannels > hostPtr.length)
+      throw new CLInvalidArgument("region", "region[0] * region[1] * numChannels must not be greater than hostPtr.length");
 
     if (hostRowPitch !== 0 && hostRowPitch*region[1] > hostPtr.byteLength)
-      throw new CLInvalidArgument("region", "area specified by region and hostRowPitch must fit inside hostPtr");
+      throw new CLInvalidArgument("region", "hostRowPitch * region[1] must not be greater than hostPtr.byteLength");
 
     var clEventWaitList = [];
     if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);

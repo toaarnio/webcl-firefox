@@ -436,7 +436,10 @@ function validateArrayLength (arr, lengthValidator)
 
 function validateArrayBufferView (arr) // TODO more robust type validation
 {
-  return (typeof(arr) === 'object' && typeof(arr.BYTES_PER_ELEMENT) === 'number')
+  var hasBuffer = validateObject(arr) && validateObject(arr.buffer);
+  var hasLength = hasBuffer && validateNumber(arr.length) && validateNumber(arr.buffer.byteLength);
+  var hasAttribs = hasBuffer && validateNumber(arr.BYTES_PER_ELEMENT) && validateNumber(arr.byteOffset);
+  return hasLength && hasAttribs;
 }
 
 function validateNumber (n)
@@ -444,6 +447,10 @@ function validateNumber (n)
   return (n !== null) && (!isNaN(+n));
 }
 
+function validateObject (o)
+{
+  return (typeof(o) === 'object') && (o !== null);
+}
 
 
 
@@ -475,5 +482,6 @@ var webclutils = {
   validateArray:                validateArray,
   validateArrayLength:          validateArrayLength,
   validateArrayBufferView:      validateArrayBufferView,
-  validateNumber:               validateNumber
+  validateNumber:               validateNumber,
+  validateObject:               validateObject
 };
