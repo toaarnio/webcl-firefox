@@ -162,8 +162,8 @@ CLInvalidArgument.prototype = Object.create (CLException.prototype);
 CLInvalidArgument.prototype.toString = function ()
 {
   var s = (this.context ? this.context + ": " : "");
-  s += (this.msg ? this.msg : "Invalid argument ");
-  return s + this.argName;
+  s += (this.msg ? this.msg : "Invalid argument");
+  return s + ": " + this.argName;
 };
 
 

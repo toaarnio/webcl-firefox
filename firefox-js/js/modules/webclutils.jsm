@@ -315,7 +315,7 @@ function convertCLException (e)
     else if (e instanceof CLError || e instanceof CLUnsupportedInfo)
     {
       exData.name = e.name;
-      exData.message = "";
+      exData.message = e.msg;
       exData.type = "cl";
       exData.context = e.context;
     }
