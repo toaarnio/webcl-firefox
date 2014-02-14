@@ -339,7 +339,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name+".getPlatforms");
+      throw _wrapException (e, "webcl.getPlatforms");
     }
   };
 
@@ -348,12 +348,22 @@
     try
     {
       if (!_ensureWebCLAvailable()) return;
+      if (arguments[0] === null) {
+        throw new WebCLException("INVALID_DEVICE_TYPE", 
+                                 "first argument must be a valid DEVICE_TYPE, WebCLPlatform, WebCLDevice, or WebCLDevice array", 
+                                 "webcl.createContext");
+      }
+      if (arguments[1] === null) {
+        throw new WebCLException("INVALID_DEVICE_TYPE", 
+                                 "second argument must be a valid DEVICE_TYPE",
+                                 "webcl.createContext");
+      }
       var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
       return _wrapInternalObject (_handle.createContext.apply (_handle, args));
     }
     catch (e)
     {
-      throw _wrapException (e, this._name+".createContext");
+      throw _wrapException (e, "webcl.createContext");
     }
   };
 
@@ -367,7 +377,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name+".getSupportedExtensions");
+      throw _wrapException (e, "webcl.getSupportedExtensions");
     }
   }
 
@@ -381,7 +391,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name+".enableExtension");
+      throw _wrapException (e, "webcl.enableExtension");
     }
   }
 
@@ -395,7 +405,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name+".waitForEvents");
+      throw _wrapException (e, "webcl.waitForEvents");
     }
   };
 
@@ -414,7 +424,7 @@
     }
     catch (e)
     {
-      throw _wrapException (e, this._name+".releaseAll");
+      throw _wrapException (e, "webcl.releaseAll");
     }
   }
 
@@ -677,7 +687,7 @@
     }
     else
     {
-      throw new WebCLException ("INVALID_VALUE", "WebCLImage.getInfo: invalid query enum '"+name+"'");
+      throw new WebCLException ("INVALID_VALUE", "invalid query enum '"+name+"'", "WebCLImage.getInfo");
     }
   };
 

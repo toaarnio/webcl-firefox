@@ -386,6 +386,16 @@ function convertCLException (e)
 
 
 
+function validatePlatform (obj)
+{
+  return (obj && obj instanceof Platform && obj._internal && !obj._internal.isNull());
+}
+
+function validateDevice (obj)
+{
+  return (obj && obj instanceof Device && obj._internal && !obj._internal.isNull());
+}
+
 function validateEvent (obj)
 {
   return (obj && obj instanceof CLEvent && obj._internal && !obj._internal.isNull());
@@ -444,7 +454,7 @@ function validateArrayBufferView (arr) // TODO more robust type validation
 
 function validateNumber (n)
 {
-  return (n !== null) && (!isNaN(+n));
+  return (n !== null) && (typeof(n) === 'number') && (!isNaN(+n));
 }
 
 function validateObject (o)
@@ -475,6 +485,8 @@ var webclutils = {
   unwrapInternal:               unwrapInternal,
   convertCLException:           convertCLException,
 
+  validatePlatform:             validatePlatform,
+  validateDevice:               validateDevice,
   validateEvent:                validateEvent,
   validateKernel:               validateKernel,
   validateBuffer:               validateBuffer,

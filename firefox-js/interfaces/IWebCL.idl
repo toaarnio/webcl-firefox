@@ -26,7 +26,7 @@ interface IWebCL : nsISupports
 
   nsIVariant getPlatforms ();
 
-  IWebCLContext createContext ([optional] in nsIVariant properties);
+  IWebCLContext createContext ([optional] in nsIVariant arg0, [optional] in nsIVariant deviceType);
 
   nsIVariant getSupportedExtensions ();
 

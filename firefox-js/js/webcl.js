@@ -171,7 +171,7 @@ WebCL.prototype.getPlatforms = function ()
 };
 
 
-WebCL.prototype.createContext = function (properties)
+WebCL.prototype.createContext = function (arg0, deviceType)
 {
   TRACE (this, "createContext", arguments);
 
@@ -181,142 +181,107 @@ WebCL.prototype.createContext = function (properties)
     this.ensureUsePermitted ();
     this.ensureLibraryLoaded ();
 
-      var devices = null, platform = null, deviceType = 0x1;
+    if (arg0 === undefined || arg0 === null || webclutils.validateNumber(arg0))
+      return createContextFromDeviceType.call(this, arg0);
 
-      // STEP 1. Validate 'properties' as follows:
-      //
-      // if 'properties' is not undefined, null, or empty
-      //   throw if 'properties' is not an object
-      //   if 'properties.devices' is not undefined or null
-      //     throw if 'properties.devices' is not an array
-      //     throw if 'properties.devices' is an empty array
-      //     throw if 'properties.devices[i]' is not a WebCLDevice, for any i
-      //   else
-      //     if 'properties.platform' is not undefined or null
-      //       throw if 'properties.platform' is not a WebCLPlatform
-      //     if 'properties.deviceType' is not undefined or null
-      //       throw if 'properties.deviceType' is not a valid DEVICE_TYPE
+    if (webclutils.validatePlatform(webclutils.unwrapInternal(arg0)))
+      return createContextFromPlatform.call(this, arg0, deviceType);
 
-      if (properties)
-      {
-        if (typeof(properties) !== "object")
-        {
-          DEBUG("WebCL.createContext: properties is not a valid object");
-          throw Exception ("properties must be typeof 'object'");
-        }
-        if (properties.devices)
-        {
-          if (Array.isArray(properties.devices) && properties.devices.length > 0)
-          {
-            devices = [];
-            for (var i = 0; i < properties.devices.length; ++i)
-            {
-              var p = webclutils.unwrapInternalOrNull (properties.devices[i]);
-              if (p && p instanceof Device) {
-                devices.push (p);
-              } else {
-                DEBUG("WebCL.createContext: properties.devices["+i+"]: Invalid device: " + p);
-                throw Exception ("properties.devices must only contain WebCLDevice elements");
-              }
-            }
-          }
-          else {
-            DEBUG("WebCL.createContext: properties.devices is not an array or null");
-            throw Exception ("properties.devices must be an array of valid WebCLDevices, or null");
-          }
-        }
-        else
-        {
-          if (properties.platform)
-          {
-            platform = webclutils.unwrapInternalOrNull (properties.platform);
-            if (!platform || !(platform instanceof Platform)) {
-              DEBUG("WebCL.createContext: properties.platform is not a valid WebCLPlatform or null");
-              throw Exception ("properties.platform must be a valid WebCLPlatform, or null");
-            }
-          }
+    if (webclutils.validateDevice(webclutils.unwrapInternal(arg0)))
+      return createContextFromDevice.call(this, arg0);
 
-          if (properties.deviceType)
-          {
-            var dt = +properties.deviceType;
-            if (!isNaN(dt) && dt === 1 || dt === 2 || dt === 4 || dt === 8) {
-              deviceType = dt;
-            } else {
-              DEBUG("WebCL.createContext: properties.deviceType is not a valid DEVICE_TYPE enum");
-              throw Exception ("properties.deviceType must be a valid DEVICE_TYPE enum, or null");
-            }
-          }
-        }
-      }
+    if (Array.isArray(arg0))
+      return createContextFromDeviceArray.call(this, arg0);
 
-      // STEP 2. Create a context based on pre-validated properties as follows:
-      //
-      // if 'devices' is non-null
-      //   create a context using 'devices'
-      // else
-      //   if 'platform' is non-null
-      //     create a context using 'platform' and 'deviceType'
-      //     return null if 'platform' does not have a device with 'deviceType'
-      //   else
-      //     create a context using 'deviceType'
-      //     return null if no platform has a device with 'deviceType'
-
-      var clCtx = null;
-
-      if (devices)
-      {
-        LOG("WebCL.createContext: creating a context on the given device(s)");
-        clCtx = this._internal.createContext([], devices);
-      }
-      else if (platform)
-      {
-        LOG("WebCL.createContext: creating a context on the given platform for deviceType " + deviceType);
-        try {
-          clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
-        } catch(e) {
-          // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
-          // TODO: alternatively, check that platform has the given type of device before calling createContext
-          LOG("WebCL.createContext: Could not create a context for deviceType " + deviceType + " on platform " + p + "("+e+")");
-          return null;
-        }
-      }
-      else
-      {
-        // Loop through all platforms trying to find a device with the given deviceType.  We should
-        // really be able to pass in a null platform and let the OpenCL ICD driver find a matching
-        // device, but that doesn't seem to work in practice.
-        //
-        LOG("WebCL.createContext: creating a context for deviceType " + deviceType + " on any platform");
-        var platforms = this._internal.getPlatforms ();
-        for (var p=0; p < platforms.length && !clCtx; p++) {
-          platform = platforms[p];
-          try {
-            clCtx = this._internal.createContextFromType([0x1084, platform, 0], deviceType);
-          } catch (e) {
-            // TODO: re-throw if e.name !== DEVICE_NOT_FOUND
-            // TODO: alternatively, check that platform has the given type of device before calling createContext
-            LOG("WebCL.createContext: Could not create a context on platform " + p);
-          }
-        }
-        if (!clCtx) {
-          LOG("Could not create a Context for deviceType " + deviceType + " on any WebCLPlatform.");
-          return null;
-        }
-      }
-
-      var webclCtx = webclutils.wrapInternal (clCtx, this);
-
-      // Store the original context properties object.
-      // TODO: Should it be cloned?
-      webclCtx.wrappedJSObject._contextProperties = properties;
-
-      return webclCtx;
+    throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE, 
+                      "first argument must be a valid DEVICE_TYPE, WebCLPlatform, WebCLDevice, or WebCLDevice array", 
+                      "webcl.createContext");
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)); } catch(e) {}
     throw webclutils.convertCLException (e);
   }
+};
+
+function createContextFromDeviceType(dt) 
+{
+  TRACE (this, "createContextFromDeviceType", arguments);
+
+  if (dt === undefined || dt === null || dt === 1 || dt === 2 || dt === 4 || dt === 8) {
+    dt = dt || ocl_const.CL_DEVICE_TYPE_DEFAULT;
+  } else {
+    LOG("createContextFromDeviceType: invalid deviceType: " + dt);
+    throw new CLError (ocl_errors.CL_INVALID_DEVICE_TYPE, "deviceType must be a valid DEVICE_TYPE enum, or undefined");
+  }
+  
+  // Loop through all platforms trying to find a device with the given deviceType.  We should
+  // really be able to pass in a null platform and let the OpenCL ICD driver find a matching
+  // device, but that doesn't seem to work in practice.
+  //
+  var platforms = this._internal.getPlatforms ();
+  for (var p=0; p < platforms.length; p++) {
+    platform = platforms[p];
+    try {
+      LOG("createContextFromDeviceType: attempting to create a context for deviceType " + dt + " on platform " + p);
+      var clCtx = this._internal.createContextFromType([ocl_const.CL_CONTEXT_PLATFORM, platform, 0], dt);
+      return webclutils.wrapInternal (clCtx, this);
+    } catch (e) {
+      LOG("createContextFromDeviceType: Could not create a context on platform " + p + ": " + e);
+      if (e.name !== 'DEVICE_NOT_FOUND') throw e;
+    }
+  }
+  throw new CLError(ocl_errors.CL_DEVICE_NOT_FOUND, "no Devices found matching the given deviceType on any Platform");
+};
+
+function createContextFromPlatform(platform, dt) 
+{
+  TRACE (this, "createContextFromPlatform", arguments);
+
+  if (dt !== undefined && dt !== null && !webclutils.validateNumber(dt))
+    throw new CLError (ocl_errors.CL_INVALID_DEVICE_TYPE, "deviceType must be a valid DEVICE_TYPE enum, or undefined");
+
+  if (dt === undefined || dt === null || dt === 1 || dt === 2 || dt === 4 || dt === 8 || dt === ocl_const.CL_DEVICE_TYPE_ALL) {
+    dt = dt || ocl_const.CL_DEVICE_TYPE_DEFAULT;
+  } else {
+    LOG("createContextFromPlatform: invalid deviceType: " + dt);
+    throw new CLError (ocl_errors.CL_INVALID_DEVICE_TYPE, "deviceType must be a valid DEVICE_TYPE enum, or undefined");
+  }
+  
+  try {
+    var platform = webclutils.unwrapInternal(platform);
+    var clCtx = this._internal.createContextFromType([ocl_const.CL_CONTEXT_PLATFORM, platform, 0], dt);
+    return webclutils.wrapInternal (clCtx, this);
+  } catch (e) {
+    if (e.name !== 'DEVICE_NOT_FOUND') throw e;
+    else throw new CLError(ocl_errors.CL_DEVICE_NOT_FOUND, "no Devices found matching the given deviceType on the given Platform");
+  }
+};
+
+function createContextFromDevice(device) 
+{
+  TRACE (this, "createContextFromDevice", arguments);
+  var devices = [ webclutils.unwrapInternal(device) ];
+  var clCtx = this._internal.createContext([], devices);
+  return webclutils.wrapInternal (clCtx, this);
+};
+
+function createContextFromDeviceArray(devices) 
+{
+  TRACE (this, "createContextFromDeviceArray", arguments);
+  
+  if (devices.length === 0)
+    throw new CLError(ocl_errors.CL_INVALID_VALUE, "devices.length must not be zero");
+  
+  devices.forEach(function(v, i) { 
+    devices[i] = webclutils.unwrapInternal(v); 
+  });
+
+  if (!webclutils.validateArray(devices, webclutils.validateDevice))
+    throw new CLError(ocl_errors.CL_INVALID_DEVICE, "devices must only contain instances of WebCLDevice");
+
+  var clCtx = this._internal.createContext([], devices);
+  return webclutils.wrapInternal (clCtx, this);
 };
 
 
