@@ -137,9 +137,8 @@ MemoryObject.prototype.getImageInfo = function (name)
       // cl_image_format
       case ocl_info.CL_IMAGE_FORMAT:
         var val = getInfo_plain (this._lib.clGetImageInfo, this._internal, name, T.cl_image_format)
-        // TODO: NOT TESTED!
-        rv = { image_channel_order: val.image_channel_order.value,
-               image_channel_data_type: val.image_channel_data_type.value };
+        rv = { image_channel_order: val.image_channel_order,
+               image_channel_data_type: val.image_channel_data_type };
         break;
 
       // size_t
