@@ -20,8 +20,13 @@
     if (!condition) {
       throw new WebCLException(errorName, errorMsg);
     }
-  }
+  };
 
+  var _validateNumber = function (n)
+  {
+    return (n !== null) && (typeof(n) === 'number') && (!isNaN(+n));
+  };
+  
   var _ensureWebCLAvailable = function ()
   {
     // TODO
@@ -454,7 +459,23 @@
   }
   _Platform.prototype = Object.create (_Base.prototype);
 
-  _Platform.prototype.getDevices = _createDefaultFunctionWrapper ("getDevices");
+  _Platform.prototype.getDevices = function (deviceType) 
+  {
+    try {
+      _validateInternal (this);
+      if (deviceType === undefined || (_validateNumber(deviceType) && deviceType !== 0))
+      {
+        var rv = this._internal.getDevices (deviceType);
+        return _wrapInternalObject (rv);
+      }
+      else throw new WebCLException("INVALID_DEVICE_TYPE", 
+                                    "deviceType must be a valid DEVICE_TYPE",
+                                    this._name+".getDevices");
+    } catch (e) {
+      throw _wrapException (e, this._name+".getDevices");
+    }
+  };
+
   _Platform.prototype.getSupportedExtensions = _createDefaultFunctionWrapper ("getSupportedExtensions");
   _Platform.prototype.enableExtension = _createDefaultFunctionWrapper ("enableExtension");
 

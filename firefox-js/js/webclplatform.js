@@ -104,6 +104,21 @@ Platform.prototype.getDevices = function (deviceType)
 
   try
   {
+    if (!webclutils.validateNumber(deviceType))
+      throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE, 
+                        "deviceType must be a valid DEVICE_TYPE",
+                        "WebCLPlatform.getDevices");
+
+    if (deviceType !== 0 &&
+        deviceType !== ocl_const.CL_DEVICE_TYPE_DEFAULT && 
+        deviceType !== ocl_const.CL_DEVICE_TYPE_CPU && 
+        deviceType !== ocl_const.CL_DEVICE_TYPE_GPU && 
+        deviceType !== ocl_const.CL_DEVICE_TYPE_ACCELERATOR && 
+        deviceType !== ocl_const.CL_DEVICE_TYPE_ALL)
+      throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE, 
+                        "deviceType must be a valid DEVICE_TYPE",
+                        "WebCLPlatform.getDevices");
+    
     return this._wrapInternal (this._internal.getDevices (deviceType || ocl_const.CL_DEVICE_TYPE_ALL));
   }
   catch (e)
