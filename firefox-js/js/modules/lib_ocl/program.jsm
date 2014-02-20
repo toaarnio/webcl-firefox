@@ -204,44 +204,35 @@ Program.prototype.getBuildInfo = function (device, name)
 };
 
 
+// Assumptions:
+//  * devices is either null or a pre-validated Array of Device instances
+//  * options is either null or a pre-validated String of compiler options
+//  * callback is either null or a pre-validated WebCLCallback function
+//
 Program.prototype.buildProgram = function (devices, options, callback, userData)
 {
   TRACE (this, "buildProgram", arguments);
 
-  if (!Array.isArray(devices))
-  {
-    throw new CLInvalidArgument ("devices", null, "Program.buildProgram");
-  }
-  if (typeof(options) != "string")
-  {
-    throw new CLInvalidArgument ("options", null, "Program.buildProgram");
-  }
+  var clOptions = options || "";
 
-  var clDeviceList = T.cl_device_id.array(devices.length)();
-  for (var i = 0; i < devices.length; ++i)
+  var clCallback = callback ? T.callback_buildProgram.ptr (function () { callback (userData); }) : null;
+
+  if (devices === null)
   {
-    if (!(devices[i] instanceof Device))
-    {
-      throw new CLInvalidArgument ("devices",
-                                   "Invalid device object at index " + i + " on ", "Program.buildProgram");
+    var err = this._lib.clBuildProgram (this._internal, 0, null, clOptions, clCallback, null);
+    if (err) throw new CLError (err, null, "Program.buildProgram");
+  } 
+  else 
+  {
+    var clDeviceList = T.cl_device_id.array(devices.length)();
+    for (var i = 0; i < devices.length; ++i)  {
+      clDeviceList[i] = devices[i]._internal;
     }
-    clDeviceList[i] = devices[i]._internal;
+    var err = this._lib.clBuildProgram (this._internal, clDeviceList.length,
+                                    ctypes.cast(clDeviceList.address(), T.cl_device_id.ptr),
+                                    clOptions, clCallback, null);
+    if (err) throw new CLError (err, null, "Program.buildProgram");
   }
-
-  var clCallback = null;
-  if (callback && typeof(callback) == "function")
-  {
-    clCallback = T.callback_buildProgram.ptr (function () { callback (userData); });
-  }
-
-  var err = this._lib.clBuildProgram (this._internal, clDeviceList.length,
-                                      ctypes.cast(clDeviceList.address(), T.cl_device_id.ptr),
-                                      options,
-                                      clCallback,
-                                      null);  // NOTE: We're handling user data
-                                              // on top of OCL layer.
-
-  if (err) throw new CLError (err, null, "Program.buildProgram");
 };
 
 

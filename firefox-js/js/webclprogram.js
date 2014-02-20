@@ -27,8 +27,10 @@ Cu.import ("resource://nrcwebcl/modules/logger.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
-Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
+
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
 
 var CLASSNAME =  "WebCLProgram";
@@ -111,48 +113,52 @@ Program.prototype.getBuildInfo = function (device, name)
 };
 
 
-Program.prototype.build = function (devices, options, fnWhenFinished)
+Program.prototype.build = function (devices, options, whenFinished)
 {
   TRACE (this, "build", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
 
+  var validBuildOptions = [
+    "-cl-opt-disable",
+    "-cl-single-precision-constant",
+    "-cl-denorms-are-zero",
+    "-cl-mad-enable",
+    "-cl-no-signed-zeros",
+    "-cl-unsafe-math-optimizations",
+    "-cl-finite-math-only",
+    "-cl-fast-relaxed-math",
+    "-w",
+    "-Werror",
+    "-D"
+  ];
+
+  devices = (devices === undefined) ? null : devices;
+  options = (options === undefined) ? null : options;
+  whenFinished = (whenFinished === undefined) ? null : whenFinished;
+
   try
   {
-    if (!devices)
-    {
-      ERROR("WebCLProgram.build: 'devices === null' is not yet supported.")
-    }
+    if (devices !== null && (!Array.isArray(devices) || devices.length === 0))
+      throw new CLInvalidArgument("devices", "'devices' must be null or an Array with at least one element; was " + devices);
 
-    if (devices.length === 0)
-    {
-      ERROR("WebCLProgram.build: 'devices === []' is not yet supported.")
-    }
+    if (devices !== null && !webclutils.validateArray(devices, webclutils.validateDevice))
+      throw new CLError(ocl_errors.CL_INVALID_DEVICE, "'devices' must only contain instances of WebCLDevice; was " + devices);
 
-    if (!Array.isArray(devices))
-    {
-      ERROR("WebCLProgram.build: 'devices' must be an Array or null.")
-    }
+    if (options !== null && typeof(options) !== 'string')
+      throw new CLError(ocl_errors.CL_INVALID_BUILD_OPTIONS, "invalid build options '"+options+"'");
 
-    var clDevices = [];
-    for (var i = 0; i < devices.length; ++i)
-    {
-      var p = this._unwrapInternalOrNull (devices[i]);
-      if (p && p instanceof Device)
-      {
-        clDevices.push (p);
-      }
-      else { ERROR("Program.build: invalid device at index " + i); /* TODO: INVALID DEVICE */ }
-    }
+    if (options !== null && !webclutils.validateBuildOptions(options, validBuildOptions))
+      throw new CLError(ocl_errors.CL_INVALID_BUILD_OPTIONS, "invalid build options '"+options+"'");
 
-    var callback = null;
-    if (fnWhenFinished && typeof(fnWhenFinished) == "function")
-    {
-      // TODO: PROPER WEBCL CALLBACK!
-      // TODO: THIS IS LIKELY TO BE TOTALLY UNSAFE!
-      callback = fnWhenFinished;
-    }
+    if (whenFinished !== null && typeof(whenFinished) !== "function")
+      throw new CLInvalidArgument("whenFinished", "'whenFinished' must be null or a function; was " + whenFinished);
 
-    this._internal.buildProgram (clDevices, options || "", callback);
+    for (var i=0; devices !== null && i < devices.length; i++)
+      devices[i] = this._unwrapInternalOrNull(devices[i]);
+
+    // TODO: PROPER WEBCL CALLBACK!
+    // TODO: THIS IS LIKELY TO BE TOTALLY UNSAFE!
+    this._internal.buildProgram (devices, options, whenFinished);
   }
   catch (e)
   {

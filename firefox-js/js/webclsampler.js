@@ -28,6 +28,7 @@ Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
 
 var CLASSNAME =  "WebCLSampler";

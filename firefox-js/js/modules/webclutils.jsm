@@ -385,36 +385,31 @@ function convertCLException (e)
 }
 
 
-
-function validatePlatform (obj)
+function validateWrapped (obj, type)
 {
-  return (obj && obj instanceof Platform && obj._internal && !obj._internal.isNull());
+  return validateInternal(unwrapInternalOrNull(obj), type);
 }
 
-function validateDevice (obj)
+function validateInternal (obj, type)
 {
-  return (obj && obj instanceof Device && obj._internal && !obj._internal.isNull());
+  return (obj && obj instanceof type && obj._internal && !obj._internal.isNull());
 }
 
-function validateEvent (obj)
+function validateWrappedOrInternal (obj, type)
 {
-  return (obj && obj instanceof CLEvent && obj._internal && !obj._internal.isNull());
+  return validateInternal(obj, type) || validateWrapped(obj, type);
 }
 
-function validateKernel (obj)
-{
-  return (obj && obj instanceof Kernel && obj._internal && !obj._internal.isNull());
-}
-
-function validateBuffer (obj)
-{
-  return (obj && obj instanceof MemoryObject && obj._internal && !obj._internal.isNull());
-}
-
-function validateImage (obj)
-{
-  return (obj && obj instanceof MemoryObject && obj._internal && !obj._internal.isNull());
-}
+function validatePlatform (obj) { return validateWrappedOrInternal(obj, Platform); }
+function validateDevice (obj)   { return validateWrappedOrInternal(obj, Device); }
+function validateContext (obj)  { return validateWrappedOrInternal(obj, Context); }
+function validateQueue (obj)    { return validateWrappedOrInternal(obj, CommandQueue); }
+function validateBuffer (obj)   { return validateWrappedOrInternal(obj, MemoryObject); }
+function validateImage (obj)    { return validateWrappedOrInternal(obj, MemoryObject); }
+function validateSampler (obj)  { return validateWrappedOrInternal(obj, Sampler); }
+function validateProgram (obj)  { return validateWrappedOrInternal(obj, Program); }
+function validateKernel (obj)   { return validateWrappedOrInternal(obj, Kernel); }
+function validateEvent (obj)    { return validateWrappedOrInternal(obj, CLEvent); }
 
 function validateArray (arr, itemValidator)
 {
@@ -462,6 +457,21 @@ function validateObject (o)
   return (typeof(o) === 'object') && (o !== null);
 }
 
+function validateBuildOptions (options, validOptions)
+{
+  var strings = options.split(" ");
+  for (var i=0; i < strings.length; i++) {
+    if (strings[i] === "-D" && !strings[i+1]) {
+      return false;
+    }
+    if (strings[i].length > 0 && validOptions.indexOf(strings[i]) === -1) {
+      if (strings[i-1] !== "-D") {
+        return false;
+      }
+    }
+  }
+  return true;
+}
 
 
 var webclutils = {
@@ -487,13 +497,19 @@ var webclutils = {
 
   validatePlatform:             validatePlatform,
   validateDevice:               validateDevice,
-  validateEvent:                validateEvent,
-  validateKernel:               validateKernel,
+  validateContext:              validateContext,
+  validateQueue:                validateQueue,
   validateBuffer:               validateBuffer,
   validateImage:                validateImage,
+  validateSampler:              validateSampler,
+  validateProgram:              validateProgram,
+  validateKernel:               validateKernel,
+  validateEvent:                validateEvent,
+
   validateArray:                validateArray,
   validateArrayLength:          validateArrayLength,
   validateArrayBufferView:      validateArrayBufferView,
   validateNumber:               validateNumber,
-  validateObject:               validateObject
+  validateObject:               validateObject,
+  validateBuildOptions:         validateBuildOptions,
 };

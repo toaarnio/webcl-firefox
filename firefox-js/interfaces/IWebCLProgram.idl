@@ -31,7 +31,7 @@ interface IWebCLProgram : nsISupports
   nsIVariant getBuildInfo (in IWebCLDevice device, in CLenum name);
 
   void build ([optional] in IWebCLDevice_List devices,
-              [optional] in string options,
+              [optional] in nsIVariant options,
               [optional] in WebCLCallback whenFinished);
 
   IWebCLKernel createKernel (in string kernelName);

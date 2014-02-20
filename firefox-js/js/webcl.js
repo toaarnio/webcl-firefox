@@ -184,10 +184,10 @@ WebCL.prototype.createContext = function (arg0, deviceType)
     if (arg0 === undefined || arg0 === null || webclutils.validateNumber(arg0))
       return createContextFromDeviceType.call(this, arg0);
 
-    if (webclutils.validatePlatform(webclutils.unwrapInternal(arg0)))
+    if (webclutils.validatePlatform(arg0))
       return createContextFromPlatform.call(this, arg0, deviceType);
 
-    if (webclutils.validateDevice(webclutils.unwrapInternal(arg0)))
+    if (webclutils.validateDevice(arg0))
       return createContextFromDevice.call(this, arg0);
 
     if (Array.isArray(arg0))
@@ -271,14 +271,14 @@ function createContextFromDeviceArray(devices)
   TRACE (this, "createContextFromDeviceArray", arguments);
   
   if (devices.length === 0)
-    throw new CLError(ocl_errors.CL_INVALID_VALUE, "devices.length must not be zero");
+    throw new CLError(ocl_errors.CL_INVALID_VALUE, "'devices.length' must not be zero");
   
   devices.forEach(function(v, i) { 
     devices[i] = webclutils.unwrapInternal(v); 
   });
 
   if (!webclutils.validateArray(devices, webclutils.validateDevice))
-    throw new CLError(ocl_errors.CL_INVALID_DEVICE, "devices must only contain instances of WebCLDevice");
+    throw new CLError(ocl_errors.CL_INVALID_DEVICE, "'devices' must only contain instances of WebCLDevice");
 
   var clCtx = this._internal.createContext([], devices);
   return webclutils.wrapInternal (clCtx, this);

@@ -28,6 +28,7 @@ Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
 var CLASSNAME =  "WebCLEvent";
 var CID =        "{cf7372e6-f2ec-467d-99dc-9eeb756bc3e3}";

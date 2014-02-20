@@ -340,6 +340,9 @@
     try
     {
       if (!_ensureWebCLAvailable ()) return;
+      if (arguments.length > 0)
+        throw new WebCLException("INVALID_VALUE", "no arguments expected, but received "+arguments[0], "webcl.getPlatforms");
+
       return _wrapInternalObject (_handle.getPlatforms ());
     }
     catch (e)
