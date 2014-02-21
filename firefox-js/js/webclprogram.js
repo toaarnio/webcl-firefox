@@ -129,7 +129,6 @@ Program.prototype.build = function (devices, options, whenFinished)
     "-cl-fast-relaxed-math",
     "-w",
     "-Werror",
-    "-D"
   ];
 
   devices = (devices === undefined) ? null : devices;
