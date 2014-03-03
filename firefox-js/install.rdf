@@ -7,7 +7,7 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
     <em:id>webcl@webcl.nokiaresearch.com</em:id>
-    <em:version>1.0.0</em:version>
+    <em:version>1.0.0.YYYY-MM-DD</em:version>
 
     <!-- Force the XPI to be unpacked during installation. This is required
          for binary components. -->
