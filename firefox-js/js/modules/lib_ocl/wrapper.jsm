@@ -49,6 +49,62 @@ function LibOCLWrapper (libName)
 }
 
 
+// Converts the given context properties array to native OpenCL format.
+//
+function convertContextPropertiesArray(properties)
+{
+  var clProps = null;
+
+  if (properties !== null) {
+
+    if (!Array.isArray(properties))
+      throw new CLInvalidArgument ("properties", null, "createContext");
+
+    clProps = T.cl_context_properties.array(properties.length + 1)();
+    
+    var i;
+    for (i = 0; i < properties.length; ++i)
+    {
+      if (i > 0 && ctypes.cast(clProps[i-1], ctypes.int).value == ocl_const.CL_CONTEXT_PLATFORM)
+      {
+        if (!(properties[i] instanceof Platform))
+          throw new CLInvalidArgument ("properties", "Invalid platform object at index " + i + " on ", "createContext");
+
+        clProps[i] = ctypes.cast(properties[i]._internal, ctypes.int.ptr);
+      }
+      else
+      {
+        ctypes.cast(clProps[i], ctypes.int).value = properties[i];
+      }
+    }
+    ctypes.cast(clProps[i], ctypes.int).value = 0;
+  }
+
+  return clProps ? ctypes.cast (clProps.address(), T.cl_context_properties.ptr) : null;
+};
+
+
+// Converts the given Device array to native OpenCL format.
+//
+function convertDeviceArray(devices)
+{
+  if (!Array.isArray(devices))
+    throw new CLInvalidArgument ("devices", null, "createContext");
+
+  var clDevs = T.cl_device_id.array(devices.length)();
+
+  for (var i=0; i < devices.length; ++i) 
+  {
+    if (!(devices[i] instanceof Device))
+      throw new CLInvalidArgument ("devices", "Invalid device object at index " + i + " on ", "createContext");
+
+    clDevs[i] = devices[i]._internal;
+  }
+
+  return ctypes.cast (clDevs.address(), T.cl_device_id.ptr);
+};
+
+
 LibOCLWrapper.prototype.destroy = function ()
 {
   if (this._lib)
@@ -82,55 +138,20 @@ LibOCLWrapper.prototype.getPlatforms = function ()
   return result;
 };
 
-
 LibOCLWrapper.prototype.createContext = function (properties, devices, callback, userData)
 {
   TRACE (this, "createContext", arguments);
 
-  if (!Array.isArray(properties)) throw new CLInvalidArgument ("properties", null, "createContext");
-  if (!Array.isArray(devices)) throw new CLInvalidArgument ("devices", null, "createContext");
-
-  var clProps = T.cl_context_properties.array(properties.length + 1)();
-  var clDevs = T.cl_device_id.array(devices.length)();
-
-  var i;
-  for (i = 0; i < properties.length; ++i)
-  {
-    if (i > 0 && ctypes.cast(clProps[i-1], ctypes.int).value == ocl_const.CL_CONTEXT_PLATFORM)
-    {
-      if (!(properties[i] instanceof Platform))
-      {
-        throw new CLInvalidArgument ("properties", "Invalid platform object at index " + i + " on ", "createContext");
-      }
-      clProps[i] = ctypes.cast(properties[i]._internal, ctypes.int.ptr);
-    }
-    else
-    {
-      ctypes.cast(clProps[i], ctypes.int).value = properties[i];
-    }
-  }
-  ctypes.cast(clProps[i], ctypes.int).value = 0;
-
-  for (i = 0; i < devices.length; ++i)
-  {
-    if (!(devices[i] instanceof Device))
-    {
-      throw new CLInvalidArgument ("devices", "Invalid device object at index " + i + " on ", "createContext");
-    }
-    clDevs[i] = devices[i]._internal;
-  }
-
-  var clCallback = callback || null;
-  var clUserData = userData || null;
-
   var clErr = new T.cl_int (0);
   var clContext = new T.cl_context ();
   clContext.value = this._lib.clCreateContext (
-                                  ctypes.cast (clProps.address(), T.cl_context_properties.ptr),
-                                  clDevs.length,
-                                  ctypes.cast (clDevs.address(), T.cl_device_id.ptr),
-                                  clCallback, null,  // TODO: USERDATA NOT IMPLEMENTED!
-                                  clErr.address());
+    convertContextPropertiesArray(properties),
+    devices.length,
+    convertDeviceArray(devices),
+    callback || null,
+    null,               // TODO: USERDATA NOT IMPLEMENTED!
+    clErr.address());
+
   if (clErr.value) throw new CLError (clErr.value, null, "createContext");
 
   return new Context (clContext, this._lib);
@@ -141,38 +162,15 @@ LibOCLWrapper.prototype.createContextFromType = function (properties, deviceType
 {
   TRACE (this, "createContextFromType", arguments);
 
-  if (!Array.isArray(properties)) throw new CLInvalidArgument ("properties", null, "createContextFromType");
-  // TODO: validate deviceType
-
-  var clProps = T.cl_context_properties.array(properties.length + 1)();
-  var i;
-  for (i = 0; i < properties.length; ++i)
-  {
-    if (i > 0 && ctypes.cast(clProps[i-1], ctypes.int).value == ocl_const.CL_CONTEXT_PLATFORM)
-    {
-      if (!(properties[i] instanceof Platform))
-      {
-        throw new CLInvalidArgument ("properties", "Invalid platform object at index " + i + " on ", "createContextFromType");
-      }
-      clProps[i] = ctypes.cast(properties[i]._internal, ctypes.int.ptr);
-    }
-    else
-    {
-      ctypes.cast(clProps[i], ctypes.int).value = properties[i];
-    }
-  }
-  ctypes.cast(clProps[i], ctypes.int).value = 0;
-
-  var clCallback = callback || null;
-  var clUserData = userData || null;
-
   var clErr = new T.cl_int (0);
   var clContext = new T.cl_context ();
   clContext.value = this._lib.clCreateContextFromType (
-                                  ctypes.cast (clProps.address(), T.cl_context_properties.ptr),
-                                  +deviceType,
-                                  clCallback, null,  // TODO: USERDATA NOT IMPLEMENTED!
-                                  clErr.address());
+    convertContextPropertiesArray(properties),
+    +deviceType,
+    callback || null,
+    null,               // TODO: USERDATA NOT IMPLEMENTED!
+    clErr.address());
+
   if (clErr.value) throw new CLError (clErr.value, null, "createContextFromType");
 
   return new Context (clContext, this._lib);
