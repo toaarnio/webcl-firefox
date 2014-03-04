@@ -106,39 +106,44 @@ Context.prototype.createCommandQueue = function (device, properties)
   {
     // Validate the given device, or use default device
 
-    if (device && !(device instanceof Ci.IWebCLDevice))
-      throw new CLError(ocl_errors.CL_INVALID_DEVICE, 
-                        "1st argument must be a valid WebCLDevice or null, was " + device, 
-                        "Context.createCommandQueue [webclcontext.js]");
+    var supportedDevices = this.getInfo(ocl_info.CL_CONTEXT_DEVICES);
 
-    var devices = this.getInfo(ocl_info.CL_CONTEXT_DEVICES);
+    if (device === undefined || device === null) {
+      device = supportedDevices[0];
+    }
+    else 
+    {
+      if (!webclutils.validateDevice(device))
+        throw new CLError(ocl_errors.CL_INVALID_DEVICE,
+                          "1st argument must be a valid WebCLDevice or null, was " + device, 
+                          "Context.createCommandQueue [webclcontext.js]");
 
-    if (device && devices.indexOf(device) === -1)
-      throw new CLError(ocl_errors.CL_INVALID_DEVICE, 
-                        "the given WebCLDevice is not associated with this WebCLContext",
-                        "Context.createCommandQueue [webclcontext.js]");
-
-    device = device || devices[0];
+      if (supportedDevices.indexOf(device) === -1)
+        throw new CLError(ocl_errors.CL_INVALID_DEVICE,
+                          "the given WebCLDevice is not associated with this WebCLContext",
+                          "Context.createCommandQueue [webclcontext.js]");
+    }
 
     // Validate the given properties, or use default properties
+
+    var validProperties = ocl_const.CL_QUEUE_PROFILING_ENABLE | ocl_const.CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+    var supportedProperties = device.getInfo (ocl_info.CL_DEVICE_QUEUE_PROPERTIES);
 
     if (properties === undefined || properties === null) {
       properties = 0;
     }
+    else
+    {
+      if (!webclutils.validateBitfield(properties, validProperties))
+        throw new CLError(ocl_errors.CL_INVALID_VALUE, 
+                          "2nd argument must be a valid bitfield of command queue properties, was " + properties, 
+                          "Context.createCommandQueue [webclcontext.js]");
 
-    var validProperties = ocl_const.CL_QUEUE_PROFILING_ENABLE | ocl_const.CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
-
-    if (!webclutils.validateBitfield(properties, validProperties))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, 
-                        "2nd argument must be a valid bitfield of command queue properties, was " + properties, 
-                        "Context.createCommandQueue [webclcontext.js]");
-
-    var supportedProperties = device.getInfo (ocl_info.CL_DEVICE_QUEUE_PROPERTIES);
-
-    if (!webclutils.validateBitfield(properties, supportedProperties))
-      throw new CLError(ocl_errors.CL_INVALID_QUEUE_PROPERTIES,
-                        "the given properties (" + properties + ") are not supported by the selected device",
-                        "Context.createCommandQueue [webclcontext.js]");
+      if (!webclutils.validateBitfield(properties, supportedProperties))
+        throw new CLError(ocl_errors.CL_INVALID_QUEUE_PROPERTIES,
+                          "the given properties (" + properties + ") are not supported by the selected device",
+                          "Context.createCommandQueue [webclcontext.js]");
+    }
 
     var clDevice = this._unwrapInternalOrNull (device);
     var clQueue = this._internal.createCommandQueue (clDevice, properties);
