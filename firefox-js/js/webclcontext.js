@@ -184,7 +184,7 @@ Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
                                                 +clImageFormat.height,
                                                 (+clImageFormat.rowPitch) || 0,
                                                 hostPtr);
-    return this._wrapInternal (clImage);
+    return this._wrapInternal (clImage, this);
   }
   catch (e)
   {
@@ -244,7 +244,7 @@ Context.prototype.createUserEvent = function ()
   try
   {
     var clUserEvent = this._internal.createUserEvent ();
-    return this._wrapInternal (clUserEvent);
+    return this._wrapInternal (clUserEvent, this);
   }
   catch (e)
   {
