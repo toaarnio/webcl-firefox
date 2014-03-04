@@ -1,8 +1,6 @@
 BUILD_DATE = $(shell date +%Y-%m-%d)
 GIT_LATEST_COMMIT = $(shell git log | head -1 | cut -c 8-)
 
-include buildconfig.inc
-
 ifeq ($(COMPONENT_NAME),)
   export COMPONENT_NAME=webcl
 endif
