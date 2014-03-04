@@ -86,8 +86,8 @@ Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 
   try
   {
-    return this._wrapInternal (this._internal.createBuffer (memFlags, sizeInBytes, hostPtr),
-                               this);
+    var clBuffer = this._internal.createBuffer (memFlags, sizeInBytes, hostPtr);
+    return this._wrapInternal (clBuffer, this);
   }
   catch (e)
   {
@@ -104,33 +104,45 @@ Context.prototype.createCommandQueue = function (device, properties)
 
   try
   {
-    if (device && !(device instanceof Ci.IWebCLDevice))
-    {
-      //throw new Exception ("Context.createCommandQueue: Invalid argument: device.");  // TODO
-      throw new CLInvalidArgument ("device");
-    }
-    if (!device) device = this.getInfo (ocl_info.CL_CONTEXT_DEVICES)[0];
+    // Validate the given device, or use default device
 
-    if (properties === undefined || properties === null)
-    {
+    if (device && !(device instanceof Ci.IWebCLDevice))
+      throw new CLError(ocl_errors.CL_INVALID_DEVICE, 
+                        "1st argument must be a valid WebCLDevice or null, was " + device, 
+                        "Context.createCommandQueue [webclcontext.js]");
+
+    var devices = this.getInfo(ocl_info.CL_CONTEXT_DEVICES);
+
+    if (device && devices.indexOf(device) === -1)
+      throw new CLError(ocl_errors.CL_INVALID_DEVICE, 
+                        "the given WebCLDevice is not associated with this WebCLContext",
+                        "Context.createCommandQueue [webclcontext.js]");
+
+    device = device || devices[0];
+
+    // Validate the given properties, or use default properties
+
+    if (properties === undefined || properties === null) {
       properties = 0;
     }
-    else
-    {
-      // NOTE: Should it be accepted that e.g. +[] and +"" eval to 0?
-      //       The "object" test catches objects and arrays,
-      //       strict equality to "" catches empty strings and what ever passes
-      //       through must be possible to convert to Number.
-      if (typeof(properties) == "object" || properties === "" ||
-          isNaN(+properties))
-      {
-        throw new CLInvalidArgument ("properties");
-      }
-    }
+
+    var validProperties = ocl_const.CL_QUEUE_PROFILING_ENABLE | ocl_const.CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+
+    if (!webclutils.validateBitfield(properties, validProperties))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, 
+                        "2nd argument must be a valid bitfield of command queue properties, was " + properties, 
+                        "Context.createCommandQueue [webclcontext.js]");
+
+    var supportedProperties = device.getInfo (ocl_info.CL_DEVICE_QUEUE_PROPERTIES);
+
+    if (!webclutils.validateBitfield(properties, supportedProperties))
+      throw new CLError(ocl_errors.CL_INVALID_QUEUE_PROPERTIES,
+                        "the given properties (" + properties + ") are not supported by the selected device",
+                        "Context.createCommandQueue [webclcontext.js]");
 
     var clDevice = this._unwrapInternalOrNull (device);
-    return this._wrapInternal (this._internal.createCommandQueue (clDevice, +properties),
-                               this);
+    var clQueue = this._internal.createCommandQueue (clDevice, properties);
+    return this._wrapInternal (clQueue, this);
   }
   catch (e)
   {
@@ -166,12 +178,13 @@ Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
       };
     }
 
-    return this._wrapInternal (this._internal.createImage2D (memFlags,
-                                                             clImageFormat,
-                                                             +clImageFormat.width,
-                                                             +clImageFormat.height,
-                                                             (+clImageFormat.rowPitch) || 0,
-                                                             hostPtr));
+    var clImage = this._internal.createImage2D (memFlags,
+                                                clImageFormat,
+                                                +clImageFormat.width,
+                                                +clImageFormat.height,
+                                                (+clImageFormat.rowPitch) || 0,
+                                                hostPtr);
+    return this._wrapInternal (clImage);
   }
   catch (e)
   {
@@ -194,7 +207,8 @@ Context.prototype.createProgram = function (source)
       throw new CLInvalidArgument ("source");
     }
 
-    return this._wrapInternal (this._internal.createProgramWithSource (source), this);
+    var clProgram = this._internal.createProgramWithSource (source);
+    return this._wrapInternal (clProgram, this);
   }
   catch (e)
   {
@@ -211,8 +225,8 @@ Context.prototype.createSampler = function (normalizedCoords, addressingMode, fi
 
   try
   {
-    return this._wrapInternal (this._internal.createSampler (normalizedCoords, addressingMode, filterMode),
-                               this);
+    var clSampler = this._internal.createSampler (normalizedCoords, addressingMode, filterMode);
+    return this._wrapInternal (clSampler, this);
   }
   catch (e)
   {
@@ -229,7 +243,8 @@ Context.prototype.createUserEvent = function ()
 
   try
   {
-    return this._wrapInternal (this._internal.createUserEvent ());
+    var clUserEvent = this._internal.createUserEvent ();
+    return this._wrapInternal (clUserEvent);
   }
   catch (e)
   {
@@ -250,12 +265,12 @@ Context.prototype.getInfo = function (name)
     {
       case ocl_info.CL_CONTEXT_NUM_DEVICES:               break;
       case ocl_info.CL_CONTEXT_DEVICES:                   break;
-      case ocl_info.CL_CONTEXT_PROPERTIES:                return this._contextProperties;
       default:
         throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLContext.getInfo");
     }
 
-    return this._wrapInternal (this._internal.getInfo (name), this);
+    var clInfoItem = this._internal.getInfo (name);
+    return this._wrapInternal (clInfoItem, this);
   }
   catch (e)
   {

@@ -775,7 +775,8 @@ CommandQueue.prototype.getInfo = function (name)
 
   try
   {
-    return this._wrapInternal (this._internal.getInfo (name), this._owner);
+    var clInfoItem = this._internal.getInfo (name);
+    return this._wrapInternal (clInfoItem, this.owner);
   }
   catch (e)
   {

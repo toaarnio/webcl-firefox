@@ -457,6 +457,11 @@ function validateObject (o)
   return (typeof(o) === 'object') && (o !== null);
 }
 
+function validateBitfield (bitfield, validMask)
+{
+  return (typeof(bitfield) === 'number' && (bitfield & ~validMask) === 0);
+}
+
 function validateBuildOptions (options, validOptions)
 {
   // First validate options of the form "-D foo=bar" and "-D foo".
@@ -515,5 +520,6 @@ var webclutils = {
   validateArrayBufferView:      validateArrayBufferView,
   validateNumber:               validateNumber,
   validateObject:               validateObject,
+  validateBitfield:             validateBitfield,
   validateBuildOptions:         validateBuildOptions,
 };
