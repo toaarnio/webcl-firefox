@@ -21,8 +21,8 @@ typedef nsIVariant WebCLCallback;
 interface IWebCLEvent : nsISupports
 {
   string getExternalIdentity ();
-  nsIVariant getInfo (in CLenum name);
-  nsIVariant getProfilingInfo (in CLenum name);
+  nsIVariant getInfo ([optional] in CLenum name);
+  nsIVariant getProfilingInfo ([optional] in CLenum name);
   void setCallback (in CLenum commandExecCallbackType, in WebCLCallback notify);
   void release ();
 };

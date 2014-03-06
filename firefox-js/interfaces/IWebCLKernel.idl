@@ -23,8 +23,8 @@ typedef nsIVariant WebCLKernelArgInfo;
 interface IWebCLKernel : nsISupports
 {
   string getExternalIdentity ();
-  nsIVariant getInfo (in CLenum name);
-  nsIVariant getWorkGroupInfo (in IWebCLDevice device, in CLenum name);
+  nsIVariant getInfo ([optional] in CLenum name);
+  nsIVariant getWorkGroupInfo (in nsIVariant device, [optional] in CLenum name);
   WebCLKernelArgInfo getArgInfo (in CLuint index);
   void setArg (in CLuint index, in nsIVariant value);
   void release ();

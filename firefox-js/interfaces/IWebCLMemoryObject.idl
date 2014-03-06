@@ -19,6 +19,6 @@
 interface IWebCLMemoryObject : nsISupports
 {
   string getExternalIdentity ();
-  nsIVariant getInfo (in CLenum name);
+  nsIVariant getInfo ([optional] in CLenum name);
   void release ();
 };

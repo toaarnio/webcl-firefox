@@ -76,6 +76,9 @@ Platform.prototype.getInfo = function (name)
 
   try
   {
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLPlatform.getInfo");
+
     switch (name)
     {
       case ocl_info.CL_PLATFORM_PROFILE:                  return "WEBCL_PROFILE";
@@ -84,7 +87,7 @@ Platform.prototype.getInfo = function (name)
       case ocl_info.CL_PLATFORM_VENDOR:                   break;
       case ocl_info.CL_PLATFORM_EXTENSIONS:               break;
       default:
-        throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLPlatform.getInfo");
+        throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLPlatform.getInfo");
     }
 
     return this._wrapInternal (this._internal.getInfo (name));
@@ -97,6 +100,8 @@ Platform.prototype.getInfo = function (name)
 };
 
 
+// getDevices()[i]._owner == this._owner == [WebCL]
+//
 Platform.prototype.getDevices = function (deviceType)
 {
   TRACE (this, "getDevices", arguments);
@@ -118,7 +123,7 @@ Platform.prototype.getDevices = function (deviceType)
       throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE, 
                         "deviceType must be a valid DEVICE_TYPE",
                         "WebCLPlatform.getDevices");
-    
+
     return this._wrapInternal (this._internal.getDevices (deviceType || ocl_const.CL_DEVICE_TYPE_ALL));
   }
   catch (e)

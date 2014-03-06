@@ -69,6 +69,8 @@ Device.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLDevice,
 // IWebCLDevice
 
 
+// getInfo(DEVICE_PLATFORM)._owner == this._owner == [WebCL]
+//
 Device.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -76,6 +78,9 @@ Device.prototype.getInfo = function (name)
 
   try
   {
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLDevice.getInfo");
+
     switch (name)
     {
       case ocl_info.CL_DEVICE_TYPE:                               break;
@@ -140,7 +145,7 @@ Device.prototype.getInfo = function (name)
       case ocl_info.CL_DEVICE_OPENCL_C_VERSION:                   return "WebCL C 1.0";
       case ocl_info.CL_DEVICE_EXTENSIONS:                         break;
       default:
-        throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLDevice.getInfo");
+        throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLDevice.getInfo");
     }
 
     return this._wrapInternal (this._internal.getInfo (name));

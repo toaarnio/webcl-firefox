@@ -71,6 +71,9 @@ Program.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLProgram,
 //------------------------------------------------------------------------------
 // IWebCLProgram
 
+// getInfo(PROGRAM_CONTEXT)._owner == this._owner._owner == [WebCL]
+// getInfo(PROGRAM_DEVICES)._owner == this._owner._owner == [WebCL]
+//
 Program.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -78,7 +81,23 @@ Program.prototype.getInfo = function (name)
 
   try
   {
-    return this._wrapInternal (this._internal.getInfo (name));
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLProgram.getInfo");
+
+    switch (name)
+    {
+    case ocl_info.CL_PROGRAM_NUM_DEVICES:
+    case ocl_info.CL_PROGRAM_SOURCE:
+      return this._internal.getInfo (name);
+
+    case ocl_info.CL_PROGRAM_CONTEXT:
+    case ocl_info.CL_PROGRAM_DEVICES:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem, this._owner._owner);
+
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLProgram.getInfo");
+    }
   }
   catch (e)
   {
@@ -95,8 +114,24 @@ Program.prototype.getBuildInfo = function (device, name)
 
   try
   {
-    var clDevice = this._unwrapInternalOrNull (device);
-    return this._wrapInternal (this._internal.getBuildInfo (clDevice, name));
+    if (!webclutils.validateDevice(device))
+      throw new CLError(ocl_errors.CL_INVALID_DEVICE, "'device' must be a valid WebCLDevice; was " + device, "WebCLProgram.getBuildInfo");
+
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLProgram.getBuildInfo");
+
+    switch (name)
+    {
+    case ocl_info.CL_PROGRAM_BUILD_STATUS:
+    case ocl_info.CL_PROGRAM_BUILD_OPTIONS:
+    case ocl_info.CL_PROGRAM_BUILD_LOG:
+      var clDevice = this._unwrapInternalOrNull (device);
+      var clInfoItem = this._internal.getBuildInfo (clDevice, name);
+      return clInfoItem;
+
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLProgram.getBuildInfo");
+    }
   }
   catch (e)
   {
@@ -167,6 +202,8 @@ Program.prototype.build = function (devices, options, whenFinished)
 };
 
 
+// createKernel(name)._owner == this._owner == [WebCLContext]
+//
 Program.prototype.createKernel = function (kernelName)
 {
   TRACE (this, "createKernel", arguments);
@@ -174,6 +211,9 @@ Program.prototype.createKernel = function (kernelName)
 
   try
   {
+    if (!webclutils.validateString(kernelName))
+      throw new CLError(ocl_errors.CL_INVALID_KERNEL_NAME, "'kernelName' must be a non-empty string; was " + kernelName);
+
     return this._wrapInternal (this._internal.createKernel(kernelName));
   }
   catch (e)
@@ -184,6 +224,8 @@ Program.prototype.createKernel = function (kernelName)
 };
 
 
+// createKernelsInProgram()._owner == this._owner == [WebCLContext]
+//
 Program.prototype.createKernelsInProgram = function ()
 {
   TRACE (this, "createKernelsInProgram", arguments);

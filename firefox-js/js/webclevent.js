@@ -68,6 +68,9 @@ Event.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLEvent,
 //------------------------------------------------------------------------------
 // IWebCLEvent
 
+// getInfo(EVENT_CONTEXT)._owner == this._owner._owner == [WebCL]
+// getInfo(EVENT_COMMAND_QUEUE)._owner == this._owner == [WebCLContext]
+//
 Event.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -75,7 +78,26 @@ Event.prototype.getInfo = function (name)
 
   try
   {
-    return this._wrapInternal (this._internal.getInfo (name));
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLEvent.getInfo");
+
+    switch (name)
+    {
+    case ocl_info.CL_EVENT_COMMAND_TYPE:
+    case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
+      return this._internal.getInfo (name);
+
+    case ocl_info.CL_EVENT_CONTEXT:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem, this._owner._owner);
+
+    case ocl_info.CL_EVENT_COMMAND_QUEUE:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem);
+
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLEvent.getInfo");
+    }
   }
   catch (e)
   {
@@ -92,7 +114,20 @@ Event.prototype.getProfilingInfo = function (name)
 
   try
   {
-    return this._wrapInternal (this._internal.getProfilingInfo (name));
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLEvent.getProfilingInfo");
+
+    switch (name)
+    {
+    case ocl_info.CL_PROFILING_COMMAND_QUEUED:
+    case ocl_info.CL_PROFILING_COMMAND_SUBMIT:
+    case ocl_info.CL_PROFILING_COMMAND_START:
+    case ocl_info.CL_PROFILING_COMMAND_END:
+      return this._internal.getInfo (name);
+
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLEvent.getProfilingInfo");
+    }
   }
   catch (e)
   {

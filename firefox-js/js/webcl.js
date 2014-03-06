@@ -151,6 +151,8 @@ WebCL.prototype.init = function (domWindow)
 };
 
 
+// getPlatforms()[i]._owner == this == [WebCL]
+//
 WebCL.prototype.getPlatforms = function ()
 {
   TRACE (this, "getPlatforms", arguments);
@@ -171,6 +173,8 @@ WebCL.prototype.getPlatforms = function ()
 };
 
 
+// createContext()._owner == this == [WebCL]
+//
 WebCL.prototype.createContext = function (arg0, deviceType)
 {
   TRACE (this, "createContext", arguments);

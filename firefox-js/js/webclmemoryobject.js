@@ -65,6 +65,9 @@ MemoryObject.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLMemo
 //------------------------------------------------------------------------------
 // IWebCLMemoryObject
 
+// getInfo(MEM_CONTEXT)._owner == this._owner._owner == [WebCL]
+// getInfo(MEM_ASSOCIATED_MEMOBJECT)._owner == this._owner == [WebCLContext]
+//
 MemoryObject.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -72,7 +75,28 @@ MemoryObject.prototype.getInfo = function (name)
 
   try
   {
-    return this._wrapInternal (this._internal.getInfo (name));
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLBuffer.getInfo");
+
+    switch (name)
+    {
+    case ocl_info.CL_MEM_TYPE:
+    case ocl_info.CL_MEM_FLAGS:
+    case ocl_info.CL_MEM_SIZE:
+    case ocl_info.CL_MEM_OFFSET:
+      return this._internal.getInfo (name);
+
+    case ocl_info.CL_MEM_CONTEXT:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem, this._owner._owner);
+
+    case ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem);
+
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLBuffer.getInfo");
+    }
   }
   catch (e)
   {
@@ -115,6 +139,8 @@ Buffer.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLBuffer,
                                                            ]);
 
 
+// createSubBuffer()._owner == this._owner == [WebCLContext]
+//
 Buffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 {
   TRACE (this, "createSubBuffer", arguments);
@@ -163,41 +189,57 @@ Image.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLImage,
                                                           ]);
 
 
+// getInfo(MEM_CONTEXT)._owner == this._owner._owner == [WebCL]
+//
 Image.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
 
-  if (name !== 0) {
-    try
-    {
-      return this._wrapInternal (this._internal.getInfo (name));
-    }
-    catch (e)
-    {
-      try { ERROR(String(e)); }catch(e){}
-      throw webclutils.convertCLException (e);
-    }
-  }
-  
   try
   {
-    var imageFormat = this._internal.getImageInfo (ocl_info.CL_IMAGE_FORMAT);
-    var width = this._internal.getImageInfo (ocl_info.CL_IMAGE_WIDTH);
-    var height = this._internal.getImageInfo (ocl_info.CL_IMAGE_HEIGHT);
-    var rowPitch = this._internal.getImageInfo (ocl_info.CL_IMAGE_ROW_PITCH);
+    if (name === undefined || name === null) {
+      var imageFormat = this._internal.getImageInfo (ocl_info.CL_IMAGE_FORMAT);
+      var width = this._internal.getImageInfo (ocl_info.CL_IMAGE_WIDTH);
+      var height = this._internal.getImageInfo (ocl_info.CL_IMAGE_HEIGHT);
+      var rowPitch = this._internal.getImageInfo (ocl_info.CL_IMAGE_ROW_PITCH);
+      
+      var values = {
+        channelOrder: +(imageFormat.image_channel_order) || ocl_const.CL_RGBA,
+        channelType:  +(imageFormat.image_channel_data_type) || ocl_const.CL_UNORM_INT8,
+        width:        +width || 0,
+        height:       +height || 0,
+        rowPitch:     +rowPitch || 0
+      };
 
-    var values = {
-      channelOrder: +(imageFormat.image_channel_order) || ocl_const.CL_RGBA,
-      channelType:  +(imageFormat.image_channel_data_type) || ocl_const.CL_UNORM_INT8,
-      width:        +width || 0,
-      height:       +height || 0,
-      rowPitch:     +rowPitch || 0
-    };
+      // NOTE: No need to wrapInternal since createWebCLImageDescriptor gives us
+      //       a proper XPCOM object.
+      return createWebCLImageDescriptor (values);
+    }
 
-    // NOTE: No need to wrapInternal since createWebCLImageDescriptor gives us
-    //       a proper XPCOM object.
-    return createWebCLImageDescriptor (values);
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLImage.getInfo");
+
+    switch (name)
+    {
+    case ocl_info.CL_MEM_TYPE:
+    case ocl_info.CL_MEM_FLAGS:
+    case ocl_info.CL_MEM_SIZE:
+      return this._internal.getInfo (name);
+      
+    case ocl_info.CL_MEM_OFFSET:
+      return 0;
+      
+    case ocl_info.CL_MEM_CONTEXT:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem, this._owner._owner);
+      
+    case ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT:
+      return null;
+      
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLImage.getInfo");
+    }
   }
   catch (e)
   {

@@ -26,15 +26,15 @@ typedef nsIVariant IWebCLKernel_List;
 interface IWebCLProgram : nsISupports
 {
   string getExternalIdentity ();
-  nsIVariant getInfo (in CLenum name);
+  nsIVariant getInfo ([optional] in CLenum name);
 
-  nsIVariant getBuildInfo (in IWebCLDevice device, in CLenum name);
+  nsIVariant getBuildInfo (in nsIVariant device, [optional] in CLenum name);
 
   void build ([optional] in IWebCLDevice_List devices,
               [optional] in nsIVariant options,
               [optional] in WebCLCallback whenFinished);
 
-  IWebCLKernel createKernel (in string kernelName);
+  IWebCLKernel createKernel ([optional] in string kernelName);
 
   IWebCLKernel_List createKernelsInProgram ();
 

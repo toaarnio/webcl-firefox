@@ -102,15 +102,15 @@ interface IWebCLCommandQueue : nsISupports
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
-  void enqueueReadImage(
-                    in IWebCLImage                           image,
-                    in CLboolean                             blockingRead,
-                    in CLuint_List                           origin,
-                    in CLuint_List                           region,
-                    in CLuint                                hostRowPitch,
-                    in ArrayBufferView                       hostPtr,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+  void enqueueReadImage(  // TODO: Copy-paste IDL and JS from this function to all others!
+                    in nsIVariant                            image,          // IWebCLImage
+                    in nsIVariant                            blockingRead,   // CLboolean
+                    in nsIVariant                            origin,         // CLuint[2]
+                    in nsIVariant                            region,         // CLuint[2]
+                    in nsIVariant                            hostRowPitch,   // CLuint
+                    in ArrayBufferView                       hostPtr,        // not validated yet
+                    [optional] in IWebCLEvent_List           eventWaitList,  // not validated yet
+                    [optional] in IWebCLEvent                event);         // not validated yet
 
   void enqueueWriteBuffer(
                     in IWebCLBuffer                          buffer,
@@ -167,7 +167,7 @@ interface IWebCLCommandQueue : nsISupports
   void flush ();
 
   nsIVariant getInfo (
-                    in CLenum                                name);
+                    [optional] in CLenum                     name);
 
   void release();
 };

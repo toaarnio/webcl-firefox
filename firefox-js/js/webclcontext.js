@@ -79,6 +79,8 @@ Context.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLContext,
 //------------------------------------------------------------------------------
 // IWebCLContext
 
+// createBuffer()._owner == this == [WebCLContext]
+//
 Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 {
   TRACE (this, "createBuffer", arguments);
@@ -97,6 +99,8 @@ Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 };
 
 
+// createCommandQueue()._owner == this == [WebCLContext]
+//
 Context.prototype.createCommandQueue = function (device, properties)
 {
   TRACE (this, "createCommandQueue", arguments);
@@ -157,6 +161,8 @@ Context.prototype.createCommandQueue = function (device, properties)
 };
 
 
+// createImage()._owner == this == [WebCLContext]
+//
 Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
 {
   TRACE (this, "createImage", arguments);
@@ -199,6 +205,8 @@ Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
 };
 
 
+// createProgram()._owner == this == [WebCLContext]
+//
 Context.prototype.createProgram = function (source)
 {
   TRACE (this, "createProgram", arguments);
@@ -223,6 +231,8 @@ Context.prototype.createProgram = function (source)
 };
 
 
+// createSampler()._owner == this == [WebCLContext]
+//
 Context.prototype.createSampler = function (normalizedCoords, addressingMode, filterMode)
 {
   TRACE (this, "createSampler", arguments);
@@ -241,6 +251,8 @@ Context.prototype.createSampler = function (normalizedCoords, addressingMode, fi
 };
 
 
+// createUserEvent()._owner == this == [WebCLContext]
+//
 Context.prototype.createUserEvent = function ()
 {
   TRACE (this, "createUserEvent", arguments);
@@ -259,6 +271,8 @@ Context.prototype.createUserEvent = function ()
 };
 
 
+// getInfo(CONTEXT_DEVICES)[i]._owner == this._owner == [WebCL]
+//
 Context.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -266,16 +280,19 @@ Context.prototype.getInfo = function (name)
 
   try
   {
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLContext.getInfo");
+
     switch (name)
     {
-      case ocl_info.CL_CONTEXT_NUM_DEVICES:               break;
-      case ocl_info.CL_CONTEXT_DEVICES:                   break;
-      default:
-        throw new CLError (ocl_errors.CL_INVALID_VALUE, "", "WebCLContext.getInfo");
+    case ocl_info.CL_CONTEXT_NUM_DEVICES:
+      return this._internal.getInfo (name);
+    case ocl_info.CL_CONTEXT_DEVICES:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem);
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLContext.getInfo");
     }
-
-    var clInfoItem = this._internal.getInfo (name);
-    return this._wrapInternal (clInfoItem, this);
   }
   catch (e)
   {

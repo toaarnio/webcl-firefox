@@ -19,7 +19,7 @@
 interface IWebCLDevice : nsISupports
 {
   string getExternalIdentity ();
-  nsIVariant getInfo ([optional] in long name);
+  nsIVariant getInfo ([optional] in CLenum name);
   nsIVariant getSupportedExtensions ();
   CLboolean enableExtension (in string extensionName);
 };

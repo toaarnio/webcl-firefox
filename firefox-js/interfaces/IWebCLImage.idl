@@ -24,6 +24,6 @@
 interface IWebCLImage : nsISupports
 {
   string getExternalIdentity ();
-  nsIVariant getInfo([optional] in CLenum name);
+  nsIVariant getInfo([optional] in nsIVariant name);  // CLenum name
   void release ();
 };

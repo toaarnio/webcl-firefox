@@ -416,9 +416,11 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
       is a negative integer value
     INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
-    var clImage = this._unwrapInternalOrNull (image);
-    if (!webclutils.validateImage(clImage))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "image must be a valid WebCLImage object", null);
+    if (!webclutils.validateImage(image))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "image must be a valid WebCLImage object; was " + image, null);
+
+    if (!webclutils.validateBoolean(blockingRead))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "blockingRead must be a boolean; was " + blockingRead, null);
 
     var descriptor = image.getInfo();
     var width = descriptor.width;
@@ -465,6 +467,8 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
 
     if (hostRowPitch !== 0 && hostRowPitch*region[1] > hostPtr.byteLength)
       throw new CLInvalidArgument("region", "hostRowPitch * region[1] must not be greater than hostPtr.byteLength");
+
+    var clImage = this._unwrapInternalOrNull (image);
 
     var clEventWaitList = [];
     if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
@@ -768,6 +772,9 @@ CommandQueue.prototype.flush = function ()
 };
 
 
+// getInfo(QUEUE_CONTEXT)._owner == this._owner._owner == [WebCL]
+// getInfo(QUEUE_DEVICE)._owner == this._owner._owner == [WebCL]
+//
 CommandQueue.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -775,8 +782,20 @@ CommandQueue.prototype.getInfo = function (name)
 
   try
   {
-    var clInfoItem = this._internal.getInfo (name);
-    return this._wrapInternal (clInfoItem, this.owner);
+    if (!webclutils.validateNumber(name))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLCommandQueue.getInfo");
+
+    switch (name)
+    {
+    case ocl_info.CL_QUEUE_CONTEXT:
+    case ocl_info.CL_QUEUE_DEVICE:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem, this._owner._owner);
+    case ocl_info.CL_QUEUE_PROPERTIES:
+      return this._internal.getInfo (name);
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLCommandQueue.getInfo");
+    }
   }
   catch (e)
   {
