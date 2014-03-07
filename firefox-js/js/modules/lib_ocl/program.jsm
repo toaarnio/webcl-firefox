@@ -215,7 +215,9 @@ Program.prototype.buildProgram = function (devices, options, callback, userData)
 
   var clOptions = options || "";
 
-  var clCallback = callback ? T.callback_buildProgram.ptr (function () { callback (userData); }) : null;
+  var clCallback = callback ? T.callback_buildProgram.ptr (function() { callback() }) : null;
+  if (clCallback !== null)
+    throw new CLError (ocl_errors.CL_INVALID_OPERATION, "program.build() callbacks not implemented yet", "Program.buildProgram");
 
   if (devices === null)
   {
