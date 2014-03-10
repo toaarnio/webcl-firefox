@@ -20,84 +20,81 @@
 #include "interfaces/IWebCLEvent.idl"
 #include "interfaces/IWebCLKernel.idl"
 
-// TODO: Proper types
 typedef nsIVariant IWebCLEvent_List;
-typedef nsIVariant CLuint_List;
 typedef nsIVariant ArrayBufferView;
-
 
 [scriptable, uuid(751b06c0-cac3-4123-87ae-2b8c22832d52)]
 interface IWebCLCommandQueue : nsISupports
 {
   string getExternalIdentity ();
   void enqueueCopyBuffer(
-                    in IWebCLBuffer                          srcBuffer,
-                    in IWebCLBuffer                          dstBuffer,
-                    in CLuint                                srcOffset,
-                    in CLuint                                dstOffset,
-                    in CLuint                                numBytes,
+                    in nsIVariant                            srcBuffer,
+                    in nsIVariant                            dstBuffer,
+                    in nsIVariant                            srcOffset,
+                    in nsIVariant                            dstOffset,
+                    in nsIVariant                            numBytes,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueCopyBufferRect(
-                    in IWebCLBuffer                          srcBuffer,
-                    in IWebCLBuffer                          dstBuffer,
-                    in CLuint_List                           srcOrigin,
-                    in CLuint_List                           dstOrigin,
-                    in CLuint_List                           region,
-                    in CLuint                                srcRowPitch,
-                    in CLuint                                srcSlicePitch,
-                    in CLuint                                dstRowPitch,
-                    in CLuint                                dstSlicePitch,
+                    in nsIVariant                            srcBuffer,
+                    in nsIVariant                            dstBuffer,
+                    in nsIVariant                            srcOrigin,
+                    in nsIVariant                            dstOrigin,
+                    in nsIVariant                            region,
+                    in nsIVariant                            srcRowPitch,
+                    in nsIVariant                            srcSlicePitch,
+                    in nsIVariant                            dstRowPitch,
+                    in nsIVariant                            dstSlicePitch,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueCopyImage(
-                    in IWebCLImage                           srcImage,
-                    in IWebCLImage                           dstImage,
-                    in CLuint_List                           srcOrigin,
-                    in CLuint_List                           dstOrigin,
-                    in CLuint_List                           region,
+                    in nsIVariant                            srcImage,
+                    in nsIVariant                            dstImage,
+                    in nsIVariant                            srcOrigin,
+                    in nsIVariant                            dstOrigin,
+                    in nsIVariant                            region,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueCopyImageToBuffer(
-                    in IWebCLImage                           srcImage,
-                    in IWebCLBuffer                          dstBuffer,
-                    in CLuint_List                           srcOrigin,
-                    in CLuint_List                           srcRegion,
-                    in CLuint                                dstOffset,
+                    in nsIVariant                            srcImage,
+                    in nsIVariant                            dstBuffer,
+                    in nsIVariant                            srcOrigin,
+                    in nsIVariant                            srcRegion,
+                    in nsIVariant                            dstOffset,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueCopyBufferToImage(
-                    in IWebCLBuffer                          srcBuffer,
-                    in IWebCLImage                           dstImage,
-                    in CLuint                                srcOffset,
-                    in CLuint_List                           dstOrigin,
-                    in CLuint_List                           dstRegion,
+                    in nsIVariant                            srcBuffer,
+                    in nsIVariant                            dstImage,
+                    in nsIVariant                            srcOffset,
+                    in nsIVariant                            dstOrigin,
+                    in nsIVariant                            dstRegion,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueReadBuffer(
-                    in IWebCLBuffer                          buffer,
-                    in CLboolean                             blockingRead,
-                    in CLuint                                bufferOffset,
-                    in CLuint                                numBytes,
+                    in nsIVariant                            buffer,
+                    in nsIVariant                            blockingRead,
+                    in nsIVariant                            bufferOffset,
+                    in nsIVariant                            numBytes,
                     in ArrayBufferView                       hostPtr,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueReadBufferRect(
-                    in IWebCLBuffer                          buffer,
-                    in CLboolean                             blockingRead,
-                    in CLuint_List                           bufferOrigin,
-                    in CLuint_List                           hostOrigin,
-                    in CLuint_List                           region,
-                    in CLuint                                bufferRowPitch,
-                    in CLuint                                bufferSlicePitch,
-                    in CLuint                                hostRowPitch,
-                    in CLuint                                hostSlicePitch,
+                    in nsIVariant                            buffer,
+                    in nsIVariant                            blockingRead,
+                    in nsIVariant                            bufferOrigin,
+                    in nsIVariant                            hostOrigin,
+                    in nsIVariant                            region,
+                    in nsIVariant                            bufferRowPitch,
+                    in nsIVariant                            bufferSlicePitch,
+                    in nsIVariant                            hostRowPitch,
+                    in nsIVariant                            hostSlicePitch,
                     in ArrayBufferView                       hostPtr,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
@@ -113,44 +110,44 @@ interface IWebCLCommandQueue : nsISupports
                     [optional] in IWebCLEvent                event);         // not validated yet
 
   void enqueueWriteBuffer(
-                    in IWebCLBuffer                          buffer,
-                    in CLboolean                             blockingWrite,
-                    in CLuint                                bufferOffset,
-                    in CLuint                                numBytes,
+                    in nsIVariant                            buffer,
+                    in nsIVariant                            blockingWrite,
+                    in nsIVariant                            bufferOffset,
+                    in nsIVariant                            numBytes,
                     in ArrayBufferView                       hostPtr,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueWriteBufferRect(
-                    in IWebCLBuffer                          buffer,
-                    in CLboolean                             blockingWrite,
-                    in CLuint_List                           bufferOrigin,
-                    in CLuint_List                           hostOrigin,
-                    in CLuint_List                           region,
-                    in CLuint                                bufferRowPitch,
-                    in CLuint                                bufferSlicePitch,
-                    in CLuint                                hostRowPitch,
-                    in CLuint                                hostSlicePitch,
+                    in nsIVariant                            buffer,
+                    in nsIVariant                             blockingWrite,
+                    in nsIVariant                            bufferOrigin,
+                    in nsIVariant                            hostOrigin,
+                    in nsIVariant                            region,
+                    in nsIVariant                            bufferRowPitch,
+                    in nsIVariant                            bufferSlicePitch,
+                    in nsIVariant                            hostRowPitch,
+                    in nsIVariant                            hostSlicePitch,
                     in ArrayBufferView                       hostPtr,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueWriteImage(
-                    in IWebCLImage                           image,
-                    in CLboolean                             blockingWrite,
-                    in CLuint_List                           origin,
-                    in CLuint_List                           region,
-                    in CLuint                                hostRowPitch,
+                    in nsIVariant                            image,
+                    in nsIVariant                            blockingWrite,
+                    in nsIVariant                            origin,
+                    in nsIVariant                            region,
+                    in nsIVariant                            hostRowPitch,
                     in ArrayBufferView                       hostPtr,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
   void enqueueNDRangeKernel(
                     in IWebCLKernel                          kernel,
-                    in CLuint                                workDim,
-                    in CLuint_List                           globalWorkOffset,
-                    in CLuint_List                           globalWorkSize,
-                    [optional] in CLuint_List                localWorkSize,
+                    in nsIVariant                            workDim,
+                    in nsIVariant                            globalWorkOffset,
+                    in nsIVariant                            globalWorkSize,
+                    [optional] in nsIVariant                 localWorkSize,
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 

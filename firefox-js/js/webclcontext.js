@@ -309,8 +309,13 @@ Context.prototype.getSupportedImageFormats = function (memFlags)
 
   try
   {
-    var list = this._internal.getSupportedImageFormats (memFlags,
-                                                        ocl_const.CL_MEM_OBJECT_IMAGE2D);
+    if (memFlags === undefined || memFlags === null)
+      memFlags = ocl_const.CL_MEM_READ_WRITE;
+
+    if (!webclutils.validateNumber(memFlags) || !webclutils.validateMemFlags(memFlags))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'memFlags' must be a valid CLenum; was " + memFlags, "WebCLContext.getSupportedImageFormats");
+
+    var list = this._internal.getSupportedImageFormats (memFlags, ocl_const.CL_MEM_OBJECT_IMAGE2D);
 
     var rv = [];
     for (var i = 0; i < list.length; ++i)

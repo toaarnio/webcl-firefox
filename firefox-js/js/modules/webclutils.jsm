@@ -385,6 +385,18 @@ function convertCLException (e)
 }
 
 
+function validatePlatform (obj)  { return validateWrappedOrInternal(obj, Platform) && validateClassName(obj, "Platform"); }
+function validateDevice (obj)    { return validateWrappedOrInternal(obj, Device) && validateClassName(obj, "Device"); }
+function validateContext (obj)   { return validateWrappedOrInternal(obj, Context) && validateClassName(obj, "Context"); }
+function validateQueue (obj)     { return validateWrappedOrInternal(obj, CommandQueue) && validateClassName(obj, "CommandQueue"); }
+function validateBuffer (obj)    { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Buffer"); }
+function validateImage (obj)     { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Image"); }
+function validateSampler (obj)   { return validateWrappedOrInternal(obj, Sampler) && validateClassName(obj, "Sampler"); }
+function validateProgram (obj)   { return validateWrappedOrInternal(obj, Program) && validateClassName(obj, "Program"); }
+function validateKernel (obj)    { return validateWrappedOrInternal(obj, Kernel) && validateClassName(obj, "Kernel"); }
+function validateEvent (obj)     { return validateWrappedOrInternal(obj, CLEvent); }
+function validateUserEvent (obj) { return validateWrappedOrInternal(obj, CLEvent) && validateClassName(obj, "UserEvent"); }
+
 function validateWrapped (obj, type)
 {
   return validateInternal(unwrapInternalOrNull(obj), type);
@@ -402,20 +414,10 @@ function validateWrappedOrInternal (obj, type)
 
 function validateClassName (obj, name)
 {
+  DEBUG("validateClassName: obj.classDescription = " + obj.classDescription);
+  DEBUG("validateClassName: expecting obj.classDescription = [WebCL]" + name);
   return (obj && (obj.classDescription === name || obj.classDescription === "WebCL"+name));
 }
-
-function validatePlatform (obj)  { return validateWrappedOrInternal(obj, Platform) && validateClassName(obj, "Platform"); }
-function validateDevice (obj)    { return validateWrappedOrInternal(obj, Device) && validateClassName(obj, "Device"); }
-function validateContext (obj)   { return validateWrappedOrInternal(obj, Context) && validateClassName(obj, "Context"); }
-function validateQueue (obj)     { return validateWrappedOrInternal(obj, CommandQueue) && validateClassName(obj, "CommandQueue"); }
-function validateBuffer (obj)    { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Buffer"); }
-function validateImage (obj)     { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Image"); }
-function validateSampler (obj)   { return validateWrappedOrInternal(obj, Sampler) && validateClassName(obj, "Sampler"); }
-function validateProgram (obj)   { return validateWrappedOrInternal(obj, Program) && validateClassName(obj, "Program"); }
-function validateKernel (obj)    { return validateWrappedOrInternal(obj, Kernel) && validateClassName(obj, "Kernel"); }
-function validateEvent (obj)     { return validateWrappedOrInternal(obj, CLEvent); }
-function validateUserEvent (obj) { return validateWrappedOrInternal(obj, CLEvent) && validateClassName(obj, "UserEvent"); }
 
 function validateArray (arr, itemValidator)
 {
@@ -476,6 +478,13 @@ function validateString (str)
 function validateBitfield (bitfield, validMask)
 {
   return (typeof(bitfield) === 'number' && (bitfield & ~validMask) === 0);
+}
+
+function validateMemFlags (memFlags)
+{
+  return (memFlags === ocl_const.CL_MEM_READ_WRITE ||
+          memFlags === ocl_const.CL_MEM_WRITE_ONLY ||
+          memFlags === ocl_const.CL_MEM_READ_ONLY);
 }
 
 function validateBuildOptions (options, validOptions)
@@ -539,5 +548,6 @@ var webclutils = {
   validateObject:               validateObject,
   validateString:               validateString,
   validateBitfield:             validateBitfield,
+  validateMemFlags:             validateMemFlags,
   validateBuildOptions:         validateBuildOptions,
 };

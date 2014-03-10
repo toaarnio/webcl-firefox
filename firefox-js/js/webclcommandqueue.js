@@ -81,11 +81,14 @@ CommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
 
   try
   {
-    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
-    if (!webclutils.validateBuffer(clSrcBuffer)) throw new CLInvalidArgument ("srcBuffer");
+    if (!webclutils.validateBuffer(srcBuffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcBuffer must be a valid WebCLBuffer object; was " + srcBuffer, null);
 
+    if (!webclutils.validateBuffer(dstBuffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstBuffer must be a valid WebCLBuffer object; was " + dstBuffer, null);
+
+    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-    if (!webclutils.validateBuffer(clDstBuffer)) throw new CLInvalidArgument ("dstBuffer");
 
     if (!webclutils.validateNumber (srcOffset))  throw new CLInvalidArgument ("srcOffset");
     if (!webclutils.validateNumber (dstOffset))  throw new CLInvalidArgument ("dstOffset");
@@ -128,11 +131,14 @@ CommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
 
   try
   {
-    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
-    if (!webclutils.validateBuffer(clSrcBuffer)) throw new CLInvalidArgument ("srcBuffer");
+    if (!webclutils.validateBuffer(srcBuffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcBuffer must be a valid WebCLBuffer object; was " + srcBuffer, null);
 
+    if (!webclutils.validateBuffer(dstBuffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstBuffer must be a valid WebCLBuffer object; was " + dstBuffer, null);
+
+    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-    if (!webclutils.validateBuffer(clDstBuffer)) throw new CLInvalidArgument ("dstBuffer");
 
     if (!webclutils.validateArrayLength(srcOrigin, function(arr) { return arr.length === 3; }))
       throw new CLInvalidArgument ("srcOrigin");
@@ -184,11 +190,14 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
 
   try
   {
-    var clSrcImage = this._unwrapInternalOrNull (srcImage);
-    if (!webclutils.validateImage(clSrcImage)) throw new CLInvalidArgument ("srcImage");
+    if (!webclutils.validateImage(srcImage))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcImage must be a valid WebCLImage object; was " + srcImage, null);
 
+    if (!webclutils.validateImage(dstImage))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstImage must be a valid WebCLImage object; was " + dstImage, null);
+
+    var clSrcImage = this._unwrapInternalOrNull (srcImage);
     var clDstImage = this._unwrapInternalOrNull (dstImage);
-    if (!webclutils.validateImage(clDstImage)) throw new CLInvalidArgument ("dstImage");
 
     // TODO: validate srcOrigin, dstOrigin, region
 
@@ -227,11 +236,14 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
 
   try
   {
-    var clSrcImage = this._unwrapInternalOrNull (srcImage);
-    if (!webclutils.validateImage(clSrcImage)) throw new CLInvalidArgument ("srcImage");
+    if (!webclutils.validateImage(srcImage))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcImage must be a valid WebCLImage object; was " + srcImage, null);
 
+    if (!webclutils.validateBuffer(dstBuffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstBuffer must be a valid WebCLBuffer object; was " + dstBuffer, null);
+
+    var clSrcImage = this._unwrapInternalOrNull (srcImage);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-    if (!webclutils.validateBuffer(clDstBuffer)) throw new CLInvalidArgument ("dstBuffer");
 
     // TODO: validate srcOrigin, srcRegion, dstOffset
 
@@ -270,11 +282,14 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
 
   try
   {
-    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
-    if (!webclutils.validateBuffer(clSrcBuffer)) throw new CLInvalidArgument ("srcBuffer");
+    if (!webclutils.validateBuffer(srcBuffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcBuffer must be a valid WebCLBuffer object; was " + srcBuffer, null);
 
+    if (!webclutils.validateImage(dstImage))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstImage must be a valid WebCLImage object; was " + dstImage, null);
+
+    var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstImage = this._unwrapInternalOrNull (dstImage);
-    if (!webclutils.validateImage(clDstImage)) throw new CLInvalidArgument ("dstImage");
 
     // TODO: validate srcOffset, dstOrigin, region
 
@@ -313,9 +328,11 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
 
   try
   {
+    if (!webclutils.validateBuffer(buffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
+
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    if (!webclutils.validateBuffer(clBuffer))
-      throw new CLInvalidArgument ("buffer");
+
     if (!webclutils.validateNumber(bufferOffset))
       throw new CLInvalidArgument ("bufferOffset");
     if (!webclutils.validateNumber(numBytes))
@@ -359,8 +376,10 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
 
   try
   {
+    if (!webclutils.validateBuffer(buffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
+
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    if (!webclutils.validateBuffer(clBuffer)) throw new CLInvalidArgument ("buffer");
 
     // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
     //       hostRowPitch, hostSlicePitch, hostPtr
@@ -506,9 +525,11 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
 
   try
   {
+    if (!webclutils.validateBuffer(buffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
+
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    if (!webclutils.validateBuffer(clBuffer))
-      throw new CLInvalidArgument ("buffer");
+
     if (!webclutils.validateNumber(bufferOffset))
       throw new CLInvalidArgument ("bufferOffset");
     if (!webclutils.validateNumber(numBytes))
@@ -555,8 +576,10 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
 
   try
   {
+    if (!webclutils.validateBuffer(buffer))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
+
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    if (!webclutils.validateBuffer(clBuffer)) throw new CLInvalidArgument ("buffer");
 
     // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
     //       hostRowPitch, hostSlicePitch, hostPtr
@@ -596,8 +619,10 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
 
   try
   {
+    if (!webclutils.validateImage(image))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "image must be a valid WebCLImage object; was " + image, null);
+
     var clImage = this._unwrapInternalOrNull (image);
-    if (!webclutils.validateImage(clImage)) throw new CLInvalidArgument ("image");
 
     // TODO: validate origin, region, hostRowPitch, hostPtr
 

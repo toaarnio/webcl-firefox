@@ -30,7 +30,7 @@ interface IWebCLContext : nsISupports
   nsIVariant createSampler (in CLboolean normalizedCoords, in CLenum addressingMode, in CLenum filterMode);
   nsIVariant createUserEvent ();
   nsIVariant getInfo ([optional] in CLenum name);
-  nsIVariant getSupportedImageFormats ([optional] in CLenum memFlags);
+  nsIVariant getSupportedImageFormats ([optional] in nsIVariant memFlags);
   void release ();
   void releaseAll ();
 };
