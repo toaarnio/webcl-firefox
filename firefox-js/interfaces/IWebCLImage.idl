@@ -14,9 +14,6 @@
 #include "nsISupports.idl"
 #include "nsIVariant.idl"
 #include "interfaces/webcl_types.idl"
-//#include "interfaces/IWebCLMemoryObject.idl"
-
-#include "interfaces/IWebCLImageDescriptor.idl"
 
 // NOTE: Can't inherit from IWebCLMemoryObject since getInfo is incompatible
 //       and would not be overridden.
@@ -24,6 +21,6 @@
 interface IWebCLImage : nsISupports
 {
   string getExternalIdentity ();
-  nsIVariant getInfo([optional] in nsIVariant name);  // CLenum name
+  nsIVariant getInfo([optional] in nsIVariant name);
   void release ();
 };

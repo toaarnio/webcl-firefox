@@ -63,25 +63,19 @@
             //       own interface listed before inherited interface.
             switch (ifaceList[i])
             {
-              case "IWebCLPlatform":     return _createPlatformInstance (obj);
-              case "IWebCLDevice":       return _createDeviceInstance (obj);
-              case "IWebCLContext":      return _createContextInstance (obj);
-              case "IWebCLProgram":      return _createProgramInstance (obj);
-              case "IWebCLKernel":       return _createKernelInstance (obj);
-              case "IWebCLCommandQueue": return _createCommandQueueInstance (obj);
-              case "IWebCLEvent":        return _createEventInstance (obj);
-              case "IWebCLUserEvent":    return _createUserEventInstance (obj);
-              case "IWebCLMemoryObject": return _createMemoryObjectInstance (obj);
-              case "IWebCLBuffer":       return _createBufferInstance (obj);
-              case "IWebCLImage":        return _createImageInstance (obj);
-              case "IWebCLSampler":      return _createSamplerInstance (obj);
-              case "IWebCLImageDescriptor": return {
-                                                     channelOrder: +obj.channelOrder || WebCL.RGBA,
-                                                     channelType:  +obj.channelType  || WebCL.UNORM_INT8,
-                                                     width:    +obj.width    || 0,
-                                                     height:   +obj.height   || 0,
-                                                     rowPitch: +obj.rowPitch || 0
-                                                   };
+            case "IWebCLPlatform":        return _createPlatformInstance (obj);
+            case "IWebCLDevice":          return _createDeviceInstance (obj);
+            case "IWebCLContext":         return _createContextInstance (obj);
+            case "IWebCLProgram":         return _createProgramInstance (obj);
+            case "IWebCLKernel":          return _createKernelInstance (obj);
+            case "IWebCLCommandQueue":    return _createCommandQueueInstance (obj);
+            case "IWebCLMemoryObject":    return _createMemoryObjectInstance (obj);
+            case "IWebCLBuffer":          return _createBufferInstance (obj);
+            case "IWebCLImage":           return _createImageInstance (obj);
+            case "IWebCLSampler":         return _createSamplerInstance (obj);
+            case "IWebCLEvent":           return _createEventInstance (obj);
+            case "IWebCLUserEvent":       return _createUserEventInstance (obj);
+            case "IWebCLImageDescriptor": return _createImageDescriptorInstance (obj);
             }
           }
         }
@@ -162,12 +156,13 @@
       if (obj instanceof _Program) return obj._internal;
       if (obj instanceof _Kernel) return obj._internal;
       if (obj instanceof _CommandQueue) return obj._internal;
-      if (obj instanceof _Event) return obj._internal;
-      if (obj instanceof _UserEvent) return obj._internal;
       if (obj instanceof _MemoryObject) return obj._internal;
       if (obj instanceof _Buffer) return obj._internal;
       if (obj instanceof _Image) return obj._internal;
       if (obj instanceof _Sampler) return obj._internal;
+      if (obj instanceof _Event) return obj._internal;
+      if (obj instanceof _UserEvent) return obj._internal;
+      if (obj instanceof _ImageDescriptor) return obj._internal;
 
       // NOTE: We may get objects that contain _Base instances as properties,
       //       that would need unwrapping. Simple object cloning won't do since
@@ -200,12 +195,13 @@
       else if (obj instanceof _Program) err = "INVALID_PROGRAM";
       else if (obj instanceof _Kernel) err = "INVALID_KERNEL";
       else if (obj instanceof _CommandQueue) err = "INVALID_COMMAND_QUEUE";
-      else if (obj instanceof _Event) err = "INVALID_EVENT";
-      else if (obj instanceof _UserEvent) err = "INVALID_EVENT";
       else if (obj instanceof _MemoryObject) err = "INVALID_MEM_OBJECT";
       else if (obj instanceof _Buffer) err = "INVALID_MEM_OBJECT";
       else if (obj instanceof _Image) err = "INVALID_MEM_OBJECT";
       else if (obj instanceof _Sampler) err = "INVALID_SAMPLER";
+      else if (obj instanceof _Event) err = "INVALID_EVENT";
+      else if (obj instanceof _UserEvent) err = "INVALID_EVENT";
+      else if (obj instanceof _ImageDescriptor) err = "INVALID_IMAGE_FORMAT_DESCRIPTOR";
       else err = "WEBCL_IMPLEMENTATION_FAILURE";
 
       throw new _WebCLException (err, "Invalid internal object.");
@@ -303,16 +299,6 @@
 
 
 
-  // == WebCLContextProperties ===================================================
-  function _WebCLContextProperties (devices, platform, deviceType)
-  {
-    this.devices = devices || null;
-    this.platform = platform || null;
-    this.deviceType = deviceType || WebCL.DEVICE_TYPE_DEFAULT;
-  }
-
-
-
   // == WebCL ====================================================================
   this.WebCL = { version : "YYYY-MM-DD" };
   this.webCL = WebCL;
@@ -324,15 +310,14 @@
   window.WebCLProgram = _Program;
   window.WebCLKernel = _Kernel;
   window.WebCLCommandQueue = _CommandQueue;
-  window.WebCLEvent = _Event;
-  window.WebCLUserEvent = _UserEvent;
   window.WebCLMemoryObject = _MemoryObject;
   window.WebCLBuffer = _Buffer;
   window.WebCLImage = _Image;
   window.WebCLSampler = _Sampler;
-
+  window.WebCLEvent = _Event;
+  window.WebCLUserEvent = _UserEvent;
+  window.WebCLImageDescriptor = _ImageDescriptor;
   window.WebCLException = _WebCLException;
-  window.WebCLContextProperties = _WebCLContextProperties;
 
 
   WebCL.getPlatforms = function ()
@@ -514,30 +499,10 @@
   _Context.prototype.createProgram = _createDefaultFunctionWrapper ("createProgram");
   _Context.prototype.createSampler = _createDefaultFunctionWrapper ("createSampler");
   _Context.prototype.createUserEvent = _createDefaultFunctionWrapper ("createUserEvent");
-  _Context.prototype.getSupportedImageFormats =  _createDefaultFunctionWrapper ("getSupportedImageFormats");
+  _Context.prototype.getSupportedImageFormats = _createDefaultFunctionWrapper ("getSupportedImageFormats");
   _Context.prototype.release = _createDefaultFunctionWrapper ("release");
   _Context.prototype.releaseAll = _createDefaultFunctionWrapper ("releaseAll");
 
-  _Context.prototype.getInfo = function (name)
-  {
-    try
-    {
-      _validateInternal (this);
-      var rv = this._internal.getInfo (_unwrapInternalObject(name));
-      if (name == 0x1082) // CONTEXT_PROPERTIES
-      {
-        return new WebCLContextProperties (rv.devices, rv.platform, rv.deviceType);
-      }
-      else
-      {
-        return _wrapInternalObject (rv);
-      }
-    }
-    catch (e)
-    {
-      throw _wrapException (e, this._name+".getInfo");
-    }
-  };
 
 
   // == Program ==================================================================
@@ -619,38 +584,6 @@
   }
 
 
-  // == Event ====================================================================
-  function _Event (internal) {
-    if (!(this instanceof _Event)) return;
-
-    if (!internal)
-    {
-      internal = new _NokiaWebCLEvent ();
-    }
-
-    _Base.call (this, internal);
-
-    this._name = "WebCLEvent";
-  }
-  _Event.prototype = Object.create (_Base.prototype);
-
-  _Event.prototype.getProfilingInfo = _createDefaultFunctionWrapper ("getProfilingInfo");
-  _Event.prototype.setCallback = _createDefaultFunctionWrapper ("setCallback");
-  _Event.prototype.release = _createDefaultFunctionWrapper ("release");
-
-
-
-  // == UserEvent ================================================================
-  function _UserEvent (internal) {
-    if (!(this instanceof _UserEvent)) return;
-    _Event.call (this, internal);
-
-    this._name = "WebCLUserEvent";
-  }
-  _UserEvent.prototype = Object.create (_Event.prototype);
-  _UserEvent.prototype.setStatus = _createDefaultFunctionWrapper ("setStatus");
-
-
 
   // == MemoryObject =============================================================
   function _MemoryObject (internal) {
@@ -688,7 +621,7 @@
     this._name = "WebCLImage";
   }
   _Image.prototype = Object.create (_MemoryObject.prototype);
-
+/*
   _Image.prototype.getInfo = function (name)
   {
     if (name === undefined || 
@@ -714,7 +647,7 @@
       throw new WebCLException ("INVALID_VALUE", "invalid query enum '"+name+"'", "WebCLImage.getInfo");
     }
   };
-
+*/
 
 
 
@@ -728,6 +661,62 @@
   _Sampler.prototype = Object.create (_Base.prototype);
 
   _Sampler.prototype.release = _createDefaultFunctionWrapper ("release");
+
+
+
+  // == Event ====================================================================
+  function _Event (internal) {
+    if (!(this instanceof _Event)) return;
+
+    if (!internal)
+    {
+      internal = new _NokiaWebCLEvent ();
+    }
+
+    _Base.call (this, internal);
+
+    this._name = "WebCLEvent";
+  }
+  _Event.prototype = Object.create (_Base.prototype);
+
+  _Event.prototype.getProfilingInfo = _createDefaultFunctionWrapper ("getProfilingInfo");
+  _Event.prototype.setCallback = _createDefaultFunctionWrapper ("setCallback");
+  _Event.prototype.release = _createDefaultFunctionWrapper ("release");
+
+
+
+  // == UserEvent ================================================================
+  function _UserEvent (internal) {
+    if (!(this instanceof _UserEvent)) return;
+    _Event.call (this, internal);
+
+    this._name = "WebCLUserEvent";
+  }
+  _UserEvent.prototype = Object.create (_Event.prototype);
+  _UserEvent.prototype.setStatus = _createDefaultFunctionWrapper ("setStatus");
+
+
+
+  // == ImageDescriptor ==================================================================
+  function _ImageDescriptor (internal) {
+    if (!(this instanceof _ImageDescriptor)) return;
+
+    if (!internal)
+    {
+      internal = new _NokiaWebCLImageDescriptor ();
+    }
+
+    _Base.call (this, internal);
+
+    this._name = "WebCLImageDescriptor";
+  }
+  _ImageDescriptor.prototype = Object.create (_Base.prototype);
+  _ImageDescriptor.prototype.channelOrder = 0x10B5;
+  _ImageDescriptor.prototype.channelType = 0x10D2;
+  _ImageDescriptor.prototype.width = 0;
+  _ImageDescriptor.prototype.height = 0;
+  _ImageDescriptor.prototype.rowPitch = 0;
+  delete _ImageDescriptor.prototype.getInfo;
 
 
 
@@ -807,30 +796,6 @@
     return wrapper;
   }
 
-  function _createEventInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Event (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createUserEventInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _UserEvent (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
   function _createMemoryObjectInstance (obj)
   {
     // NOTE: _lookForExistingWrapperInstance handles object validation.
@@ -879,6 +844,40 @@
     return wrapper;
   }
 
+  function _createEventInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _Event (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createUserEventInstance (obj)
+  {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _UserEvent (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
+
+  function _createImageDescriptorInstance (obj)
+  {
+    var wrapper = _lookForExistingWrapperInstance(obj);
+    if (!wrapper)
+    {
+      wrapper = new _ImageDescriptor (obj);
+      _registerWrapperInstance (wrapper);
+    }
+    return wrapper;
+  }
 
   function _lookForExistingWrapperInstance (obj)
   {

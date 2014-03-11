@@ -53,6 +53,7 @@ contract @webcl.nokiaresearch.com/IWebCLSampler;1 {dc9b25aa-2bdc-4efd-b295-b450c
 interfaces components/IWebCLImageDescriptor.xpt
 component {8f865901-2efb-422e-bb15-26e0beb0c845} components/webclimagedescriptor.js
 contract @webcl.nokiaresearch.com/IWebCLImageDescriptor;1 {8f865901-2efb-422e-bb15-26e0beb0c845}
+category JavaScript-global-constructor _NokiaWebCLImageDescriptor @webcl.nokiaresearch.com/IWebCLImageDescriptor;1
 
 
 component {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2} components/clientwrapperloader.js
