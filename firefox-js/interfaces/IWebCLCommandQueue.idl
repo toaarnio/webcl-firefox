@@ -99,7 +99,7 @@ interface IWebCLCommandQueue : nsISupports
                     [optional] in IWebCLEvent_List           eventWaitList,
                     [optional] in IWebCLEvent                event);
 
-  void enqueueReadImage(  // TODO: Copy-paste IDL and JS from this function to all others!
+  void enqueueReadImage(
                     in nsIVariant                            image,          // IWebCLImage
                     in nsIVariant                            blockingRead,   // CLboolean
                     in nsIVariant                            origin,         // CLuint[2]
@@ -120,7 +120,7 @@ interface IWebCLCommandQueue : nsISupports
 
   void enqueueWriteBufferRect(
                     in nsIVariant                            buffer,
-                    in nsIVariant                             blockingWrite,
+                    in nsIVariant                            blockingWrite,
                     in nsIVariant                            bufferOrigin,
                     in nsIVariant                            hostOrigin,
                     in nsIVariant                            region,
@@ -143,7 +143,7 @@ interface IWebCLCommandQueue : nsISupports
                     [optional] in IWebCLEvent                event);
 
   void enqueueNDRangeKernel(
-                    in IWebCLKernel                          kernel,
+                    in nsIVariant                            kernel,
                     in nsIVariant                            workDim,
                     in nsIVariant                            globalWorkOffset,
                     in nsIVariant                            globalWorkSize,
