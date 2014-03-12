@@ -91,7 +91,8 @@
       return e;
     }
 
-    var name = "WEBCL_IMPLEMENTATION_FAILURE", msg = "";
+    var name = "WEBCL_IMPLEMENTATION_FAILURE";
+    var message = "";
 
     try {
       var re = /\'WEBCLEXCEPTION\:([\w=]*)\'.*/.exec(e.message);
@@ -618,33 +619,6 @@
     this._name = "WebCLImage";
   }
   _Image.prototype = Object.create (_MemoryObject.prototype);
-/*
-  _Image.prototype.getInfo = function (name)
-  {
-    if (name === undefined || 
-        name === WebCL.MEM_TYPE || 
-        name === WebCL.MEM_FLAGS ||
-        name === WebCL.MEM_CONTEXT ||
-        name === WebCL.MEM_ASSOCIATED_MEMOBJECT ||
-        name === WebCL.MEM_OFFSET)
-    {
-      try
-      {
-        _validateInternal (this);
-        var rv = this._internal.getInfo (name);
-        return _wrapInternalObject (rv);
-      }
-      catch (e)
-      {
-        throw _wrapException (e, this._name+".getInfo");
-      }
-    }
-    else
-    {
-      throw new WebCLException ("INVALID_VALUE", "invalid query enum '"+name+"'", "WebCLImage.getInfo");
-    }
-  };
-*/
 
 
 
@@ -867,6 +841,7 @@
 
   function _createImageDescriptorInstance (obj)
   {
+    // NOTE: _lookForExistingWrapperInstance handles object validation.
     var wrapper = _lookForExistingWrapperInstance(obj);
     if (!wrapper)
     {
