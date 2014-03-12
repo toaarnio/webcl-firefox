@@ -388,7 +388,6 @@ function convertCLException (e)
 
 function getNumChannels(descriptor)
 {
-  DEBUG("getNumChannels: channelOrder = " + descriptor.channelOrder);
   switch (descriptor.channelOrder)
   {
   case ocl_const.CL_R:
@@ -413,7 +412,6 @@ function getNumChannels(descriptor)
     return 4;
 
   default:
-    DEBUG("getNumChannels: unknown channelOrder = " + descriptor.channelOrder);
     return undefined;
   };
 }
@@ -483,8 +481,6 @@ function validateWrappedOrInternal (obj, type)
 
 function validateClassName (obj, name)
 {
-  DEBUG("validateClassName: obj.classDescription = " + obj.classDescription);
-  DEBUG("validateClassName: expecting obj.classDescription = [WebCL]" + name);
   return (obj && (obj.classDescription === name || obj.classDescription === "WebCL"+name));
 }
 
