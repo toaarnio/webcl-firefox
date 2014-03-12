@@ -37,6 +37,8 @@ var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLEvent;1";
 
 function Event ()
 {
+  TRACE (this, "Event", arguments);
+
   if (!(this instanceof Event)) return new Event ();
 
   Base.apply(this);

@@ -386,6 +386,73 @@ function convertCLException (e)
   }
 }
 
+function getNumChannels(descriptor)
+{
+  DEBUG("getNumChannels: channelOrder = " + descriptor.channelOrder);
+  switch (descriptor.channelOrder)
+  {
+  case ocl_const.CL_R:
+  case ocl_const.CL_A:
+  case ocl_const.CL_INTENSITY:
+  case ocl_const.CL_LUMINANCE:
+    return 1;
+
+  case ocl_const.CL_Rx:
+  case ocl_const.CL_RG:
+  case ocl_const.CL_RA:
+    return 2;
+
+  case ocl_const.CL_RGx:
+  case ocl_const.CL_RGB:
+    return 3;
+
+  case ocl_const.CL_RGBx:
+  case ocl_const.CL_RGBA:
+  case ocl_const.CL_ARGB:
+  case ocl_const.CL_BGRA:
+    return 4;
+
+  default:
+    DEBUG("getNumChannels: unknown channelOrder = " + descriptor.channelOrder);
+    return undefined;
+  };
+}
+
+function getBytesPerPixel(descriptor)
+{
+  var numChannels = getNumChannels(descriptor);
+
+  switch (descriptor.channelType)
+  {
+  case ocl_const.CL_SNORM_INT8:
+  case ocl_const.CL_UNORM_INT8:
+  case ocl_const.CL_SIGNED_INT8:
+  case ocl_const.CL_UNSIGNED_INT8:
+    return 1 * numChannels;
+
+  case ocl_const.CL_SNORM_INT16:
+  case ocl_const.CL_UNORM_INT16:
+  case ocl_const.CL_SIGNED_INT16:
+  case ocl_const.CL_UNSIGNED_INT16:
+  case ocl_const.CL_HALF_FLOAT:
+    return 2 * numChannels;
+
+  case ocl_const.CL_SIGNED_INT32:
+  case ocl_const.CL_UNSIGNED_INT32:
+  case ocl_const.CL_FLOAT:
+    return 4 * numChannels;
+
+  case ocl_const.CL_UNORM_SHORT_565:
+  case ocl_const.CL_UNORM_SHORT_555:
+    return 2;
+
+  case ocl_const.CL_UNORM_INT_101010:
+    return 4;
+
+  default:
+    return undefined;
+  };
+}
 
 function validatePlatform (obj)  { return validateWrappedOrInternal(obj, Platform) && validateClassName(obj, "Platform"); }
 function validateDevice (obj)    { return validateWrappedOrInternal(obj, Device) && validateClassName(obj, "Device"); }
@@ -469,7 +536,7 @@ function validateNumber (n)
 
 function validateObject (o)
 {
-  return (typeof(o) === 'object') && (o !== null);
+  return (o !== null) && (typeof(o) === 'object');
 }
 
 function validateString (str)
@@ -509,6 +576,22 @@ function validateBuildOptions (options, validOptions)
   return true;
 }
 
+function validateImageFormat (descriptor)
+{
+  return (getBytesPerPixel(descriptor) !== undefined);
+}
+
+function validateImageChannelOrder (descriptor)
+{
+  return (getNumChannels(descriptor) !== undefined);
+}
+
+function validateImageChannelType (descriptor)
+{
+  descriptor.channelOrder = ocl_const.CL_RGBA;
+  return (getBytesPerPixel(descriptor) !== undefined)
+}
+
 
 var webclutils = {
   getPref_allowed:              getPref_allowed,
@@ -531,6 +614,9 @@ var webclutils = {
   unwrapInternal:               unwrapInternal,
   convertCLException:           convertCLException,
 
+  getNumChannels:               getNumChannels,
+  getBytesPerPixel:             getBytesPerPixel,
+
   validatePlatform:             validatePlatform,
   validateDevice:               validateDevice,
   validateContext:              validateContext,
@@ -552,4 +638,7 @@ var webclutils = {
   validateBitfield:             validateBitfield,
   validateMemFlags:             validateMemFlags,
   validateBuildOptions:         validateBuildOptions,
+  validateImageFormat:          validateImageFormat,
+  validateImageChannelOrder:    validateImageChannelOrder,
+  validateImageChannelType:     validateImageChannelType,
 };

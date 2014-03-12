@@ -165,7 +165,7 @@
       if (obj instanceof _Sampler) return obj._internal;
       if (obj instanceof _Event) return obj._internal;
       if (obj instanceof _UserEvent) return obj._internal;
-      if (obj instanceof _ImageDescriptor) return obj._internal;
+      if (obj instanceof _ImageDescriptor) return obj;  // NOTE: no unwrapping
 
       // NOTE: We may get objects that contain _Base instances as properties,
       //       that would need unwrapping. Simple object cloning won't do since
@@ -639,10 +639,7 @@
   function _Event (internal) {
     if (!(this instanceof _Event)) return;
 
-    if (!internal)
-    {
-      internal = new _NokiaWebCLEvent ();
-    }
+    internal = internal || new _NokiaWebCLEvent ();
 
     _Base.call (this, internal);
 
@@ -672,18 +669,22 @@
   function _ImageDescriptor (internal) {
     if (!(this instanceof _ImageDescriptor)) return;
 
-    if (!internal)
-    {
-      internal = new _NokiaWebCLImageDescriptor ();
-    }
+    internal = internal || new _NokiaWebCLImageDescriptor ();
 
     _Base.call (this, internal);
 
     this._name = "WebCLImageDescriptor";
+
+    this.channelOrder = internal.channelOrder;
+    this.channelType = internal.channelType;
+    this.width = internal.width;
+    this.height = internal.height;
+    this.rowPitch = internal.rowPitch;
   }
   _ImageDescriptor.prototype = Object.create (_Base.prototype);
-  _ImageDescriptor.prototype.channelOrder = 0x10B5;
-  _ImageDescriptor.prototype.channelType = 0x10D2;
+
+  _ImageDescriptor.prototype.channelOrder = 0;
+  _ImageDescriptor.prototype.channelType = 0;
   _ImageDescriptor.prototype.width = 0;
   _ImageDescriptor.prototype.height = 0;
   _ImageDescriptor.prototype.rowPitch = 0;

@@ -17,6 +17,8 @@
 [scriptable, uuid(8f865901-2efb-422e-bb15-26e0beb0c845)]
 interface IWebCLImageDescriptor : nsISupports
 {
+  string getExternalIdentity ();
+
   attribute CLenum channelOrder;
   attribute CLenum channelType;
   attribute CLuint width;

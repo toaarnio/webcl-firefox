@@ -15,21 +15,29 @@
 #include "nsIVariant.idl"
 #include "interfaces/webcl_types.idl"
 
-
 [scriptable, uuid(0e5fba5c-091f-40db-a6a9-700ba50393d0)]
 interface IWebCLContext : nsISupports
 {
   string getExternalIdentity ();
   nsIVariant getManagedExternalIdentityList ();
 
-  nsIVariant createBuffer (in CLenum memFlags, in CLuint sizeInBytes, [optional] in nsIVariant hostPtr);
-  // NOTE: properties should not be CLenum or any invalid value is consumed by XPConnect.
+  // All arguments must be declared [optional], because otherwise a function call with no arguments
+  // gets silently rejected by XPCOM, after which the client wrapper can only throw an uninformative
+  // WEBCL_IMPLEMENTATION_FAILURE.
+
+  // Numeric types should be declared as nsIVariant rather than CLuint or similar.  Otherwise, any
+  // non-numeric inputs will get silently converted to zero by XPCOM, after which the implementation
+  // can no longer distinguish invalid or omitted arguments from zero.  Even if zero is also treated
+  // as an invalid argument, it's still useful to pass the original input to the implementation, for
+  // better error reporting.
+
+  nsIVariant createBuffer ([optional] in nsIVariant memFlags, [optional] in nsIVariant sizeInBytes, [optional] in nsIVariant hostPtr);
   nsIVariant createCommandQueue ([optional] in nsIVariant device, [optional] in nsIVariant properties);
-  nsIVariant createImage (in CLenum memFlags, in nsIVariant descriptor, [optional] in nsIVariant hostPtr);
-  nsIVariant createProgram (in string source);
-  nsIVariant createSampler (in CLboolean normalizedCoords, in CLenum addressingMode, in CLenum filterMode);
+  nsIVariant createImage ([optional] in nsIVariant memFlags, [optional] in nsIVariant descriptor, [optional] in nsIVariant hostPtr);
+  nsIVariant createProgram ([optional] in nsIVariant source);
+  nsIVariant createSampler ([optional] in nsIVariant normalizedCoords, [optional] in nsIVariant addressingMode, [optional] in nsIVariant filterMode);
   nsIVariant createUserEvent ();
-  nsIVariant getInfo ([optional] in CLenum name);
+  nsIVariant getInfo ([optional] in nsIVariant name);
   nsIVariant getSupportedImageFormats ([optional] in nsIVariant memFlags);
   void release ();
   void releaseAll ();
