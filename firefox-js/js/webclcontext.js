@@ -88,6 +88,9 @@ Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 
   try
   {
+    if (!webclutils.validateNumber(memFlags) || !webclutils.validateMemFlags(memFlags))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'memFlags' must be a valid CLenum; was " + memFlags, "WebCLContext.createBuffer");
+
     var clBuffer = this._internal.createBuffer (memFlags, sizeInBytes, hostPtr);
     return this._wrapInternal (clBuffer, this);
   }
@@ -170,16 +173,25 @@ Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
 
   try
   {
+    if (!webclutils.validateNumber(memFlags) || !webclutils.validateMemFlags(memFlags))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'memFlags' must be a valid CLenum; was " + memFlags);
+
+    if (!webclutils.validateNumber(descriptor.width) || descriptor.width <= 0)
+      throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.width' must be > 0; was " + descriptor.width);
+
+    if (!webclutils.validateNumber(descriptor.height) || descriptor.height <= 0)
+      throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.height' must be > 0; was " + descriptor.height);
+
+    if (descriptor.rowPitch !== undefined && (!webclutils.validateNumber(descriptor.rowPitch) || descriptor.rowPitch < 0))
+      throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.rowPitch' must be >= 0; was " + descriptor.rowPitch);
+
+    if (descriptor.rowPitch !== undefined && hostPtr === null && descriptor.rowPitch !== 0)
+      throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.rowPitch' must be zero if 'hostPtr' is null; was " + descriptor.rowPitch);
+
     var clImageFormat = this._unwrapInternalOrNull (descriptor);
 
     if (clImageFormat == null)
     {
-      if (descriptor.width === undefined || isNaN(+descriptor.width)
-          || descriptor.height === undefined || isNaN(+descriptor.height))
-      {
-        throw new CLInvalidArgument ("descriptor");
-      }
-
       clImageFormat = {
         width:        descriptor.width,
         height:       descriptor.height,
@@ -214,11 +226,8 @@ Context.prototype.createProgram = function (source)
 
   try
   {
-    if (!source || typeof (source) != "string")
-    {
-      //throw new Exception ("Context.createProgram: Invalid argument: source.");  // TODO
-      throw new CLInvalidArgument ("source");
-    }
+    if (!webclutils.validateString(source))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'source' must be a non-empty string; was " + source, "WebCLContext.createProgram");
 
     var clProgram = this._internal.createProgramWithSource (source);
     return this._wrapInternal (clProgram, this);

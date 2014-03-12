@@ -85,18 +85,26 @@ Event.prototype.getInfo = function (name)
     {
     case ocl_info.CL_EVENT_COMMAND_TYPE:
     case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
-      return this._internal.getInfo (name);
-
     case ocl_info.CL_EVENT_CONTEXT:
-      var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner._owner);
+    case ocl_info.CL_EVENT_COMMAND_QUEUE:
+      break;
+    default:
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLEvent.getInfo");
+    }
 
+    if (!this._internal)
+      return -1;
+
+    switch (name)
+    {
+    case ocl_info.CL_EVENT_COMMAND_TYPE:
+    case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
     case ocl_info.CL_EVENT_COMMAND_QUEUE:
       var clInfoItem = this._internal.getInfo (name);
       return this._wrapInternal (clInfoItem);
-
-    default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLEvent.getInfo");
+    case ocl_info.CL_EVENT_CONTEXT:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem, this._owner._owner);
     }
   }
   catch (e)

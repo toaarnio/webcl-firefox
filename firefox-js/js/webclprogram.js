@@ -173,7 +173,7 @@ Program.prototype.build = function (devices, options, whenFinished)
   try
   {
     if (devices !== null && (!Array.isArray(devices) || devices.length === 0))
-      throw new CLInvalidArgument("devices", "'devices' must be null or an Array with at least one element; was " + devices);
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "devices", "'devices' must be null or an Array with at least one element; was " + devices);
 
     if (devices !== null && !webclutils.validateArray(devices, webclutils.validateDevice))
       throw new CLError(ocl_errors.CL_INVALID_DEVICE, "'devices' must only contain instances of WebCLDevice; was " + devices);
@@ -185,7 +185,7 @@ Program.prototype.build = function (devices, options, whenFinished)
       throw new CLError(ocl_errors.CL_INVALID_BUILD_OPTIONS, "invalid build options '"+options+"'");
 
     if (whenFinished !== null && typeof(whenFinished) !== "function")
-      throw new CLInvalidArgument("whenFinished", "'whenFinished' must be null or a function; was " + whenFinished);
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'whenFinished' must be null or a WebCLCallback function; was " + whenFinished);
 
     for (var i=0; devices !== null && i < devices.length; i++)
       devices[i] = this._unwrapInternalOrNull(devices[i]);

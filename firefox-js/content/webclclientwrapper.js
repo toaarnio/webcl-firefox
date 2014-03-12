@@ -102,39 +102,41 @@
         {
           switch (exData.type)
           {
-            case "cl":
-              name = exData.name;
-              msg = exData.message;
-              break;
+          case "cl":
+            name = exData.name;
+            message = exData.message;
+            break;
 
-            case "internal":
-              name = "WEBCL_IMPLEMENTATION_FAILURE";
-              msg = (exData.message ? exData.message : "Internal error.");
-              break;
+          case "invalidargument":
+            name = "INVALID_ARGUMENT";
+            message = exData.message || "Invalid argument.";
+            break;
 
-            case "invalidargument":
-              name = "INVALID_VALUE";
-              msg = exData.message;
-              break;
+          case "notimplemented":
+            name = "WEBCL_IMPLEMENTATION_FAILURE";
+            message = exData.message || "Not implemented.";
+            break;
 
-            case "notimplemented":
-              name = "WEBCL_IMPLEMENTATION_FAILURE";
-              msg = exData.message;
-              break;
+          case "internal":
+            name = "WEBCL_IMPLEMENTATION_FAILURE";
+            message = exData.message || "Internal error.";
+            break;
 
-            case "invalidobject":
-              name = "INVALID_VALUE";
-              msg = "Invalid/released object.";
-              break;
+          case "invalidobject":
+            name = "INVALID_OBJECT";
+            message = "Invalid/released object.";
+            break;
 
-            default:
-              throw "Invalid component exception type.";
+          default:
+            name = "INVALID_EXCEPTION";
+            message = "Unknown exception.";
+            break;
           }
         }
       }
     } catch (e2) { msg = "_wrapException: Failed to process exception: " + e2; }
 
-    return new _WebCLException (String(name), String(msg), String(ctx));
+    return new _WebCLException (String(name), String(message), String(ctx));
   };
 
   var _unwrapInternalObject = function (obj)
@@ -204,7 +206,7 @@
       else if (obj instanceof _ImageDescriptor) err = "INVALID_IMAGE_FORMAT_DESCRIPTOR";
       else err = "WEBCL_IMPLEMENTATION_FAILURE";
 
-      throw new _WebCLException (err, "Invalid internal object.");
+      throw new _WebCLException (err, "Invalid internal object: " + obj, "_validateInternal");
     }
   }
 
@@ -281,20 +283,15 @@
 
 
   // == WebCLException ===========================================================
-  function _WebCLException (name, msg, ctx) {
+  function _WebCLException (name, message, ctx) {
     this.name = name || "WEBCL_IMPLEMENTATION_FAILURE";
-    this.msg = msg || "Internal error.";
+    this.message = message;
     this.ctx = ctx;
-    this.message = "";
-    if (this.ctx) this.message += "[" + this.ctx + "] ";
-    if (this.name) this.message += (this.ctx ? " " : "") + this.name;
-    //if (this.msg) this.message += (this.name ? ": " : "") + this.msg;
   }
-  //_WebCLException.prototype = Object.create (DOMException.prototype);
 
   _WebCLException.prototype.toString = function ()
   {
-    return this.message;
+    return "[" + this.ctx + "] " + this.name + ": " + this.message;
   };
 
 

@@ -360,19 +360,21 @@ function convertCLException (e)
       // input is a generic exception, probably internal error.
       LOG ("convertCLException: Error ("+s+")");
       exData.type = "internal";
+      exData.message = e.name + ": " + e.message + " [" + e.fileName + ": line " + e.lineNumber + "]";
     }
     else if (e instanceof Exception)
     {
       // input is an XPCOM exception, probably internal error
       LOG ("convertCLException: Exception ("+s+")");
       exData.type = "internal";
-      exData.msg = e.message;
+      exData.message = e.name + ": " + e.message + " [" + e.fileName + ": line " + e.lineNumber + "]";
     }
     else
     {
       // Unexpected: input is something else, probably internal error
-      LOG ("convertCLException: Unknown object ("+s+")");
+      LOG ("convertCLException: Unknown error ("+s+")");
       exData.type = "internal";
+      exData.message = e.name + ": " + e.message + " [" + e.fileName + ": line " + e.lineNumber + "]";
     }
 
     return "WEBCLEXCEPTION:" + btoa(JSON.stringify(exData));

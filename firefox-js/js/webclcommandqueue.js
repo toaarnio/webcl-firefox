@@ -436,10 +436,10 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
     if (!webclutils.validateImage(image))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "image must be a valid WebCLImage object; was " + image, null);
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "'image' must be a valid WebCLImage object; was " + image, null);
 
     if (!webclutils.validateBoolean(blockingRead))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "blockingRead must be a boolean; was " + blockingRead, null);
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead, null);
 
     var descriptor = image.getInfo();
     var width = descriptor.width;
@@ -448,44 +448,50 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     var numChannels = 4;                   // TODO support formats other than RGBA
     var bytesPerPixel = numChannels * 1;   // TODO support other than one-byte-per-color formats
 
+    if (descriptor.channelOrder !== ocl_const.CL_RGBA)
+      throw new CLNotImplemented("'image' must have channelOrder === RGBA, other formats are not yet implemented.");
+
+    if (descriptor.channelType !== ocl_const.CL_UNORM_INT8)
+      throw new CLNotImplemented("'image' must have channelType === UNORM_INT8, other formats are not yet implemented.");
+
     if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
-      throw new CLInvalidArgument("origin", "origin must be an Array with exactly two elements");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'origin' must be an Array with exactly two elements; was " + origin);
 
     if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 2; }))
-      throw new CLInvalidArgument("region", "region must be an Array with exactly two elements");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'region' must be an Array with exactly two elements; was " + region);
 
     if (!webclutils.validateArray(origin, webclutils.validateNumber))
-      throw new CLInvalidArgument("origin", "origin must be an Array with elements of type 'number'");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'origin' must be an Array with elements of type 'number'");
 
     if (!webclutils.validateArray(region, webclutils.validateNumber))
-      throw new CLInvalidArgument("region", "region must be an Array with elements of type 'number'");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'region' must be an Array with elements of type 'number'");
 
     if (!webclutils.validateArray(origin, function(v) { return v >= 0; }))
-      throw new CLInvalidArgument("origin", "all elements of origin must be non-negative");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "all elements of 'origin' must be non-negative");
 
     if (!webclutils.validateArray(region, function(v) { return v >= 0; }))
-      throw new CLInvalidArgument("origin", "all elements of region must be non-negative");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "all elements of 'region' must be non-negative");
 
     if (!(webclutils.validateNumber(hostRowPitch) && ((hostRowPitch & 0x80000000) === 0)))
-      throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must be non-negative and less than 2^31");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostRowPitch' must be non-negative and less than 2^31");
 
     if (!webclutils.validateArrayBufferView(hostPtr)) 
-      throw new CLInvalidArgument("hostPtr", "hostPtr must be an instance of ArrayBufferView, was '" + hostPtr + "'");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostPtr' must be an instance of ArrayBufferView, was " + hostPtr);
 
     if (origin[0] + region[0] > width || origin[1] + region[1] > height)
-      throw new CLInvalidArgument("region", "area specified by origin and region must fit inside image");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "area specified by 'origin' and 'region' must fit inside image");
 
     if (hostRowPitch !== 0 && hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0)
-      throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must be zero or a multiple of hostPtr.BYTES_PER_ELEMENT");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostRowPitch' must be zero or a multiple of hostPtr.BYTES_PER_ELEMENT");
 
     if (hostRowPitch !== 0 && hostRowPitch < rowPitch)
-      throw new CLInvalidArgument("hostRowPitch", "hostRowPitch must not be less than image.getInfo().rowPitch");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostRowPitch' must not be less than image.getInfo().rowPitch");
 
     if (hostRowPitch === 0 && region[0]*region[1]*numChannels > hostPtr.length)
-      throw new CLInvalidArgument("region", "region[0] * region[1] * numChannels must not be greater than hostPtr.length");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "region[0] * region[1] * numChannels must not be greater than hostPtr.length");
 
     if (hostRowPitch !== 0 && hostRowPitch*region[1] > hostPtr.byteLength)
-      throw new CLInvalidArgument("region", "hostRowPitch * region[1] must not be greater than hostPtr.byteLength");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "region", "hostRowPitch * region[1] must not be greater than hostPtr.byteLength");
 
     var clImage = this._unwrapInternalOrNull (image);
 
