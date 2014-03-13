@@ -20,16 +20,19 @@ const Cu = Components.utils;
 
 
 Cu.import ("resource://gre/modules/Services.jsm");
+Cu.import ("resource://nrcwebcl/modules/common.jsm");
 
 
-var gEnableLog =   true;
+var gEnableLog =   false;
 var gEnableDebug = false;
 var gEnableTrace = false;
+var gEnableOSConsole = false;
+var gOSConsoleSupported = false;
 
 try { gEnableLog =   Services.prefs.getBoolPref ("extensions.webcl.log"); } catch (e) {}
 try { gEnableDebug = Services.prefs.getBoolPref ("extensions.webcl.debug"); } catch (e) {}
 try { gEnableTrace = Services.prefs.getBoolPref ("extensions.webcl.trace"); } catch (e) {}
-
+try { gEnableOSConsole = Services.prefs.getBoolPref ("extensions.webcl.os-console-output"); } catch (e) {}
 
 function LogObserver ()
 {
@@ -50,6 +53,9 @@ LogObserver.prototype.observe = function (subject, topic, data)
       case "extensions.webcl.trace":
         try { gEnableTrace = Services.prefs.getBoolPref (data); } catch (e) {}
         break;
+      case "extensions.webcl.os-console-output":
+        try { gEnableOSConsole = Services.prefs.getBoolPref (data); } catch (e) {}
+        break;
     }
   }
 };
@@ -62,6 +68,9 @@ function INFO (msg, prefix)
 {
   prefix = prefix || "WEBCL INFO: ";
   Services.console.logStringMessage (prefix + msg);
+
+  if (gOSConsoleSupported && gEnableOSConsole) 
+    PUTS(prefix + msg);
 }
 
 function LOG (msg, prefix)
@@ -70,6 +79,9 @@ function LOG (msg, prefix)
 
   prefix = prefix || "WEBCL: ";
   Services.console.logStringMessage (prefix + msg);
+
+  if (gOSConsoleSupported && gEnableOSConsole) 
+    PUTS(prefix + msg);
 }
 
 function ERROR (msg, prefix)
@@ -84,6 +96,54 @@ function DEBUG (msg, prefix)
 
   prefix = prefix || "WEBCL DBG: ";
   Services.console.logStringMessage (prefix + msg);
+
+  if (gOSConsoleSupported && gEnableOSConsole) 
+    PUTS(prefix + msg);
+}
+
+function TRACE (ctx, name, args, prefix) {
+  if (!gEnableTrace) return;
+
+  switch (typeof(ctx))
+  {
+    case "object":
+      if (ctx.wrappedJSObject) ctx = ctx.wrappedJSObject;
+
+      if (ctx.classDescription)
+      {
+        ctx = "[object "+ctx.classDescription+"]";
+      }
+      else
+      {
+        ctx = String(ctx);
+      }
+      break;
+
+    default:
+      ctx = String(ctx);
+      break;
+  }
+
+  try {
+    args = Array.prototype.slice.apply (args);
+  } catch(e) {}
+
+  if (Array.isArray(args))
+  {
+    args = TRACE_processArgs (args);
+  }
+  else
+  {
+    args = [];
+  }
+
+  prefix = prefix || "WEBCLTRACE: ";
+  var msg = ctx + "." + name + "(" + args.join(",") + ")";
+
+  Services.console.logStringMessage (prefix + msg);
+
+  if (gOSConsoleSupported && gEnableOSConsole) 
+    PUTS(prefix + msg);
 }
 
 
@@ -132,49 +192,6 @@ function TRACE_processArgs (args)
   return a;
 }
 
-function TRACE (ctx, name, args, prefix) {
-  if (!gEnableTrace) return;
-
-  switch (typeof(ctx))
-  {
-    case "object":
-      if (ctx.wrappedJSObject) ctx = ctx.wrappedJSObject;
-
-      if (ctx.classDescription)
-      {
-        ctx = "[object "+ctx.classDescription+"]";
-      }
-      else
-      {
-        ctx = String(ctx);
-      }
-      break;
-
-    default:
-      ctx = String(ctx);
-      break;
-  }
-
-  try {
-    args = Array.prototype.slice.apply (args);
-  } catch(e) {}
-
-  if (Array.isArray(args))
-  {
-    args = TRACE_processArgs (args);
-  }
-  else
-  {
-    args = [];
-  }
-
-  prefix = prefix || "WEBCLTRACE: ";
-  var msg = ctx + "." + name + "(" + args.join(",") + ")";
-
-  Services.console.logStringMessage (prefix + msg);
-}
-
-
 function EXCEPTIONSTR (e)
 {
   var s = "";
@@ -191,13 +208,24 @@ function EXCEPTIONSTR (e)
   return s;
 }
 
-
-/*
 Cu.import ("resource://gre/modules/ctypes.jsm");
-var libc = ctypes.open("libc.so.6");
-var puts = libc.declare("puts", ctypes.default_abi, ctypes.int, ctypes.char.ptr);
-var abort = libc.declare("abort", ctypes.default_abi, ctypes.void_t);
-*/
+try {
+  var libc = ctypes.open("libc.so.6");
+  gOSConsoleSupported = true;
+} catch (e) {
+  try {
+    var libc = ctypes.open("libc.dylib");
+    gOSConsoleSupported = true;
+  } catch (e2) {
+    ERROR("OS Console Logging not available: Could not load 'libc.so.6' or 'libc.dylib'.");
+    gOSConsoleSupported = false;
+  }
+}
+
+if (gOSConsoleSupported) {
+  var puts = libc.declare("puts", ctypes.default_abi, ctypes.int, ctypes.char.ptr);
+  var abort = libc.declare("abort", ctypes.default_abi, ctypes.void_t);
+}
 
 function PUTS (msg)
 {
