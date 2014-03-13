@@ -11,8 +11,5 @@ pref("extensions.webcl.opencllib", "");
 pref("extensions.webcl.log", false);
 pref("extensions.webcl.debug", false);
 pref("extensions.webcl.trace", false);
+pref("extensions.webcl.os-console-output", false);
 
-// Select API mode
-//                   "": Default API
-//   "deprecated-1.0.3": Emulate old Nokia WebCL API
-/*pref("extensions.webcl.api-mode", "");*/
