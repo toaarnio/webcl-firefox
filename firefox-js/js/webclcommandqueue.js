@@ -803,9 +803,6 @@ CommandQueue.prototype.flush = function ()
 };
 
 
-// getInfo(QUEUE_CONTEXT)._owner == this._owner._owner == [WebCL]
-// getInfo(QUEUE_DEVICE)._owner == this._owner._owner == [WebCL]
-//
 CommandQueue.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -820,10 +817,9 @@ CommandQueue.prototype.getInfo = function (name)
     {
     case ocl_info.CL_QUEUE_CONTEXT:
     case ocl_info.CL_QUEUE_DEVICE:
-      var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner._owner);
     case ocl_info.CL_QUEUE_PROPERTIES:
-      return this._internal.getInfo (name);
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem);
     default:
       throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLCommandQueue.getInfo");
     }

@@ -69,8 +69,6 @@ Sampler.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLSampler,
 //------------------------------------------------------------------------------
 // IWebCLSampler
 
-// getInfo(SAMPLER_CONTEXT)._owner == this._owner._owner == [WebCL]
-//
 Sampler.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -86,11 +84,9 @@ Sampler.prototype.getInfo = function (name)
     case ocl_info.CL_SAMPLER_NORMALIZED_COORDS:
     case ocl_info.CL_SAMPLER_ADDRESSING_MODE:
     case ocl_info.CL_SAMPLER_FILTER_MODE:
-      return this._internal.getInfo (name);
-
     case ocl_info.CL_SAMPLER_CONTEXT:
       var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner._owner);
+      return this._wrapInternal (clInfoItem);
 
     default:
       throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLSampler.getInfo");

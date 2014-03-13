@@ -65,9 +65,6 @@ MemoryObject.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLMemo
 //------------------------------------------------------------------------------
 // IWebCLMemoryObject
 
-// getInfo(MEM_CONTEXT)._owner == this._owner._owner == [WebCL]
-// getInfo(MEM_ASSOCIATED_MEMOBJECT)._owner == this._owner == [WebCLContext]
-//
 MemoryObject.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -84,12 +81,7 @@ MemoryObject.prototype.getInfo = function (name)
     case ocl_info.CL_MEM_FLAGS:
     case ocl_info.CL_MEM_SIZE:
     case ocl_info.CL_MEM_OFFSET:
-      return this._internal.getInfo (name);
-
     case ocl_info.CL_MEM_CONTEXT:
-      var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner._owner);
-
     case ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT:
       var clInfoItem = this._internal.getInfo (name);
       return this._wrapInternal (clInfoItem);
@@ -139,6 +131,7 @@ Buffer.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLBuffer,
                                                            ]);
 
 
+// TODO: Who's the owner of buffer.createSubBuffer().createSubBuffer()?
 // createSubBuffer()._owner == this._owner == [WebCLContext]
 //
 Buffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
@@ -189,8 +182,6 @@ Image.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLImage,
                                                           ]);
 
 
-// getInfo(MEM_CONTEXT)._owner == this._owner._owner == [WebCL]
-//
 Image.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -225,14 +216,12 @@ Image.prototype.getInfo = function (name)
     case ocl_info.CL_MEM_TYPE:
     case ocl_info.CL_MEM_FLAGS:
     case ocl_info.CL_MEM_SIZE:
-      return this._internal.getInfo (name);
+    case ocl_info.CL_MEM_CONTEXT:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem);
       
     case ocl_info.CL_MEM_OFFSET:
       return 0;
-      
-    case ocl_info.CL_MEM_CONTEXT:
-      var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner._owner);
       
     case ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT:
       return null;

@@ -288,7 +288,10 @@ Kernel.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
+  DEBUG( "Calling clReleaseKernel with this._internal = " + this._internal);
   var err = this._lib.clReleaseKernel (this._internal);
+  DEBUG( "clReleaseKernel completed with error code = " + err);
+  
   if (err) throw new CLError (err, null, "Kernel.release");
 };
 

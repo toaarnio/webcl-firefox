@@ -70,9 +70,6 @@ Event.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLEvent,
 //------------------------------------------------------------------------------
 // IWebCLEvent
 
-// getInfo(EVENT_CONTEXT)._owner == this._owner._owner == [WebCL]
-// getInfo(EVENT_COMMAND_QUEUE)._owner == this._owner == [WebCLContext]
-//
 Event.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -102,11 +99,9 @@ Event.prototype.getInfo = function (name)
     case ocl_info.CL_EVENT_COMMAND_TYPE:
     case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
     case ocl_info.CL_EVENT_COMMAND_QUEUE:
-      var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem);
     case ocl_info.CL_EVENT_CONTEXT:
       var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner._owner);
+      return this._wrapInternal (clInfoItem);
     }
   }
   catch (e)
@@ -133,7 +128,8 @@ Event.prototype.getProfilingInfo = function (name)
     case ocl_info.CL_PROFILING_COMMAND_SUBMIT:
     case ocl_info.CL_PROFILING_COMMAND_START:
     case ocl_info.CL_PROFILING_COMMAND_END:
-      return this._internal.getInfo (name);
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem);
 
     default:
       throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLEvent.getProfilingInfo");

@@ -359,7 +359,6 @@ Context.prototype.getInfo = function (name)
     switch (name)
     {
     case ocl_info.CL_CONTEXT_NUM_DEVICES:
-      return this._internal.getInfo (name);
     case ocl_info.CL_CONTEXT_DEVICES:
       var clInfoItem = this._internal.getInfo (name);
       return this._wrapInternal (clInfoItem);

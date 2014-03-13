@@ -68,9 +68,6 @@ Kernel.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLKernel,
 //------------------------------------------------------------------------------
 // IWebCLKernel
 
-// getInfo(KERNEL_CONTEXT)._owner == this._owner._owner == [WebCL]
-// getInfo(KERNEL_PROGRAM)._owner == this._owner == [WebCLContext]
-//
 Kernel.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -85,15 +82,10 @@ Kernel.prototype.getInfo = function (name)
     {
     case ocl_info.CL_KERNEL_FUNCTION_NAME:
     case ocl_info.CL_KERNEL_NUM_ARGS:
-      return this._internal.getInfo (name);
-
     case ocl_info.CL_KERNEL_CONTEXT:
-      var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner._owner);
-
     case ocl_info.CL_KERNEL_PROGRAM:
       var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner);
+      return this._wrapInternal (clInfoItem);
 
     default:
       throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLKernel.getInfo");
@@ -126,7 +118,7 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
     case ocl_info.CL_KERNEL_PRIVATE_MEM_SIZE:
       var clDevice = this._unwrapInternalOrNull (device);
       var clInfoItem = this._internal.getWorkGroupInfo (clDevice, name);
-      return clInfoItem;
+      return this._wrapInternal (clInfoItem);
 
     default:
       throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLKernel.getWorkGroupInfo");

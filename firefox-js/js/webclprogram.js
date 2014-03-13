@@ -71,9 +71,6 @@ Program.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLProgram,
 //------------------------------------------------------------------------------
 // IWebCLProgram
 
-// getInfo(PROGRAM_CONTEXT)._owner == this._owner._owner == [WebCL]
-// getInfo(PROGRAM_DEVICES)._owner == this._owner._owner == [WebCL]
-//
 Program.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
@@ -88,12 +85,10 @@ Program.prototype.getInfo = function (name)
     {
     case ocl_info.CL_PROGRAM_NUM_DEVICES:
     case ocl_info.CL_PROGRAM_SOURCE:
-      return this._internal.getInfo (name);
-
     case ocl_info.CL_PROGRAM_CONTEXT:
     case ocl_info.CL_PROGRAM_DEVICES:
       var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem, this._owner._owner);
+      return this._wrapInternal (clInfoItem);
 
     default:
       throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLProgram.getInfo");
@@ -127,7 +122,7 @@ Program.prototype.getBuildInfo = function (device, name)
     case ocl_info.CL_PROGRAM_BUILD_LOG:
       var clDevice = this._unwrapInternalOrNull (device);
       var clInfoItem = this._internal.getBuildInfo (clDevice, name);
-      return clInfoItem;
+      return this._wrapInternal (clInfoItem);
 
     default:
       throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLProgram.getBuildInfo");
