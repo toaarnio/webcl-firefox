@@ -444,7 +444,7 @@ WebCL.prototype.showSecurityPrompt = function ()
     try
     {
       var response = prompter.confirmCheck (title, msg,
-                                            "Remember this settings.",
+                                            "Remember this setting.",
                                             makePermanent);
 
       this._usePermitted = !!response;
