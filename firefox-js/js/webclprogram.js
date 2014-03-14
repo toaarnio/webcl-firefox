@@ -55,12 +55,14 @@ function Program ()
                        Ci.nsIClassInfo,
                        Ci.nsISupports
                      ];
+
+  this._objectRegistry = {};
 }
 
 
 Program.prototype = Object.create (Base.prototype);
 
-addMixin (Context.prototype, OwnerMixin);
+addMixin (Program.prototype, OwnerMixin);
 
 
 Program.prototype.classDescription = CLASSNAME;
