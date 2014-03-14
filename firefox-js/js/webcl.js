@@ -452,7 +452,7 @@ WebCL.prototype.showSecurityPrompt = function ()
 
       if (makePermanent.value)
       {
-        setPref_allowed (1);
+        webclutils.setPref_allowed (response ? 1 : 0);
       }
     }
     catch (e)
