@@ -192,6 +192,27 @@ var OwnerMixin =
     this._objectRegistry = {};
   },
 
+  _releaseAllChildren: function ()
+  {
+    this._forEachRegistered (function (o)
+    {
+      if (o.wrappedJSObject) o = o.wrappedJSObject;
+      if ("releaseAll" in o)
+      {
+        o.releaseAll ();
+      }
+      else
+      {
+        while (o._getRefCount())
+        {
+          o._unregister ();
+          o.release ();
+        }
+      }
+    });
+
+  },
+
   getManagedExternalIdentityList: function ()
   {
     return _getManagedExternalIdentityListInternal (this, []);

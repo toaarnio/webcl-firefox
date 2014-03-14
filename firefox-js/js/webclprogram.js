@@ -27,6 +27,9 @@ Cu.import ("resource://nrcwebcl/modules/logger.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
+Cu.import ("resource://nrcwebcl/modules/mixins/owner.jsm");
+
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
@@ -56,6 +59,8 @@ function Program ()
 
 
 Program.prototype = Object.create (Base.prototype);
+
+addMixin (Context.prototype, OwnerMixin);
 
 
 Program.prototype.classDescription = CLASSNAME;
@@ -88,6 +93,7 @@ Program.prototype.getInfo = function (name)
     case ocl_info.CL_PROGRAM_CONTEXT:
     case ocl_info.CL_PROGRAM_DEVICES:
       var clInfoItem = this._internal.getInfo (name);
+      // Note: no need to acquire ownership
       return this._wrapInternal (clInfoItem);
 
     default:
@@ -122,6 +128,7 @@ Program.prototype.getBuildInfo = function (device, name)
     case ocl_info.CL_PROGRAM_BUILD_LOG:
       var clDevice = this._unwrapInternalOrNull (device);
       var clInfoItem = this._internal.getBuildInfo (clDevice, name);
+      // Note: no need to acquire ownership
       return this._wrapInternal (clInfoItem);
 
     default:
@@ -209,7 +216,10 @@ Program.prototype.createKernel = function (kernelName)
     if (!webclutils.validateString(kernelName))
       throw new CLError(ocl_errors.CL_INVALID_KERNEL_NAME, "'kernelName' must be a non-empty string; was " + kernelName);
 
-    return this._wrapInternal (this._internal.createKernel(kernelName));
+    // NOTE: Ensure proper memory management on certain platforms by acquiring
+    //       ownership of created kernels. This ensures that on releaseAll
+    //       kernel's will be released before program.
+    return this._wrapInternal (this._internal.createKernel(kernelName), this);
   }
   catch (e)
   {
@@ -228,7 +238,10 @@ Program.prototype.createKernelsInProgram = function ()
 
   try
   {
-    return this._wrapInternal (this._internal.createKernelsInProgram());
+    // NOTE: Ensure proper memory management on certain platforms by acquiring
+    //       ownership of created kernels. This ensures that on releaseAll
+    //       kernel's will be released before program.
+    return this._wrapInternal (this._internal.createKernelsInProgram(), this);
   }
   catch (e)
   {
@@ -237,6 +250,31 @@ Program.prototype.createKernelsInProgram = function ()
   }
 };
 
+
+// NOTE: NOT VISIBLE TO XPCOM!
+Program.prototype.releaseAll = function ()
+{
+  TRACE (this, "releaseAll", arguments);
+  if(!this._ensureValidObject ()) return;
+
+  try
+  {
+    this._releaseAllChildren ();
+
+    this._clearRegistry ();
+
+    while (this._getRefCount())
+    {
+      this._unregister ();
+      this.release ();
+    }
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
+};
 
 
 //------------------------------------------------------------------------------

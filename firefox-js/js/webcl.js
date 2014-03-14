@@ -380,22 +380,7 @@ WebCL.prototype.releaseAll = function ()
     // NOTE: No need to ensure use permitted, in fact it should NOT be done or
     //       we'll have unwanted permission prompts on page unload.
 
-    this._forEachRegistered (function (o)
-    {
-      if (o.wrappedJSObject) o = o.wrappedJSObject;
-      if ("releaseAll" in o)
-      {
-        o.releaseAll ();
-      }
-      else
-      {
-        while (o._getRefCount())
-        {
-          o._unregister ();
-          o.release ();
-        }
-      }
-    });
+    this._releaseAllChildren ();
 
     this._clearRegistry ();
   }

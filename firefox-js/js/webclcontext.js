@@ -416,22 +416,7 @@ Context.prototype.releaseAll = function ()
 
   try
   {
-    this._forEachRegistered (function (o)
-    {
-      if (o.wrappedJSObject) o = o.wrappedJSObject;
-      if ("releaseAll" in o)
-      {
-        o.releaseAll ();
-      }
-      else
-      {
-        while (o._getRefCount())
-        {
-          o._unregister ();
-          o.release ();
-        }
-      }
-    });
+    this._releaseAllChildren ();
 
     this._clearRegistry ();
 
