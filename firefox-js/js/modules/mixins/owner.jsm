@@ -203,11 +203,8 @@ var OwnerMixin =
       }
       else
       {
-        while (o._getRefCount())
-        {
-          o._unregister ();
-          o.release ();
-        }
+        //o._unregister ();
+        o.release ();
       }
     });
 

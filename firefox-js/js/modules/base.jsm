@@ -122,19 +122,10 @@ Base.prototype.release = function ()
     let doUnreg = false;
     let doRelease = false;
 
-    if (this._internal)
+    if (this._internal && "release" in this._internal)
     {
-      let cnt = this._getRefCount ();
-
-      if (cnt > 1)
-      {
-        this._internal.release ();
-      }
-      else if (cnt == 1)
-      {
-        doRelease = true;
-        doUnreg = true;
-      }
+      doRelease = true;
+      doUnreg = true;
     }
     else
     {

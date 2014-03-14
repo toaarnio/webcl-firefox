@@ -246,28 +246,6 @@ Image.prototype.getInfo = function (name)
 // Internal functions
 
 
-MemoryObject.prototype._getRefCount = function ()
-{
-  try
-  {
-    if (this._internal && !this._invalid)
-    {
-      return this._internal.getInfo (ocl_info.CL_MEM_REFERENCE_COUNT);
-    }
-    else
-    {
-      return 0;
-    }
-  }
-  catch (e)
-  {
-    try { ERROR(String(e)); }catch(e){}
-    throw webclutils.convertCLException (e);
-  }
-};
-
-
-
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([MemoryObject, Buffer, Image]);
 
 

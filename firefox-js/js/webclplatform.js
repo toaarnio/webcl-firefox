@@ -173,14 +173,6 @@ Platform.prototype.enableExtension = function (extensionName)
 // Internal functions
 
 
-Platform.prototype._getRefCount = function ()
-{
-  // WebCLPlatform doesn't support refcounting.
-  return 0;
-};
-
-
-
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Platform]);
 
 

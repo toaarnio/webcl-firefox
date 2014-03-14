@@ -420,11 +420,8 @@ Context.prototype.releaseAll = function ()
 
     this._clearRegistry ();
 
-    while (this._getRefCount())
-    {
-      this._unregister ();
-      this.release ();
-    }
+    //this._unregister ();
+    this.release ();
   }
   catch (e)
   {
@@ -436,28 +433,6 @@ Context.prototype.releaseAll = function ()
 
 //------------------------------------------------------------------------------
 // Internal functions
-
-
-Context.prototype._getRefCount = function ()
-{
-  try
-  {
-    if (this._internal && !this._invalid)
-    {
-      return this._internal.getInfo (ocl_info.CL_CONTEXT_REFERENCE_COUNT);
-    }
-    else
-    {
-      return 0;
-    }
-  }
-  catch (e)
-  {
-    try { ERROR(String(e)); }catch(e){}
-    throw webclutils.convertCLException (e);
-  }
-};
-
 
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Context]);

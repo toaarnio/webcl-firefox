@@ -53,11 +53,6 @@ function getExistingObjectIfAny (owner, value)
       obj = ownerWalk._findObjectByKey (key);
       if (obj)
       {
-        if ("retain" in value)
-        {
-          value.retain ();
-        }
-
         return obj;
       }
 

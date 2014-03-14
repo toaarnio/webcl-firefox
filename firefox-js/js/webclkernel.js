@@ -191,28 +191,6 @@ Kernel.prototype.setArg = function (index, value)
 // Internal functions
 
 
-Kernel.prototype._getRefCount = function ()
-{
-  try
-  {
-    if (this._internal && !this._invalid)
-    {
-      return this._internal.getInfo (ocl_info.CL_KERNEL_REFERENCE_COUNT);
-    }
-    else
-    {
-      return 0;
-    }
-  }
-  catch (e)
-  {
-    try { ERROR(String(e)); }catch(e){}
-    throw webclutils.convertCLException (e);
-  }
-};
-
-
-
 var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Kernel]);
 
 

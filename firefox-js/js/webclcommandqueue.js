@@ -837,27 +837,6 @@ CommandQueue.prototype.getInfo = function (name)
 // Internal functions
 
 
-CommandQueue.prototype._getRefCount = function ()
-{
-  try
-  {
-    if (this._internal && !this._invalid)
-    {
-      return this._internal.getInfo (ocl_info.CL_QUEUE_REFERENCE_COUNT);
-    }
-    else
-    {
-      return 0;
-    }
-  }
-  catch (e)
-  {
-    try { ERROR(String(e)); }catch(e){}
-    throw webclutils.convertCLException (e);
-  }
-};
-
-
 CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
 {
   if (!clEvent) return;
