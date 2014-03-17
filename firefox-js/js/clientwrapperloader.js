@@ -81,17 +81,6 @@ function handle_contentDocumentGlobalCreated (ctx, domWindow)
     loader.loadSubScript ("chrome://nrcwebcl/content/webclclientwrapper.js",
                           domWindow.wrappedJSObject);
 
-    try
-    {
-      if (Services.prefs.getCharPref ("extensions.webcl.api-mode") == "deprecated-1.0.3")
-      {
-        LOG ("Loading deprecated compatibilitity API.");
-        loader.loadSubScript ("chrome://nrcwebcl/content/webcldeprecatedclientwrapper.js",
-                              domWindow.wrappedJSObject);
-      }
-    }
-    catch (e) { }
-
     // Another option? https://developer.mozilla.org/en-US/docs/Components.utils.createObjectIn
   }
 }
