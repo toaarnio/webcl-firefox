@@ -584,7 +584,6 @@ function validateImageChannelOrder (descriptor)
 
 function validateImageChannelType (descriptor)
 {
-  descriptor.channelOrder = ocl_const.CL_RGBA;
   return (getBytesPerPixel(descriptor) !== undefined)
 }
 
