@@ -117,7 +117,7 @@ Device.prototype.getInfo = function (name)
       case ocl_info.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:
       case ocl_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE:
         rv = getInfo_plain (this._lib.clGetDeviceInfo, this._internal, name, T.cl_ulong).value;
-        rv = 0x100000000 * (rv.hi & 0xfffff) + rv.lo;
+        rv = 0x100000000 * (ctypes.UInt64.hi(rv) & 0xfffff) + ctypes.UInt64.lo(rv);
         break;
 
       // size_t
