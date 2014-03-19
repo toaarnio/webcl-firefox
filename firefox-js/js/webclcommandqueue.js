@@ -100,12 +100,8 @@ CommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
       clEventWaitList = this._convertEventWaitList (eventWaitList);
     }
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueCopyBuffer (clSrcBuffer, clDstBuffer,
                                                srcOffset, dstOffset, numBytes,
@@ -158,12 +154,8 @@ CommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
       clEventWaitList = this._convertEventWaitList (eventWaitList);
     }
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueCopyBufferRect (clSrcBuffer, clDstBuffer,
                                                    srcOrigin, dstOrigin, region,
@@ -207,12 +199,8 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
       clEventWaitList = this._convertEventWaitList (eventWaitList);
     }
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueCopyImage (clSrcImage, clDstImage,
                                               srcOrigin, dstOrigin, region,
@@ -253,12 +241,8 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
       clEventWaitList = this._convertEventWaitList (eventWaitList);
     }
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueCopyImageToBuffer (clSrcImage, clDstBuffer,
                                                       srcOrigin, srcRegion, dstOffset,
@@ -299,12 +283,8 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
       clEventWaitList = this._convertEventWaitList (eventWaitList);
     }
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueCopyBufferToImage (clSrcBuffer, clDstImage,
                                                       srcOffset, dstOrigin, region,
@@ -331,6 +311,9 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     if (!webclutils.validateBuffer(buffer))
       throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
 
+    if (!webclutils.validateBoolean(blockingRead))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead);
+
     var clBuffer = this._unwrapInternalOrNull (buffer);
 
     if (!webclutils.validateNumber(bufferOffset))
@@ -343,12 +326,8 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     var clEventWaitList = [];
     if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueReadBuffer (clBuffer, !!blockingRead,
                                               bufferOffset,
@@ -379,6 +358,9 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
     if (!webclutils.validateBuffer(buffer))
       throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
 
+    if (!webclutils.validateBoolean(blockingRead))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead);
+
     var clBuffer = this._unwrapInternalOrNull (buffer);
 
     // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
@@ -387,12 +369,8 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
     var clEventWaitList = [];
     if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueReadBufferRect (clBuffer, !!blockingRead,
                                                   bufferOrigin, hostOrigin, region,
@@ -421,7 +399,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
   {
     /*
     INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
-    INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as image
+  x INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as image
     INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as all events in eventWaitList
   x INVALID_MEM_OBJECT -- if image is not a valid WebCLImage object
     INVALID_IMAGE_SIZE -- if the image dimensions of image are not supported by this WebCLCommandQueue
@@ -435,24 +413,15 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
       is a negative integer value
     INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
+
     if (!webclutils.validateImage(image))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "'image' must be a valid WebCLImage object; was " + image, null);
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "'image' must be a valid WebCLImage object; was " + image);
+
+    if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== image.getInfo(ocl_info.CL_MEM_CONTEXT))
+      throw new CLError(ocl_errors.CL_INVALID_CONTEXT, "'image' and this WebCLCommandQueue must have the same WebCLContext");
 
     if (!webclutils.validateBoolean(blockingRead))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead, null);
-
-    var descriptor = image.getInfo();
-    var width = descriptor.width;
-    var height = descriptor.height;
-    var rowPitch = descriptor.rowPitch;
-    var numChannels = 4;                   // TODO support formats other than RGBA
-    var bytesPerPixel = numChannels * 1;   // TODO support other than one-byte-per-color formats
-
-    if (descriptor.channelOrder !== ocl_const.CL_RGBA)
-      throw new CLNotImplemented("'image' must have channelOrder === RGBA, other formats are not yet implemented.");
-
-    if (descriptor.channelType !== ocl_const.CL_UNORM_INT8)
-      throw new CLNotImplemented("'image' must have channelType === UNORM_INT8, other formats are not yet implemented.");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead);
 
     if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'origin' must be an Array with exactly two elements; was " + origin);
@@ -478,11 +447,20 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (!webclutils.validateArrayBufferView(hostPtr)) 
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostPtr' must be an instance of ArrayBufferView, was " + hostPtr);
 
-    if (origin[0] + region[0] > width || origin[1] + region[1] > height)
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "area specified by 'origin' and 'region' must fit inside image");
-
     if (hostRowPitch !== 0 && hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0)
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostRowPitch' must be zero or a multiple of hostPtr.BYTES_PER_ELEMENT");
+
+    if (hostRowPitch !== 0 && hostRowPitch*region[1] > hostPtr.byteLength)
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "region", "hostRowPitch * region[1] must not be greater than hostPtr.byteLength");
+
+    var descriptor = image.getInfo();
+    var width = descriptor.width;
+    var height = descriptor.height;
+    var rowPitch = descriptor.rowPitch;
+    var numChannels = webclutils.getNumChannels(descriptor);
+
+    if (origin[0] + region[0] > width || origin[1] + region[1] > height)
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "area specified by 'origin' and 'region' must fit inside image");
 
     if (hostRowPitch !== 0 && hostRowPitch < rowPitch)
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostRowPitch' must not be less than image.getInfo().rowPitch");
@@ -490,21 +468,19 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (hostRowPitch === 0 && region[0]*region[1]*numChannels > hostPtr.length)
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "region[0] * region[1] * numChannels must not be greater than hostPtr.length");
 
-    if (hostRowPitch !== 0 && hostRowPitch*region[1] > hostPtr.byteLength)
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "region", "hostRowPitch * region[1] must not be greater than hostPtr.byteLength");
-
-    var clImage = this._unwrapInternalOrNull (image);
+    // TODO validate eventWaitList
 
     var clEventWaitList = [];
     if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    
+    if (!webclutils.validateImage(image))
+      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "'image' must be a valid WebCLImage object; was " + image);
 
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
+
+    var clImage = this._unwrapInternalOrNull (image);
     var clOrigin = [ origin[0], origin[1], 0 ];
     var clRegion = [ region[0], region[1], 1 ];
     var ev = this._internal.enqueueReadImage (clImage, !!blockingRead,
@@ -534,6 +510,9 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
     if (!webclutils.validateBuffer(buffer))
       throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
 
+    if (!webclutils.validateBoolean(blockingWrite))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingWrite' must be a boolean; was " + blockingWrite);
+
     var clBuffer = this._unwrapInternalOrNull (buffer);
 
     if (!webclutils.validateNumber(bufferOffset))
@@ -549,12 +528,8 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
       clEventWaitList = this._convertEventWaitList (eventWaitList);
     }
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueWriteBuffer (clBuffer, !!blockingWrite,
                                                 bufferOffset,
@@ -585,6 +560,9 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
     if (!webclutils.validateBuffer(buffer))
       throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
 
+    if (!webclutils.validateBoolean(blockingWrite))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingWrite' must be a boolean; was " + blockingWrite);
+
     var clBuffer = this._unwrapInternalOrNull (buffer);
 
     // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
@@ -593,12 +571,8 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
     var clEventWaitList = [];
     if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueWriteBufferRect (clBuffer, !!blockingWrite,
                                                   bufferOrigin, hostOrigin, region,
@@ -628,6 +602,9 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
     if (!webclutils.validateImage(image))
       throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "image must be a valid WebCLImage object; was " + image, null);
 
+    if (!webclutils.validateBoolean(blockingWrite))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingWrite' must be a boolean; was " + blockingWrite);
+
     var clImage = this._unwrapInternalOrNull (image);
 
     // TODO: validate origin, region, hostRowPitch, hostPtr
@@ -635,12 +612,8 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
     var clEventWaitList = [];
     if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueWriteImage (clImage, !!blockingWrite,
                                               origin, region,
@@ -684,12 +657,8 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
       clEventWaitList = this._convertEventWaitList (eventWaitList);
     }
 
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueNDRangeKernel (clKernel, workDim,
                                                   globalWorkOffset, globalWorkSize, localWorkSize,
@@ -711,12 +680,8 @@ CommandQueue.prototype.enqueueMarker = function (eventOut)
 
   try
   {
-    // Validate outgoing event
-    var clEventOut = this._unwrapInternalOrNull (eventOut);
-    if (eventOut && (!eventOut instanceof Ci.IWebCLEvent))
-    {
-      throw new CLInvalidArgument ("event");
-    }
+    if (eventOut !== null && !webclutils.validateEmptyEvent(eventOut))
+      throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
     var ev = this._internal.enqueueMarker ();
     this._handleEventOut (ev, eventOut);
@@ -879,7 +844,7 @@ CommandQueue.prototype._convertEventWaitList = function (eventWaitList)
   for (var i = 0; i < eventWaitList.length; ++i)
   {
     var p = this._unwrapInternalOrNull (eventWaitList[i]);
-    if (!webclutils.validateEvent (p))
+    if (!webclutils.validateNonEmptyEvent (p))
     {
       // TODO: handle errors better...
       throw new CLInvalidArgument ("eventWaitList[" + i + "].");

@@ -529,7 +529,7 @@ WebCL.prototype._convertEventWaitList = function (eventWaitList)
   for (var i = 0; i < eventWaitList.length; ++i)
   {
     var p = webclutils.unwrapInternalOrNull (eventWaitList[i], this);
-    if (!webclutils.validateEvent (p))
+    if (!webclutils.validateNonEmptyEvent (p))
     {
       // TODO: handle errors better...
       throw new CLInvalidArgument ("eventWaitList[" + i + "].");
