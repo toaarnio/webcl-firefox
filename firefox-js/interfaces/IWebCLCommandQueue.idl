@@ -20,7 +20,6 @@
 #include "interfaces/IWebCLEvent.idl"
 #include "interfaces/IWebCLKernel.idl"
 
-typedef nsIVariant IWebCLEvent_List;
 typedef nsIVariant ArrayBufferView;
 
 [scriptable, uuid(751b06c0-cac3-4123-87ae-2b8c22832d52)]
@@ -33,8 +32,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            srcOffset,
                     in nsIVariant                            dstOffset,
                     in nsIVariant                            numBytes,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueCopyBufferRect(
                     in nsIVariant                            srcBuffer,
@@ -46,8 +45,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            srcSlicePitch,
                     in nsIVariant                            dstRowPitch,
                     in nsIVariant                            dstSlicePitch,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueCopyImage(
                     in nsIVariant                            srcImage,
@@ -55,8 +54,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            srcOrigin,
                     in nsIVariant                            dstOrigin,
                     in nsIVariant                            region,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueCopyImageToBuffer(
                     in nsIVariant                            srcImage,
@@ -64,8 +63,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            srcOrigin,
                     in nsIVariant                            srcRegion,
                     in nsIVariant                            dstOffset,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueCopyBufferToImage(
                     in nsIVariant                            srcBuffer,
@@ -73,8 +72,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            srcOffset,
                     in nsIVariant                            dstOrigin,
                     in nsIVariant                            dstRegion,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueReadBuffer(
                     in nsIVariant                            buffer,
@@ -82,8 +81,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            bufferOffset,
                     in nsIVariant                            numBytes,
                     in ArrayBufferView                       hostPtr,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueReadBufferRect(
                     in nsIVariant                            buffer,
@@ -96,8 +95,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            hostRowPitch,
                     in nsIVariant                            hostSlicePitch,
                     in ArrayBufferView                       hostPtr,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueReadImage(
                     in nsIVariant                            image,          // IWebCLImage
@@ -105,9 +104,9 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            origin,         // CLuint[2]
                     in nsIVariant                            region,         // CLuint[2]
                     in nsIVariant                            hostRowPitch,   // CLuint
-                    in ArrayBufferView                       hostPtr,        // not validated yet
-                    [optional] in IWebCLEvent_List           eventWaitList,  // not validated yet
-                    [optional] in IWebCLEvent                event);         // not validated yet
+                    in ArrayBufferView                       hostPtr,        // ArrayBufferView
+                    [optional] in nsIVariant                 eventWaitList,  // WebCLEvent[]
+                    [optional] in nsIVariant                 event);         // WebCLEvent
 
   void enqueueWriteBuffer(
                     in nsIVariant                            buffer,
@@ -115,8 +114,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            bufferOffset,
                     in nsIVariant                            numBytes,
                     in ArrayBufferView                       hostPtr,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueWriteBufferRect(
                     in nsIVariant                            buffer,
@@ -129,8 +128,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            hostRowPitch,
                     in nsIVariant                            hostSlicePitch,
                     in ArrayBufferView                       hostPtr,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueWriteImage(
                     in nsIVariant                            image,
@@ -139,8 +138,8 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            region,
                     in nsIVariant                            hostRowPitch,
                     in ArrayBufferView                       hostPtr,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueNDRangeKernel(
                     in nsIVariant                            kernel,
@@ -148,16 +147,16 @@ interface IWebCLCommandQueue : nsISupports
                     in nsIVariant                            globalWorkOffset,
                     in nsIVariant                            globalWorkSize,
                     [optional] in nsIVariant                 localWorkSize,
-                    [optional] in IWebCLEvent_List           eventWaitList,
-                    [optional] in IWebCLEvent                event);
+                    [optional] in nsIVariant                 eventWaitList,
+                    [optional] in nsIVariant                 event);
 
   void enqueueMarker (
-                    in IWebCLEvent                           event);
+                    in nsIVariant                            event);
 
   void enqueueBarrier();
 
   void enqueueWaitForEvents (
-                    in IWebCLEvent_List                      eventWaitList);
+                    in nsIVariant                            eventWaitList);
 
   void finish ();
 

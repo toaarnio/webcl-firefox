@@ -452,17 +452,19 @@ function getBytesPerPixel(descriptor)
   };
 }
 
-function validatePlatform (obj)     { return validateWrappedOrInternal(obj, Platform) && validateClassName(obj, "Platform"); }
-function validateDevice (obj)       { return validateWrappedOrInternal(obj, Device) && validateClassName(obj, "Device"); }
-function validateContext (obj)      { return validateWrappedOrInternal(obj, Context) && validateClassName(obj, "Context"); }
-function validateQueue (obj)        { return validateWrappedOrInternal(obj, CommandQueue) && validateClassName(obj, "CommandQueue"); }
-function validateBuffer (obj)       { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Buffer"); }
-function validateImage (obj)        { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Image"); }
-function validateSampler (obj)      { return validateWrappedOrInternal(obj, Sampler) && validateClassName(obj, "Sampler"); }
-function validateProgram (obj)      { return validateWrappedOrInternal(obj, Program) && validateClassName(obj, "Program"); }
-function validateKernel (obj)       { return validateWrappedOrInternal(obj, Kernel) && validateClassName(obj, "Kernel"); }
-function validateEmptyEvent(obj)    { return obj && obj instanceof Ci.IWebCLEvent && !obj._internal; }
-function validateNonEmptyEvent(obj) { return obj && obj instanceof Ci.IWebCLEvent && obj._internal && !obj._internal.isNull(); }
+function validatePlatform (obj)        { return validateWrappedOrInternal(obj, Platform) && validateClassName(obj, "Platform"); }
+function validateDevice (obj)          { return validateWrappedOrInternal(obj, Device) && validateClassName(obj, "Device"); }
+function validateContext (obj)         { return validateWrappedOrInternal(obj, Context) && validateClassName(obj, "Context"); }
+function validateQueue (obj)           { return validateWrappedOrInternal(obj, CommandQueue) && validateClassName(obj, "CommandQueue"); }
+function validateBuffer (obj)          { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Buffer"); }
+function validateImage (obj)           { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Image"); }
+function validateSampler (obj)         { return validateWrappedOrInternal(obj, Sampler) && validateClassName(obj, "Sampler"); }
+function validateProgram (obj)         { return validateWrappedOrInternal(obj, Program) && validateClassName(obj, "Program"); }
+function validateKernel (obj)          { return validateWrappedOrInternal(obj, Kernel) && validateClassName(obj, "Kernel"); }
+function validateEvent(obj)            { return obj && obj instanceof Ci.IWebCLEvent; }
+function validateEventEmpty(obj)       { return obj && obj instanceof Ci.IWebCLEvent && !unwrapInternalOrNull(obj); }
+function validateEventPopulated(obj)   { return obj && obj instanceof Ci.IWebCLEvent && !!unwrapInternalOrNull(obj); }
+function validateEventNotReleased(obj) { return validateEvent(obj) && validateNotReleased(obj); }
 
 function validateWrapped (obj, type)
 {
@@ -477,6 +479,11 @@ function validateInternal (obj, type)
 function validateWrappedOrInternal (obj, type)
 {
   return validateInternal(obj, type) || validateWrapped(obj, type);
+}
+
+function validateNotReleased (obj)
+{
+  return !obj.wrappedJSObject || obj.wrappedJSObject._invalid === false;
 }
 
 function validateClassName (obj, name)
@@ -621,8 +628,10 @@ var webclutils = {
   validateSampler:              validateSampler,
   validateProgram:              validateProgram,
   validateKernel:               validateKernel,
-  validateEmptyEvent:           validateEmptyEvent,
-  validateNonEmptyEvent:        validateNonEmptyEvent,
+  validateEvent:                validateEvent,
+  validateEventEmpty:           validateEventEmpty,
+  validateEventPopulated:       validateEventPopulated,
+  validateEventNotReleased:     validateEventNotReleased,
 
   validateArray:                validateArray,
   validateArrayLength:          validateArrayLength,
