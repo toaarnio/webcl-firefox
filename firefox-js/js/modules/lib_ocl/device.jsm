@@ -110,14 +110,14 @@ Device.prototype.getInfo = function (name)
         return !!getInfo_plain (this._lib.clGetDeviceInfo, this._internal, name, T.cl_bool).value;
         break;
 
-      // cl_ulong
+      // cl_ulong (truncated to 52 low-order bits)
       case ocl_info.CL_DEVICE_GLOBAL_MEM_CACHE_SIZE:
       case ocl_info.CL_DEVICE_GLOBAL_MEM_SIZE:
       case ocl_info.CL_DEVICE_LOCAL_MEM_SIZE:
       case ocl_info.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:
       case ocl_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE:
         rv = getInfo_plain (this._lib.clGetDeviceInfo, this._internal, name, T.cl_ulong).value;
-        rv = ctypes.UInt64.lo (rv);
+        rv = 0x100000000 * (rv.hi & 0xfffff) + rv.lo;
         break;
 
       // size_t
