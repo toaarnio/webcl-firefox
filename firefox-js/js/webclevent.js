@@ -120,7 +120,7 @@ Event.prototype.getProfilingInfo = function (name)
   try
   {
     if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLEvent.getProfilingInfo");
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name);
 
     switch (name)
     {
@@ -128,11 +128,31 @@ Event.prototype.getProfilingInfo = function (name)
     case ocl_info.CL_PROFILING_COMMAND_SUBMIT:
     case ocl_info.CL_PROFILING_COMMAND_START:
     case ocl_info.CL_PROFILING_COMMAND_END:
-      var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem);
+      break;
 
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLEvent.getProfilingInfo");
+      throw new CLError (ocl_errors.CL_INVALID_VALUE, "'name' must be one of the accepted CLenums; was " + name);
+    }
+
+    if (!this._internal)
+      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be populated before profiling info is available");
+
+    if (this.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) !== ocl_const.CL_COMPLETE)
+      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be COMPLETE before profiling info is available");
+
+    if (this instanceof Ci.IWebCLUserEvent)
+      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "profiling info is not available for user events");
+
+    switch (name)
+    {
+    // TODO implement some means to return the true 64-bit value (currently limited to 52 low-order bits)
+    case ocl_info.CL_PROFILING_COMMAND_QUEUED:
+    case ocl_info.CL_PROFILING_COMMAND_SUBMIT:
+    case ocl_info.CL_PROFILING_COMMAND_START:
+    case ocl_info.CL_PROFILING_COMMAND_END:
+      var clInfoItem64bit = this._internal.getProfilingInfo (name);
+      var clInfoItem52bit = 0x100000000 * (clInfoItem64bit.hi & 0xfffff) + clInfoItem64bit.lo;
+      return this._wrapInternal (clInfoItem52bit);
     }
   }
   catch (e)

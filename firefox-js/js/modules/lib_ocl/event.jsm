@@ -126,7 +126,7 @@ CLEvent.prototype.getProfilingInfo = function (name)
       case ocl_info.CL_PROFILING_COMMAND_SUBMIT:
       case ocl_info.CL_PROFILING_COMMAND_START:
       case ocl_info.CL_PROFILING_COMMAND_END:
-        var val = getInfo_plain (this._lib.clGetDeviceInfo, this._internal, name, T.cl_ulong).value;
+        var val = getInfo_plain (this._lib.clGetEventProfilingInfo, this._internal, name, T.cl_ulong).value;
         rv = { lo: ctypes.UInt64.lo (val), hi: ctypes.UInt64.hi (val) };
         break;
 
