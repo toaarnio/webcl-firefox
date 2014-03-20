@@ -81,11 +81,8 @@ CommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
 
   try
   {
-    if (!webclutils.validateBuffer(srcBuffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcBuffer must be a valid WebCLBuffer object; was " + srcBuffer, null);
-
-    if (!webclutils.validateBuffer(dstBuffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstBuffer must be a valid WebCLBuffer object; was " + dstBuffer, null);
+    this._validateBuffer(srcBuffer, "srcBuffer");
+    this._validateBuffer(dstBuffer, "dstBuffer");
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
@@ -126,11 +123,8 @@ CommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
 
   try
   {
-    if (!webclutils.validateBuffer(srcBuffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcBuffer must be a valid WebCLBuffer object; was " + srcBuffer, null);
-
-    if (!webclutils.validateBuffer(dstBuffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstBuffer must be a valid WebCLBuffer object; was " + dstBuffer, null);
+    this._validateBuffer(srcBuffer, "srcBuffer");
+    this._validateBuffer(dstBuffer, "dstBuffer");
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
@@ -180,11 +174,8 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
 
   try
   {
-    if (!webclutils.validateImage(srcImage))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcImage must be a valid WebCLImage object; was " + srcImage, null);
-
-    if (!webclutils.validateImage(dstImage))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstImage must be a valid WebCLImage object; was " + dstImage, null);
+    this._validateImage(srcImage, "srcImage");
+    this._validateImage(dstImage, "dstImage");
 
     var clSrcImage = this._unwrapInternalOrNull (srcImage);
     var clDstImage = this._unwrapInternalOrNull (dstImage);
@@ -221,11 +212,8 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
 
   try
   {
-    if (!webclutils.validateImage(srcImage))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcImage must be a valid WebCLImage object; was " + srcImage, null);
-
-    if (!webclutils.validateBuffer(dstBuffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstBuffer must be a valid WebCLBuffer object; was " + dstBuffer, null);
+    this._validateImage(srcImage, "srcImage");
+    this._validateBuffer(dstBuffer, "dstBuffer");
 
     var clSrcImage = this._unwrapInternalOrNull (srcImage);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
@@ -262,11 +250,8 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
 
   try
   {
-    if (!webclutils.validateBuffer(srcBuffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "srcBuffer must be a valid WebCLBuffer object; was " + srcBuffer, null);
-
-    if (!webclutils.validateImage(dstImage))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "dstImage must be a valid WebCLImage object; was " + dstImage, null);
+    this._validateBuffer(srcBuffer, "srcBuffer");
+    this._validateImage(dstImage, "dstImage");
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstImage = this._unwrapInternalOrNull (dstImage);
@@ -303,8 +288,7 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
 
   try
   {
-    if (!webclutils.validateBuffer(buffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
+    this._validateBuffer(buffer, "buffer");
 
     if (!webclutils.validateBoolean(blockingRead))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead);
@@ -349,8 +333,7 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
 
   try
   {
-    if (!webclutils.validateBuffer(buffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
+    this._validateBuffer(buffer, "buffer");
 
     if (!webclutils.validateBoolean(blockingRead))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead);
@@ -397,21 +380,17 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
   x INVALID_MEM_OBJECT -- if image is not a valid WebCLImage object
     INVALID_IMAGE_SIZE -- if the image dimensions of image are not supported by this WebCLCommandQueue
   x INVALID_VALUE -- if origin or region does not have exactly two elements
-    INVALID_VALUE -- if any part of the region being read, specified by origin and region, is out of bounds of image
+  x INVALID_VALUE -- if any part of the region being read, specified by origin and region, is out of bounds of image
   x INVALID_VALUE -- if any part of the region being written, specified by region and hostRowPitch, is out of bounds of hostPtr
   x INVALID_VALUE -- if hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0
     INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
     INVALID_EVENT_WAIT_LIST -- if blockingRead is true, and any event in eventWaitList is a WebCLUserEvent or a newly created (non-activated) WebCLEvent
     EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST -- if blockingRead is true and the execution status of any event in eventWaitList 
       is a negative integer value
-    INVALID_EVENT -- if event is not a newly created empty WebCLEvent
+  x INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
 
-    if (!webclutils.validateImage(image))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "'image' must be a valid WebCLImage object; was " + image);
-
-    if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== image.getInfo(ocl_info.CL_MEM_CONTEXT))
-      throw new CLError(ocl_errors.CL_INVALID_CONTEXT, "'image' and this WebCLCommandQueue must have the same WebCLContext");
+    this._validateImage(image, "image");
 
     if (!webclutils.validateBoolean(blockingRead))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead);
@@ -495,8 +474,7 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
 
   try
   {
-    if (!webclutils.validateBuffer(buffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
+    this._validateBuffer(buffer, "buffer");
 
     if (!webclutils.validateBoolean(blockingWrite))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingWrite' must be a boolean; was " + blockingWrite);
@@ -544,8 +522,7 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
 
   try
   {
-    if (!webclutils.validateBuffer(buffer))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "buffer must be a valid WebCLBuffer object; was " + buffer, null);
+    this._validateBuffer(buffer, "buffer");
 
     if (!webclutils.validateBoolean(blockingWrite))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingWrite' must be a boolean; was " + blockingWrite);
@@ -585,8 +562,7 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
 
   try
   {
-    if (!webclutils.validateImage(image))
-      throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, "image must be a valid WebCLImage object; was " + image, null);
+    this._validateImage(image, "image");
 
     if (!webclutils.validateBoolean(blockingWrite))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingWrite' must be a boolean; was " + blockingWrite);
@@ -624,18 +600,49 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
 
   try
   {
-    var clKernel = this._unwrapInternalOrNull (kernel);
-    if (!webclutils.validateKernel(clKernel))
-      throw new CLInvalidArgument ("kernel");
-    if (!webclutils.validateNumber(workDim) || workDim  < 1 || workDim > 3)
-      throw new CLInvalidArgument ("workDim");
-    if (globalWorkOffset && !webclutils.validateArray(globalWorkOffset, webclutils.validateNumber))
-      throw new CLInvalidArgument ("globalWorkOffset");
-    if (!webclutils.validateArray(globalWorkSize, webclutils.validateNumber))
-      throw new CLInvalidArgument ("globalWorkSize");
-    if (localWorkSize && !webclutils.validateArray(localWorkSize, webclutils.validateNumber))
-      throw new CLInvalidArgument ("localWorkSize");
+    /*
+    x INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as kernel
+      INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as all events in eventWaitList
+    x INVALID_KERNEL -- if kernel is not a valid WebCLKernel object
+      INVALID_PROGRAM_EXECUTABLE -- if there is no successfully built program executable of kernel available for 
+         the device associated with this WebCLCommandQueue
+      INVALID_KERNEL_ARGS -- if any kernel argument values have not been specified for kernel
+    x INVALID_WORK_DIMENSION -- if workDim is not equal to 1, 2, or 3
 
+    x INVALID_GLOBAL_WORK_SIZE -- if globalWorkSize.length != workDim
+    x INVALID_GLOBAL_WORK_SIZE -- if globalWorkSize[i] > 2^32-1 for any i
+
+    x INVALID_GLOBAL_OFFSET -- if globalWorkOffset != null && (globalWorkOffset.length != workDim)
+      INVALID_GLOBAL_OFFSET -- if globalWorkOffset != null && (globalWorkSize[i] + globalWorkOffset[i] > 2^32-1) for any i
+
+    x INVALID_WORK_GROUP_SIZE -- if localWorkSize != null && (localWorkSize.length != workDim)
+      INVALID_WORK_GROUP_SIZE -- if localWorkSize != null && (globalWorkSize[i] % localWorkSize[i] !== 0) for any i
+      INVALID_WORK_GROUP_SIZE -- if localWorkSize != null && (localWorkSize[i] !== requiredSize[i]) for any i,
+         where requiredSize is specified using the reqd_work_group_size qualifier in kernel source
+      INVALID_WORK_GROUP_SIZE -- if localWorkSize != null and the total number of work-items in a work-group (that is, the
+         product of all elements in localWorkSize) is greater than the value of DEVICE_MAX_WORK_GROUP_SIZE
+         queried from the device associated with this queue
+      INVALID_WORK_GROUP_SIZE -- if localWorkSize == null and the reqd_work_group_size qualifier is present in kernel source
+
+      INVALID_WORK_ITEM_SIZE -- if localWorkSize != null && (localWorkSize[i] > DEVICE_MAX_WORK_ITEM_SIZES[i]) for any i
+      INVALID_IMAGE_SIZE -- if an image object is specified as an argument to kernel, and the image dimensions 
+         (width, height, pitch) are not supported by the device associated with this queue
+      MEM_OBJECT_ALLOCATION_FAILURE -- if there is a failure to allocate memory for data store associated with image or buffer
+         objects specified as arguments to kernel
+      INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
+      INVALID_EVENT -- if event is not a newly created empty WebCLEvent
+    */
+
+    this._validateKernel(kernel, "kernel");
+
+    if (!webclutils.validateNumber(workDim) || !(workDim === 1 || workDim === 2 || workDim === 3))
+      throw new CLError(ocl_errors.CL_INVALID_WORK_DIMENSION, "'workDim' must be 1, 2, or 3; was " + workDim);
+
+    this._validateArray (globalWorkSize, workDim, ocl_errors.CL_INVALID_GLOBAL_WORK_SIZE, "globalWorkSize");
+    this._validateArrayOrNull (globalWorkOffset, workDim, ocl_errors.CL_INVALID_GLOBAL_WORK_OFFSET, "globalWorkOffset");
+    this._validateArrayOrNull (localWorkSize, workDim, ocl_errors.CL_INVALID_WORK_GROUP_SIZE, "localWorkSize");
+
+    var clKernel = this._unwrapInternalOrNull (kernel);
     var clEventWaitList = [];
     if (eventWaitList)
     {
@@ -782,6 +789,66 @@ CommandQueue.prototype.getInfo = function (name)
 
 //------------------------------------------------------------------------------
 // Internal functions
+
+
+CommandQueue.prototype._validateBuffer = function (buffer, varName)
+{
+  if (!webclutils.validateBuffer(buffer))
+    throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, varName + " must be a valid WebCLBuffer object; was " + buffer);
+
+  if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== buffer.getInfo(ocl_info.CL_MEM_CONTEXT))
+    throw new CLError(ocl_errors.CL_INVALID_CONTEXT, varName + " and this WebCLCommandQueue must have the same WebCLContext");
+}
+
+
+CommandQueue.prototype._validateImage = function (image, varName)
+{
+  if (!webclutils.validateImage(image))
+    throw new CLError(ocl_errors.CL_INVALID_MEM_OBJECT, varName + " must be a valid WebCLImage object; was " + image);
+
+  if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== image.getInfo(ocl_info.CL_MEM_CONTEXT))
+    throw new CLError(ocl_errors.CL_INVALID_CONTEXT, varName + " and this WebCLCommandQueue must have the same WebCLContext");
+}
+
+
+CommandQueue.prototype._validateKernel = function (kernel, varName)
+{
+  if (!webclutils.validateKernel(kernel))
+    throw new CLError(ocl_errors.CL_INVALID_KERNEL, varName + " must be a valid WebCLKernel object; was " + kernel);
+
+  if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== kernel.getInfo(ocl_info.CL_KERNEL_CONTEXT))
+    throw new CLError(ocl_errors.CL_INVALID_CONTEXT, varName + " and this WebCLCommandQueue must have the same WebCLContext");
+
+  var device = this.getInfo(ocl_info.CL_QUEUE_DEVICE);
+  var program = kernel.getInfo(ocl_info.CL_KERNEL_PROGRAM);
+  var status = program.getBuildInfo(device, ocl_info.CL_PROGRAM_BUILD_STATUS);
+
+  if (status !== ocl_const.CL_BUILD_SUCCESS)
+    throw new CLError(ocl_errors.CL_INVALID_PROGRAM_EXECUTABLE, varName + " has not yet been successfully built for the target device");
+}
+
+
+CommandQueue.prototype._validateArrayOrNull = function(arr, length, errCode, varName)
+{
+  if (arr !== null && arr !== undefined)
+    this._validateArray(arr, length, errCode, varName);
+};
+
+
+CommandQueue.prototype._validateArray = function(arr, length, errCode, varName)
+{
+  if (!Array.isArray(arr))
+    throw new CLError(errCode, varName + " must be an Array; was " + typeof(arr));
+
+  if (!webclutils.validateArrayLength(arr, function() { return arr.length === length; }))
+    throw new CLError(errCode, varName + " must have exactly " + length + " elements; had " + arr.length);
+
+  if (!webclutils.validateArray(arr, webclutils.validateNumber))
+    throw new CLError(errCode, varName + " must only contain numbers");
+
+  if (!webclutils.validateArray(arr, function(item) { return item <= 0xffffffff; }))
+    throw new CLError(errCode, varName + " must only contain values less than 2^32");
+};
 
 
 CommandQueue.prototype._validateEventOut = function (eventOut)
