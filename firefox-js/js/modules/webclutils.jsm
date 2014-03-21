@@ -537,6 +537,21 @@ function validateNumber (n)
   return (n !== null) && (typeof(n) === 'number') && (!isNaN(+n));
 }
 
+function validateInteger (n)
+{
+  return validateNumber(n) && (Math.floor(n) === n);
+}
+
+function validatePositiveInt32 (n)
+{
+  return validateInteger(n) && (n >= 1) && (n <= 0xffffffff);
+}
+
+function validateNonNegativeInt32 (n)
+{
+  return validateInteger(n) && (n >= 0) && (n <= 0xffffffff);
+}
+
 function validateObject (o)
 {
   return (o !== null) && (typeof(o) === 'object');
@@ -638,6 +653,9 @@ var webclutils = {
   validateArrayBufferView:      validateArrayBufferView,
   validateBoolean:              validateBoolean,
   validateNumber:               validateNumber,
+  validateInteger:              validateInteger,
+  validatePositiveInt32:        validatePositiveInt32,
+  validateNonNegativeInt32:     validateNonNegativeInt32,
   validateObject:               validateObject,
   validateString:               validateString,
   validateBitfield:             validateBitfield,

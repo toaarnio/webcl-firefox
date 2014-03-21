@@ -87,9 +87,9 @@ CommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
 
-    if (!webclutils.validateNumber (srcOffset))  throw new CLInvalidArgument ("srcOffset");
-    if (!webclutils.validateNumber (dstOffset))  throw new CLInvalidArgument ("dstOffset");
-    if (!webclutils.validateNumber (numBytes))  throw new CLInvalidArgument ("numBytes");
+    if (!webclutils.validateInteger (srcOffset))  throw new CLInvalidArgument ("srcOffset");
+    if (!webclutils.validateInteger (dstOffset))  throw new CLInvalidArgument ("dstOffset");
+    if (!webclutils.validateInteger (numBytes))  throw new CLInvalidArgument ("numBytes");
 
     var clEventWaitList = [];
     if (eventWaitList)
@@ -136,10 +136,10 @@ CommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
     if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 3; }))
       throw new CLInvalidArgument ("region");
 
-    if (!webclutils.validateNumber (srcRowPitch))  throw new CLInvalidArgument ("srcRowPitch");
-    if (!webclutils.validateNumber (srcSlicePitch))  throw new CLInvalidArgument ("srcSlicePitch");
-    if (!webclutils.validateNumber (dstRowPitch))  throw new CLInvalidArgument ("dstRowPitch");
-    if (!webclutils.validateNumber (dstSlicePitch))  throw new CLInvalidArgument ("dstSlicePitch");
+    if (!webclutils.validateInteger (srcRowPitch))  throw new CLInvalidArgument ("srcRowPitch");
+    if (!webclutils.validateInteger (srcSlicePitch))  throw new CLInvalidArgument ("srcSlicePitch");
+    if (!webclutils.validateInteger (dstRowPitch))  throw new CLInvalidArgument ("dstRowPitch");
+    if (!webclutils.validateInteger (dstSlicePitch))  throw new CLInvalidArgument ("dstSlicePitch");
 
     var clEventWaitList = [];
     if (eventWaitList)
@@ -295,9 +295,9 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
 
-    if (!webclutils.validateNumber(bufferOffset))
+    if (!webclutils.validateInteger(bufferOffset))
       throw new CLInvalidArgument ("bufferOffset");
-    if (!webclutils.validateNumber(numBytes))
+    if (!webclutils.validateInteger(numBytes))
       throw new CLInvalidArgument ("numBytes");
 
     // TODO: validate hostPtr
@@ -401,11 +401,11 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 2; }))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'region' must be an Array with exactly two elements; was " + region);
 
-    if (!webclutils.validateArray(origin, webclutils.validateNumber))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'origin' must be an Array with elements of type 'number'");
+    if (!webclutils.validateArray(origin, webclutils.validateInteger))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'origin' must be an Array of integers in [0, 2^32)");
 
-    if (!webclutils.validateArray(region, webclutils.validateNumber))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'region' must be an Array with elements of type 'number'");
+    if (!webclutils.validateArray(region, webclutils.validateInteger))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'region' must be an Array of integers in [0, 2^32)");
 
     if (!webclutils.validateArray(origin, function(v) { return v >= 0; }))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "all elements of 'origin' must be non-negative");
@@ -413,7 +413,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (!webclutils.validateArray(region, function(v) { return v >= 0; }))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "all elements of 'region' must be non-negative");
 
-    if (!(webclutils.validateNumber(hostRowPitch) && ((hostRowPitch & 0x80000000) === 0)))
+    if (!(webclutils.validateInteger(hostRowPitch) && ((hostRowPitch & 0x80000000) === 0)))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostRowPitch' must be non-negative and less than 2^31");
 
     if (!webclutils.validateArrayBufferView(hostPtr)) 
@@ -481,9 +481,9 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
 
-    if (!webclutils.validateNumber(bufferOffset))
+    if (!webclutils.validateInteger(bufferOffset))
       throw new CLInvalidArgument ("bufferOffset");
-    if (!webclutils.validateNumber(numBytes))
+    if (!webclutils.validateInteger(numBytes))
       throw new CLInvalidArgument ("numBytes");
 
     // TODO: validate hostPtr
@@ -613,35 +613,70 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
     x INVALID_GLOBAL_WORK_SIZE -- if globalWorkSize[i] > 2^32-1 for any i
 
     x INVALID_GLOBAL_OFFSET -- if globalWorkOffset != null && (globalWorkOffset.length != workDim)
-      INVALID_GLOBAL_OFFSET -- if globalWorkOffset != null && (globalWorkSize[i] + globalWorkOffset[i] > 2^32-1) for any i
+    x INVALID_GLOBAL_OFFSET -- if globalWorkOffset != null && (globalWorkSize[i] + globalWorkOffset[i] > 2^32-1) for any i
 
     x INVALID_WORK_GROUP_SIZE -- if localWorkSize != null && (localWorkSize.length != workDim)
-      INVALID_WORK_GROUP_SIZE -- if localWorkSize != null && (globalWorkSize[i] % localWorkSize[i] !== 0) for any i
+    x INVALID_WORK_GROUP_SIZE -- if localWorkSize != null && (globalWorkSize[i] % localWorkSize[i] !== 0) for any i
       INVALID_WORK_GROUP_SIZE -- if localWorkSize != null && (localWorkSize[i] !== requiredSize[i]) for any i,
          where requiredSize is specified using the reqd_work_group_size qualifier in kernel source
-      INVALID_WORK_GROUP_SIZE -- if localWorkSize != null and the total number of work-items in a work-group (that is, the
+    x INVALID_WORK_GROUP_SIZE -- if localWorkSize != null and the total number of work-items in a work-group (that is, the
          product of all elements in localWorkSize) is greater than the value of DEVICE_MAX_WORK_GROUP_SIZE
          queried from the device associated with this queue
       INVALID_WORK_GROUP_SIZE -- if localWorkSize == null and the reqd_work_group_size qualifier is present in kernel source
 
-      INVALID_WORK_ITEM_SIZE -- if localWorkSize != null && (localWorkSize[i] > DEVICE_MAX_WORK_ITEM_SIZES[i]) for any i
+    x INVALID_WORK_ITEM_SIZE -- if localWorkSize != null && (localWorkSize[i] > DEVICE_MAX_WORK_ITEM_SIZES[i]) for any i
+
       INVALID_IMAGE_SIZE -- if an image object is specified as an argument to kernel, and the image dimensions 
          (width, height, pitch) are not supported by the device associated with this queue
       MEM_OBJECT_ALLOCATION_FAILURE -- if there is a failure to allocate memory for data store associated with image or buffer
          objects specified as arguments to kernel
       INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
-      INVALID_EVENT -- if event is not a newly created empty WebCLEvent
+    x INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
 
     this._validateKernel(kernel, "kernel");
 
-    if (!webclutils.validateNumber(workDim) || !(workDim === 1 || workDim === 2 || workDim === 3))
+    if (!webclutils.validateInteger(workDim) || !(workDim === 1 || workDim === 2 || workDim === 3))
       throw new CLError(ocl_errors.CL_INVALID_WORK_DIMENSION, "'workDim' must be 1, 2, or 3; was " + workDim);
 
-    this._validateArray (globalWorkSize, workDim, ocl_errors.CL_INVALID_GLOBAL_WORK_SIZE, "globalWorkSize");
-    this._validateArrayOrNull (globalWorkOffset, workDim, ocl_errors.CL_INVALID_GLOBAL_WORK_OFFSET, "globalWorkOffset");
-    this._validateArrayOrNull (localWorkSize, workDim, ocl_errors.CL_INVALID_WORK_GROUP_SIZE, "localWorkSize");
+    this._validateArray (globalWorkSize, workDim, webclutils.validatePositiveInt32,
+                         ocl_errors.CL_INVALID_GLOBAL_WORK_SIZE, "globalWorkSize", "integers in [1, 2^32)");
 
+    this._validateArrayOrNull (localWorkSize, workDim, webclutils.validatePositiveInt32, 
+                               ocl_errors.CL_INVALID_WORK_GROUP_SIZE, "localWorkSize", "integers in [1, 2^32)");
+
+    this._validateArrayOrNull (globalWorkOffset, workDim, webclutils.validateNonNegativeInt32, 
+                               ocl_errors.CL_INVALID_GLOBAL_OFFSET, "globalWorkOffset", "integers in [0, 2^32)");
+
+    var maxGlobalOffset = globalWorkSize.map(function(val, i) { return val + (globalWorkOffset && globalWorkOffset[i] || 0); });
+
+    this._validateArrayOrNull (maxGlobalOffset, workDim, webclutils.validatePositiveInt32, 
+                               ocl_errors.CL_INVALID_GLOBAL_OFFSET, "globalWorkOffset+globalWorkSize", "integers in [1, 2^32)");
+
+    if (localWorkSize) {
+      var globalModLocal = globalWorkSize.map(function(val, i) { return val % localWorkSize[i]; });
+
+      this._validateArrayOrNull (globalModLocal, workDim, function(i) { return i===0; },
+                                 ocl_errors.CL_INVALID_WORK_GROUP_SIZE, "globalWorkSize % localWorkSize", "zeros");
+
+      var device = this.getInfo(ocl_info.CL_QUEUE_DEVICE);
+      var maxWorkItems = device.getInfo(ocl_info.CL_DEVICE_MAX_WORK_GROUP_SIZE);
+      var maxWorkItemSizes = device.getInfo(ocl_info.CL_DEVICE_MAX_WORK_ITEM_SIZES);
+      var numWorkItems = localWorkSize.reduce(function(acc, item) { return acc*item; }, 1);
+
+      localWorkSize.forEach(function(val, i) {
+        if (val > maxWorkItemSizes[i])
+          throw new CLError(ocl_errors.CL_INVALID_WORK_ITEM_SIZE, "localWorkSize["+i+"] must not exceed " +
+                            maxWorkItemSizes[i] + " on this WebCLDevice; was " + val);
+      });
+
+      if (numWorkItems > maxWorkItems)
+        throw new CLError(ocl_errors.CL_INVALID_WORK_GROUP_SIZE, "the product over localWorkSize[i] can be at most " +
+                          maxWorkItems + " on this WebCLDevice; was " + numWorkItems);
+    }
+
+      
+    
     var clKernel = this._unwrapInternalOrNull (kernel);
     var clEventWaitList = [];
     if (eventWaitList)
@@ -764,7 +799,7 @@ CommandQueue.prototype.getInfo = function (name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
+    if (!webclutils.validateInteger(name))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLCommandQueue.getInfo");
 
     switch (name)
@@ -828,14 +863,14 @@ CommandQueue.prototype._validateKernel = function (kernel, varName)
 }
 
 
-CommandQueue.prototype._validateArrayOrNull = function(arr, length, errCode, varName)
+CommandQueue.prototype._validateArrayOrNull = function(arr, length, elementValidator, errCode, varName, elementRequirementMsg)
 {
   if (arr !== null && arr !== undefined)
-    this._validateArray(arr, length, errCode, varName);
+    this._validateArray(arr, length, elementValidator, errCode, varName, elementRequirementMsg);
 };
 
 
-CommandQueue.prototype._validateArray = function(arr, length, errCode, varName)
+CommandQueue.prototype._validateArray = function(arr, length, elementValidator, errCode, varName, elementRequirementMsg)
 {
   if (!Array.isArray(arr))
     throw new CLError(errCode, varName + " must be an Array; was " + typeof(arr));
@@ -843,11 +878,8 @@ CommandQueue.prototype._validateArray = function(arr, length, errCode, varName)
   if (!webclutils.validateArrayLength(arr, function() { return arr.length === length; }))
     throw new CLError(errCode, varName + " must have exactly " + length + " elements; had " + arr.length);
 
-  if (!webclutils.validateArray(arr, webclutils.validateNumber))
-    throw new CLError(errCode, varName + " must only contain numbers");
-
-  if (!webclutils.validateArray(arr, function(item) { return item <= 0xffffffff; }))
-    throw new CLError(errCode, varName + " must only contain values less than 2^32");
+  if (!webclutils.validateArray(arr, elementValidator))
+    throw new CLError(errCode, varName + " must only contain " + elementRequirementMsg);
 };
 
 
