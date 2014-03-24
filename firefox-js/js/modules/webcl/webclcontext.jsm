@@ -93,6 +93,8 @@ WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 
   try
   {
+    if (hostPtr === undefined) hostPtr = null;
+
     if (!webclutils.validateNumber(memFlags) || !webclutils.validateMemFlags(memFlags))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'memFlags' must be a valid CLenum; was " + memFlags, "WebCLContext.createBuffer");
 
@@ -178,6 +180,8 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
 
   try
   {
+    if (hostPtr === undefined) hostPtr = null;
+
     // Validate 'memFlags'
     //
 
