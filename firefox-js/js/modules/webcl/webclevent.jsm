@@ -11,6 +11,8 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCLEvent", "WebCLUserEvent" ];
+
 
 try {
 
@@ -30,47 +32,44 @@ Cu.import ("resource://nrcwebcl/modules/base.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
-var CLASSNAME =  "WebCLEvent";
-var CID =        "{cf7372e6-f2ec-467d-99dc-9eeb756bc3e3}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLEvent;1";
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
-function Event ()
+function WebCLEvent ()
 {
-  TRACE (this, "Event", arguments);
+  TRACE (this, "WebCLEvent", arguments);
+  try {
+    if (!(this instanceof WebCLEvent)) return new WebCLEvent ();
 
-  if (!(this instanceof Event)) return new Event ();
+    Base.apply(this);
 
-  Base.apply(this);
+    this.wrappedJSObject = this;
 
-  this.wrappedJSObject = this;
+    this.__exposedProps__ =
+    {
+      getExternalIdentity: "r",
+      getInfo: "r",
+      getProfilingInfo: "r",
+      setCallback: "r",
+      release: "r",
 
-  this._interfaces = [ Ci.IWebCLEvent,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webclevent.jsm:WebCLEvent failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
-
-Event.prototype = Object.create (Base.prototype);
-
-
-Event.prototype.classDescription = CLASSNAME;
-Event.prototype.classID =          Components.ID(CID);
-Event.prototype.contractID =       CONTRACTID;
-Event.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLEvent,
-                                                            Ci.nsISecurityCheckedComponent,
-                                                            Ci.nsISupportsWeakReference,
-                                                            Ci.nsIClassInfo
-                                                          ]);
+WEBCLCLASSES.WebCLEvent = WebCLEvent;
+WebCLEvent.prototype = Object.create (Base.prototype);
+WebCLEvent.prototype.classDescription = "WebCLEvent";
 
 
-//------------------------------------------------------------------------------
-// IWebCLEvent
 
-Event.prototype.getInfo = function (name)
+WebCLEvent.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -112,7 +111,7 @@ Event.prototype.getInfo = function (name)
 };
 
 
-Event.prototype.getProfilingInfo = function (name)
+WebCLEvent.prototype.getProfilingInfo = function (name)
 {
   TRACE (this, "getProfilingInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -163,7 +162,7 @@ Event.prototype.getProfilingInfo = function (name)
 };
 
 
-Event.prototype.setCallback = function ()
+WebCLEvent.prototype.setCallback = function ()
 {
   TRACE (this, "setCallback", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -183,43 +182,34 @@ Event.prototype.setCallback = function ()
 
 //==============================================================================
 
-
-function UserEvent ()
+function WebCLUserEvent ()
 {
-  if (!(this instanceof UserEvent)) return new UserEvent ();
+  TRACE (this, "WebCLUserEvent", arguments);
+  try {
+    if (!(this instanceof WebCLUserEvent)) return new WebCLUserEvent ();
 
-  Event.apply(this);
+    Event.apply(this);
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._interfaces = [ Ci.IWebCLUserEvent,
-                       Ci.IWebCLEvent,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+    this.__exposedProps__.setStatus = "r";
+  }
+  catch (e)
+  {
+    ERROR ("webclevent.jsm:WebCLUserEvent failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
+WEBCLCLASSES.WebCLUserEvent = WebCLUserEvent;
 
-UserEvent.prototype = Object.create (Event.prototype);
+WebCLUserEvent.prototype = Object.create (WebCLEvent.prototype);
 
-
-UserEvent.prototype.classDescription = "WebCLUserEvent";
-UserEvent.prototype.classID =          Components.ID("{f353b7e7-03af-41f2-a260-5cbcdaec8ae9}");
-UserEvent.prototype.contractID =       "@webcl.nokiaresearch.com/IWebCLUserEvent;1";
-UserEvent.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLUserEvent,
-                                                                Ci.IWebCLEvent,
-                                                                Ci.nsISecurityCheckedComponent,
-                                                                Ci.nsISupportsWeakReference,
-                                                                Ci.nsIClassInfo
-                                                              ]);
+WebCLUserEvent.prototype.classDescription = "WebCLUserEvent";
 
 
-//------------------------------------------------------------------------------
-// IWebCLUserEvent
 
-UserEvent.prototype.setStatus = function (executionStatus)
+WebCLUserEvent.prototype.setStatus = function (executionStatus)
 {
   TRACE (this, "setStatus", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -239,11 +229,4 @@ UserEvent.prototype.setStatus = function (executionStatus)
 
 
 
-//------------------------------------------------------------------------------
-// Internal functions
-
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Event, UserEvent]);
-
-
-} catch(e) { ERROR ("webclevent.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclevent.jsm: "+e); }

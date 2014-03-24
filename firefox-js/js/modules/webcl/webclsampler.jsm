@@ -11,6 +11,8 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCLSampler" ];
+
 
 try {
 
@@ -30,46 +32,42 @@ Cu.import ("resource://nrcwebcl/modules/base.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
-
-var CLASSNAME =  "WebCLSampler";
-var CID =        "{dc9b25aa-2bdc-4efd-b295-b450c75d252c}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLSampler;1";
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
-function Sampler ()
+function WebCLSampler ()
 {
-  if (!(this instanceof Sampler)) return new Sampler ();
+  TRACE (this, "WebCLSampler", arguments);
+  try {
+    if (!(this instanceof WebCLSampler)) return new WebCLSampler ();
 
-  Base.apply(this);
+    Base.apply(this);
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._interfaces = [ Ci.IWebCLSampler,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+    this.__exposedProps__ =
+    {
+      getExternalIdentity: "r",
+      getInfo: "r",
+      release: "r",
+
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webclsampler.jsm:WebCLSampler failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
-
-Sampler.prototype = Object.create (Base.prototype);
-
-
-Sampler.prototype.classDescription = CLASSNAME;
-Sampler.prototype.classID =          Components.ID(CID);
-Sampler.prototype.contractID =       CONTRACTID;
-Sampler.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLSampler,
-                                                              Ci.nsISecurityCheckedComponent,
-                                                              Ci.nsISupportsWeakReference,
-                                                              Ci.nsIClassInfo
-                                                            ]);
+WEBCLCLASSES.WebCLSampler = WebCLSampler;
+WebCLSampler.prototype = Object.create (Base.prototype);
+WebCLSampler.prototype.classDescription = "WebCLSampler";
 
 
-//------------------------------------------------------------------------------
-// IWebCLSampler
 
-Sampler.prototype.getInfo = function (name)
+WebCLSampler.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -101,11 +99,4 @@ Sampler.prototype.getInfo = function (name)
 
 
 
-//------------------------------------------------------------------------------
-// Internal functions
-
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Sampler]);
-
-
-} catch(e) { ERROR ("webclsampler.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclsampler.jsm: "+e); }

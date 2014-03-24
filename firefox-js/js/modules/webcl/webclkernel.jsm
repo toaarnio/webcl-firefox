@@ -11,6 +11,8 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCLKernel" ];
+
 
 try {
 
@@ -27,48 +29,48 @@ Cu.import ("resource://nrcwebcl/modules/logger.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
-Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
-var CLASSNAME =  "WebCLKernel";
-var CID =        "{5d1be1d7-aad2-4eb3-918b-e9551079d634}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLKernel;1";
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
-function Kernel ()
+function WebCLKernel ()
 {
-  if (!(this instanceof Kernel)) return new Kernel ();
+  TRACE (this, "WebCLKernel", arguments);
+  try {
+    if (!(this instanceof WebCLKernel)) return new WebCLKernel ();
 
-  Base.apply(this);
+    Base.apply(this);
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._interfaces = [ Ci.IWebCLKernel,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+    this.__exposedProps__ =
+    {
+      getExternalIdentity: "r",
+      getInfo: "r",
+      getWorkGroupInfo: "r",
+      getArgInfo: "r",
+      setArg: "r",
+      release: "r",
+
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webclkernel.jsm:WebCLKernel failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
-
-Kernel.prototype = Object.create (Base.prototype);
-
-
-Kernel.prototype.classDescription = CLASSNAME;
-Kernel.prototype.classID =          Components.ID(CID);
-Kernel.prototype.contractID =       CONTRACTID;
-Kernel.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLKernel,
-                                                             Ci.nsISecurityCheckedComponent,
-                                                             Ci.nsISupportsWeakReference,
-                                                             Ci.nsIClassInfo
-                                                           ]);
+WEBCLCLASSES.WebCLKernel = WebCLKernel;
+WebCLKernel.prototype = Object.create (Base.prototype);
+WebCLKernel.prototype.classDescription = "WebCLKernel";
 
 
-//------------------------------------------------------------------------------
-// IWebCLKernel
 
-Kernel.prototype.getInfo = function (name)
+WebCLKernel.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -99,7 +101,7 @@ Kernel.prototype.getInfo = function (name)
 };
 
 
-Kernel.prototype.getWorkGroupInfo = function (device, name)
+WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
 {
   TRACE (this, "getWorkGroupInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -132,7 +134,7 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
 };
 
 
-Kernel.prototype.getArgInfo = function ()
+WebCLKernel.prototype.getArgInfo = function ()
 {
   TRACE (this, "getArgInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -149,7 +151,7 @@ Kernel.prototype.getArgInfo = function ()
 };
 
 
-Kernel.prototype.setArg = function (index, value)
+WebCLKernel.prototype.setArg = function (index, value)
 {
   TRACE (this, "setArg", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -167,7 +169,7 @@ Kernel.prototype.setArg = function (index, value)
         let re = /\[object (\w*)\]/.exec(Object.prototype.toString.call(value));
         if (re && re[1] && re[1] == "Uint32Array" && value.length == 1)
         {
-          DEBUG ("Kernel.setArg: Possible local arg detected, index="+index+" size="+value[0]+".");
+          DEBUG ("WebCLKernel.setArg: Possible local arg detected, index="+index+" size="+value[0]+".");
           this._internal.setArg (+index, +(value[0]));
 
           // setArg didn't fail so arg seems to have been local.
@@ -187,11 +189,5 @@ Kernel.prototype.setArg = function (index, value)
 
 
 
-//------------------------------------------------------------------------------
-// Internal functions
 
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Kernel]);
-
-
-} catch(e) { ERROR ("webclkernel.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclkernel.jsm: "+e); }

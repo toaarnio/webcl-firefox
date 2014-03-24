@@ -11,6 +11,8 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCLCommandQueue" ];
+
 
 try {
 
@@ -33,48 +35,62 @@ Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
-
-var CLASSNAME =  "WebCLCommandQueue";
-var CID =        "{751b06c0-cac3-4123-87ae-2b8c22832d52}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLCommandQueue;1";
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
-function CommandQueue ()
+function WebCLCommandQueue ()
 {
-  if (!(this instanceof CommandQueue)) return new CommandQueue ();
+  TRACE (this, "WebCLCommandQueue", arguments);
+  try {
+    if (!(this instanceof WebCLCommandQueue)) return new WebCLCommandQueue ();
 
-  Base.apply(this);
+    Base.apply(this);
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._interfaces = [ Ci.IWebCLCommandQueue,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+    this.__exposedProps__ =
+    {
+      getExternalIdentity: "r",
+      enqueueCopyBuffer: "r",
+      enqueueCopyBufferRect: "r",
+      enqueueCopyImage: "r",
+      enqueueCopyImageToBuffer: "r",
+      enqueueCopyBufferToImage: "r",
+      enqueueReadBuffer: "r",
+      enqueueReadBufferRect: "r",
+      enqueueReadImage: "r",
+      enqueueWriteBuffer: "r",
+      enqueueWriteBufferRect: "r",
+      enqueueWriteImage: "r",
+      enqueueNDRangeKernel: "r",
+      enqueueMarker: "r",
+      enqueueBarrier: "r",
+      enqueueWaitForEvents: "r",
+      finish: "r",
+      flush: "r",
+      getInfo: "r",
+      release: "r",
+
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webclcommandqueue.jsm:WebCLCommandQueue failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
-CommandQueue.prototype = Object.create (Base.prototype);
+WEBCLCLASSES.WebCLCommandQueue = WebCLCommandQueue;
+WebCLCommandQueue.prototype = Object.create (Base.prototype);
+WebCLCommandQueue.prototype.classDescription = "WebCLCommandQueue";
 
 
-CommandQueue.prototype.classDescription = CLASSNAME;
-CommandQueue.prototype.classID =          Components.ID(CID);
-CommandQueue.prototype.contractID =       CONTRACTID;
-CommandQueue.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLCommandQueue,
-                                                                   Ci.nsISecurityCheckedComponent,
-                                                                   Ci.nsISupportsWeakReference,
-                                                                   Ci.nsIClassInfo
-                                                                 ]);
 
 
-//------------------------------------------------------------------------------
-// IWebCLCommandQueue
-
-
-CommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
-                                                     srcOffset, dstOffset, numBytes,
-                                                     eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
+                                                          srcOffset, dstOffset, numBytes,
+                                                          eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyBuffer", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -115,11 +131,11 @@ CommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
 };
 
 
-CommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
-                                                         srcOrigin, dstOrigin, region,
-                                                         srcRowPitch, srcSlicePitch,
-                                                         dstRowPitch, dstSlicePitch,
-                                                         eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
+                                                              srcOrigin, dstOrigin, region,
+                                                              srcRowPitch, srcSlicePitch,
+                                                              dstRowPitch, dstSlicePitch,
+                                                              eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyBufferRect", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -170,10 +186,10 @@ CommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuffer,
 };
 
 
-CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
-                                                    srcOrigin, dstOrigin,
-                                                    region,
-                                                    eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
+                                                         srcOrigin, dstOrigin,
+                                                         region,
+                                                         eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyImage", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -212,9 +228,9 @@ CommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
 };
 
 
-CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
-                                                            srcOrigin, srcRegion, dstOffset,
-                                                            eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
+                                                                 srcOrigin, srcRegion, dstOffset,
+                                                                 eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyImageToBuffer", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -253,9 +269,9 @@ CommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBuffer,
 }
 
 
-CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
-                                                            srcOffset, dstOrigin, dstRegion,
-                                                            eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
+                                                                 srcOffset, dstOrigin, dstRegion,
+                                                                 eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyBufferToImage", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -294,9 +310,9 @@ CommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstImage,
 };
 
 
-CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
-                                                     bufferOffset, numBytes, hostPtr,
-                                                     eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
+                                                          bufferOffset, numBytes, hostPtr,
+                                                          eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadBuffer", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -337,12 +353,12 @@ CommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
 };
 
 
-CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
-                                                         bufferOrigin, hostOrigin, region,
-                                                         bufferRowPitch, bufferSlicePitch,
-                                                         hostRowPitch, hostSlicePitch,
-                                                         hostPtr,
-                                                         eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
+                                                              bufferOrigin, hostOrigin, region,
+                                                              bufferRowPitch, bufferSlicePitch,
+                                                              hostRowPitch, hostSlicePitch,
+                                                              hostPtr,
+                                                              eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadBufferRect", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -381,9 +397,9 @@ CommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
 };
 
 
-CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
-                                                    origin, region, hostRowPitch,
-                                                    hostPtr, eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
+                                                         origin, region, hostRowPitch,
+                                                         hostPtr, eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadImage", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -402,7 +418,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
   x INVALID_VALUE -- if hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0
     INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
     INVALID_EVENT_WAIT_LIST -- if blockingRead is true, and any event in eventWaitList is a WebCLUserEvent or a newly created (non-activated) WebCLEvent
-    EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST -- if blockingRead is true and the execution status of any event in eventWaitList 
+    EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST -- if blockingRead is true and the execution status of any event in eventWaitList
       is a negative integer value
     INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
@@ -437,7 +453,7 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (!(webclutils.validateNumber(hostRowPitch) && ((hostRowPitch & 0x80000000) === 0)))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostRowPitch' must be non-negative and less than 2^31");
 
-    if (!webclutils.validateArrayBufferView(hostPtr)) 
+    if (!webclutils.validateArrayBufferView(hostPtr))
       throw new CLError(ocl_errors.CL_INVALID_VALUE, "'hostPtr' must be an instance of ArrayBufferView, was " + hostPtr);
 
     if (hostRowPitch !== 0 && hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0)
@@ -486,9 +502,9 @@ CommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
 };
 
 
-CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
-                                                      bufferOffset, numBytes, hostPtr,
-                                                      eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
+                                                           bufferOffset, numBytes, hostPtr,
+                                                           eventWaitList, eventOut)
 {
   TRACE (this, "enqueueWriteBuffer", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -532,12 +548,12 @@ CommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite,
 };
 
 
-CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
-                                                          bufferOrigin, hostOrigin, region,
-                                                          bufferRowPitch, bufferSlicePitch,
-                                                          hostRowPitch, hostSlicePitch,
-                                                          hostPtr,
-                                                          eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
+                                                               bufferOrigin, hostOrigin, region,
+                                                               bufferRowPitch, bufferSlicePitch,
+                                                               hostRowPitch, hostSlicePitch,
+                                                               hostPtr,
+                                                               eventWaitList, eventOut)
 {
   TRACE (this, "enqueueWriteBufferRect", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -561,11 +577,11 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
     this._validateEventOut (eventOut);
 
     var ev = this._internal.enqueueWriteBufferRect (clBuffer, !!blockingWrite,
-                                                  bufferOrigin, hostOrigin, region,
-                                                  bufferRowPitch, bufferSlicePitch,
-                                                  hostRowPitch, hostSlicePitch,
-                                                  hostPtr,
-                                                  clEventWaitList);
+                                                    bufferOrigin, hostOrigin, region,
+                                                    bufferRowPitch, bufferSlicePitch,
+                                                    hostRowPitch, hostSlicePitch,
+                                                    hostPtr,
+                                                    clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
   catch (e)
@@ -576,9 +592,9 @@ CommandQueue.prototype.enqueueWriteBufferRect = function (buffer, blockingWrite,
 };
 
 
-CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
-                                                    origin, region, hostRowPitch,
-                                                    hostPtr, eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
+                                                          origin, region, hostRowPitch,
+                                                          hostPtr, eventWaitList, eventOut)
 {
   TRACE (this, "enqueueWriteImage", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -601,10 +617,10 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
     this._validateEventOut (eventOut);
 
     var ev = this._internal.enqueueWriteImage (clImage, !!blockingWrite,
-                                              origin, region,
-                                              hostRowPitch, 0,
-                                              hostPtr,
-                                              clEventWaitList);
+                                               origin, region,
+                                               hostRowPitch, 0,
+                                               hostPtr,
+                                               clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
   catch (e)
@@ -615,9 +631,9 @@ CommandQueue.prototype.enqueueWriteImage = function (image, blockingWrite,
 };
 
 
-CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalWorkOffset,
-                                                        globalWorkSize, localWorkSize,
-                                                        eventWaitList, eventOut)
+WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalWorkOffset,
+                                                             globalWorkSize, localWorkSize,
+                                                             eventWaitList, eventOut)
 {
   TRACE (this, "enqueueNDRangeKernel", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -657,7 +673,7 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim, globalW
 };
 
 
-CommandQueue.prototype.enqueueMarker = function (eventOut)
+WebCLCommandQueue.prototype.enqueueMarker = function (eventOut)
 {
   TRACE (this, "enqueueMarker", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -676,7 +692,7 @@ CommandQueue.prototype.enqueueMarker = function (eventOut)
 };
 
 
-CommandQueue.prototype.enqueueBarrier = function ()
+WebCLCommandQueue.prototype.enqueueBarrier = function ()
 {
   TRACE (this, "enqueueBarrier", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -693,7 +709,7 @@ CommandQueue.prototype.enqueueBarrier = function ()
 };
 
 
-CommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
+WebCLCommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 {
   TRACE (this, "enqueueWaitForEvents", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -716,7 +732,7 @@ CommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 };
 
 
-CommandQueue.prototype.finish = function ()
+WebCLCommandQueue.prototype.finish = function ()
 {
   TRACE (this, "finish", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -733,7 +749,7 @@ CommandQueue.prototype.finish = function ()
 };
 
 
-CommandQueue.prototype.flush = function ()
+WebCLCommandQueue.prototype.flush = function ()
 {
   TRACE (this, "flush", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -750,7 +766,7 @@ CommandQueue.prototype.flush = function ()
 };
 
 
-CommandQueue.prototype.getInfo = function (name)
+WebCLCommandQueue.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -784,21 +800,24 @@ CommandQueue.prototype.getInfo = function (name)
 // Internal functions
 
 
-CommandQueue.prototype._validateEventOut = function (eventOut)
+WebCLCommandQueue.prototype._validateEventOut = function (eventOut)
 {
+  TRACE (this, "_validateEventOut", arguments);
+  if (eventOut === undefined) eventOut = null;
   if (eventOut !== null && !webclutils.validateEvent(eventOut))
     throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
-  
+
   if (eventOut !== null && !webclutils.validateEventNotReleased(eventOut))
     throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was already released");
-  
+
   if (eventOut !== null && !webclutils.validateEventEmpty(eventOut))
     throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was already populated");
 }
 
 
-CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
+WebCLCommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
 {
+  TRACE (this, "_handleEventOut", arguments);
   if (!clEvent) return;
 
   if (webclEvent)
@@ -816,8 +835,9 @@ CommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
 };
 
 
-CommandQueue.prototype._convertEventWaitList = function (eventWaitList)
+WebCLCommandQueue.prototype._convertEventWaitList = function (eventWaitList)
 {
+  TRACE (this, "_convertEventWaitList", arguments);
   var clEvents = [];
   for (var i = 0; i < eventWaitList.length; ++i)
   {
@@ -834,10 +854,4 @@ CommandQueue.prototype._convertEventWaitList = function (eventWaitList)
 }
 
 
-
-
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([CommandQueue]);
-
-
-} catch(e) { ERROR ("webclcommandqueue.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclcommandqueue.jsm: "+e); }

@@ -11,6 +11,7 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCL" ];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -18,95 +19,110 @@ const Cu = Components.utils;
 
 var Exception = Components.Exception;
 
-
 Cu.import ("resource://nrcwebcl/modules/logger.jsm");
 
 INFO ("WebCL, Nokia Research Center, 2013");
 
 try {
 
-Cu.import ("resource://nrcwebcl/modules/common.jsm");
+  Cu.import ("resource://nrcwebcl/modules/common.jsm");
 
-Cu.import ("resource://gre/modules/Services.jsm");
-Cu.import ("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
-Cu.import ("resource://nrcwebcl/modules/webclconstructors.jsm");
+  Cu.import ("resource://gre/modules/Services.jsm");
+  Cu.import ("resource://gre/modules/XPCOMUtils.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webclconstructors.jsm");
 
-Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
-Cu.import ("resource://nrcwebcl/modules/mixins/owner.jsm");
-Cu.import ("resource://nrcwebcl/modules/mixins/securitycheckedcomponent.jsm");
+  Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
+  Cu.import ("resource://nrcwebcl/modules/mixins/owner.jsm");
 
-Cu.import ("resource://nrcwebcl/modules/lib_ocl/wrapper.jsm");
-Cu.import ("resource://nrcwebcl/modules/lib_ocl/platform.jsm");
-Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
-Cu.import ("resource://nrcwebcl/modules/lib_ocl/context.jsm");
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/wrapper.jsm");
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/platform.jsm");
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/context.jsm");
 
-Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
-Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
+  Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
+
+  Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
+
+  DEBUG ("webcl.jsm: modules loaded");
 
 
-DEBUG ("webcl.js: modules loaded");
+  // Ensure all other WebCL classes get imported
+  // TODO: Move this somewhere where it'll only get run if WebCL is being touched by the page.
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclplatform.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webcldevice.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclcontext.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclcommandqueue.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclevent.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclprogram.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclkernel.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclmemoryobject.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclsampler.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclimagedescriptor.jsm");
 
-} catch (e) { ERROR ("webcl.js: Failed to load modules: " + EXCEPTIONSTR(e) + "."); throw e; }
+
+} catch (e) { ERROR ("webcl.jsm: Failed to load modules: " + EXCEPTIONSTR(e) + "."); throw e; }
 
 try {
 
-
-var CLASSNAME =  "WebCL";
-var CID =        "{dd8e0776-5030-4b4d-be81-ab5417dc54b7}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCL;1";
-
-
 function WebCL ()
 {
-  if (!(this instanceof WebCL)) return new WebCL ();
+  TRACE (this, "WebCL", arguments);
+  try {
+    if (!(this instanceof WebCL)) return new WebCL ();
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._usePermitted = false;
-  this._securityDialogNeeded = true;
-  this._initialized = false;
+    this._usePermitted = false;
+    this._securityDialogNeeded = true;
+    this._initialized = false;
 
-  this._oclLibPath = webclutils.getPref_openclLib (true);
-  this._abi = getRuntimeABI ();
-  this._os = getRuntimeOS ();
+    this._oclLibPath = webclutils.getPref_openclLib (true);
+    this._abi = getRuntimeABI ();
+    this._os = getRuntimeOS ();
 
-  this._internal = null;
-  this._objectRegistry = {};
+    this._internal = null;
+    this._objectRegistry = {};
+
+    this.__exposedProps__ =
+    {
+      init: "r",
+      getManagedExternalIdentityList: "r",
+
+      getPlatforms: "r",
+      createContext: "r",
+      getSupportedExtensions: "r",
+      enableExtension: "r",
+      waitForEvents: "r",
+      releaseAll: "r",
+      dumpTree: "r",
+
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webcl.jsm:WebCL failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
+WEBCLCLASSES.WebCL = WebCL;
 addMixin (WebCL.prototype, OwnerMixin);
-addMixin (WebCL.prototype, SecurityCheckedComponentMixin);
 
 
-WebCL.prototype.classDescription = CLASSNAME;
-WebCL.prototype.classID =          Components.ID(CID);
-WebCL.prototype.contractID =       CONTRACTID;
-WebCL.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCL,
-                                                            //Ci.nsIDOMGlobalObjectConstructor,
-                                                            Ci.nsISecurityCheckedComponent,
+// We need to look like XPCOM component to function as nsIObserver
+WebCL.prototype.classDescription = "WebCL";
+WebCL.prototype.classID =          Components.ID("{dd8e0776-5030-4b4d-be81-ab5417dc54b7}");
+WebCL.prototype.contractID =       "@webcl.nokiaresearch.com/IWebCL;1";
+WebCL.prototype.QueryInterface =   XPCOMUtils.generateQI ([ //Ci.IWebCL,
                                                             Ci.nsIObserver,
                                                             Ci.nsISupportsWeakReference,
                                                             Ci.nsIClassInfo
-                                                          ]);
+]);
 
-
-//------------------------------------------------------------------------------
-// Class Info
-
-WebCL.prototype.getInterfaces = function (count)
-{
-  var interfaces = [ Ci.IWebCL,
-                     //Ci.nsIDOMGlobalObjectConstructor,
-                     Ci.nsISecurityCheckedComponent,
-                     Ci.nsIObserver,
-                     Ci.nsISupportsWeakReference,
-                     Ci.nsIClassInfo,
-                     Ci.nsISupports
-                   ];
-  count.value = interfaces.length;
-  return interfaces;
-};
+// TODO: Class Info?
 
 
 //------------------------------------------------------------------------------
@@ -114,40 +130,54 @@ WebCL.prototype.getInterfaces = function (count)
 
 WebCL.prototype.observe = function (subject, topic, data)
 {
-  DEBUG ("WebCL#observe: " + topic + " data=" + data);
+  DEBUG ("WebCL.observe: " + topic + " data=" + data);
 
-  switch (topic) {
-    case "nsPref:changed":
-      if (data == webclutils.PREF_WEBCL_ALLOWED)
-      {
-        this.handlePrefAllowed (webclutils.getPref_allowed (true));
-      }
-      break;
+  try
+  {
+    switch (topic) {
+      case "nsPref:changed":
+        if (data == webclutils.PREF_WEBCL_ALLOWED)
+        {
+          this.handlePrefAllowed (webclutils.getPref_allowed (true));
+        }
+        break;
+    }
+  }
+  catch(e)
+  {
+    try { ERROR("webcl.jsm:WebCL.observe failed: " + String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
   }
 };
 
 
 //------------------------------------------------------------------------------
-// IWebCL
 
 WebCL.prototype.init = function (domWindow)
 {
-
-  this.handlePrefAllowed (webclutils.getPref_allowed (true));
-
-  webclutils.setPrefObserver_allowed (this);
-  webclutils.setPrefObserver_openclLib (this);
-
-
-  // Install onunload handler
-  var instance = this;
-  domWindow.addEventListener ("unload", function (ev)
+  try
   {
-    LOG ("Unload event");
-    instance.releaseAll ();
-  });
+    this.handlePrefAllowed (webclutils.getPref_allowed (true));
 
-  this._initialized = true;
+    webclutils.setPrefObserver_allowed (this);
+    webclutils.setPrefObserver_openclLib (this);
+
+
+    // Install onunload handler
+    var instance = this;
+    domWindow.addEventListener ("unload", function (ev)
+    {
+      LOG ("Unload event");
+      instance.releaseAll ();
+    });
+
+    this._initialized = true;
+  }
+  catch(e)
+  {
+    try { ERROR("webcl.jsm:WebCL.init failed: " + String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
 };
 
 
@@ -167,7 +197,7 @@ WebCL.prototype.getPlatforms = function ()
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR("webcl.jsm:WebCL.getPlatforms failed: " + String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -197,8 +227,8 @@ WebCL.prototype.createContext = function (arg0, deviceType)
     if (Array.isArray(arg0))
       return createContextFromDeviceArray.call(this, arg0);
 
-    throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE, 
-                      "first argument must be a valid DEVICE_TYPE, WebCLPlatform, WebCLDevice, or WebCLDevice array", 
+    throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE,
+                      "first argument must be a valid DEVICE_TYPE, WebCLPlatform, WebCLDevice, or WebCLDevice array",
                       "webcl.createContext");
   }
   catch (e)
@@ -208,7 +238,7 @@ WebCL.prototype.createContext = function (arg0, deviceType)
   }
 };
 
-function createContextFromDeviceType(dt) 
+function createContextFromDeviceType(dt)
 {
   TRACE (this, "createContextFromDeviceType", arguments);
 
@@ -231,7 +261,7 @@ function createContextFromDeviceType(dt)
   } catch (e) {
     LOG("createContextFromDeviceType: failed to create a context for deviceType " + dt + " with platform == NULL");
   }
-  
+
   // If the above automatic platform selection fails (as it typically does on current OpenCL
   // drivers), then manually loop through all platforms trying to find a device with the given
   // deviceType.
@@ -252,7 +282,7 @@ function createContextFromDeviceType(dt)
   throw new CLError(ocl_errors.CL_DEVICE_NOT_FOUND, "no Devices found matching the given deviceType on any Platform");
 };
 
-function createContextFromPlatform(platform, dt) 
+function createContextFromPlatform(platform, dt)
 {
   TRACE (this, "createContextFromPlatform", arguments);
 
@@ -265,7 +295,7 @@ function createContextFromPlatform(platform, dt)
     LOG("createContextFromPlatform: invalid deviceType: " + dt);
     throw new CLError (ocl_errors.CL_INVALID_DEVICE_TYPE, "deviceType must be a valid DEVICE_TYPE enum, or undefined");
   }
-  
+
   try {
     var platform = webclutils.unwrapInternal(platform);
     var clCtx = this._internal.createContextFromType([ocl_const.CL_CONTEXT_PLATFORM, platform, 0], dt);
@@ -276,7 +306,7 @@ function createContextFromPlatform(platform, dt)
   }
 };
 
-function createContextFromDevice(device) 
+function createContextFromDevice(device)
 {
   TRACE (this, "createContextFromDevice", arguments);
   var devices = [ webclutils.unwrapInternal(device) ];
@@ -284,15 +314,15 @@ function createContextFromDevice(device)
   return webclutils.wrapInternal (clCtx, this);
 };
 
-function createContextFromDeviceArray(devices) 
+function createContextFromDeviceArray(devices)
 {
   TRACE (this, "createContextFromDeviceArray", arguments);
-  
+
   if (devices.length === 0)
     throw new CLError(ocl_errors.CL_INVALID_VALUE, "'devices.length' must not be zero");
-  
-  devices.forEach(function(v, i) { 
-    devices[i] = webclutils.unwrapInternal(v); 
+
+  devices.forEach(function(v, i) {
+    devices[i] = webclutils.unwrapInternal(v);
   });
 
   if (!webclutils.validateArray(devices, webclutils.validateDevice))
@@ -390,6 +420,7 @@ WebCL.prototype.releaseAll = function ()
     throw webclutils.convertCLException (e);
   }
 };
+
 
 
 //------------------------------------------------------------------------------
@@ -516,8 +547,8 @@ WebCL.prototype.ensureLibraryLoaded = function ()
     catch (e)
     {
       throw new Exception ("Failed to load OpenCL library" +
-                           (this._oclLibPath ? " \""+this._oclLibPath+"\"" : "") +
-                           ": " + e + ".");
+                          (this._oclLibPath ? " \""+this._oclLibPath+"\"" : "") +
+                          ": " + e + ".");
     }
   }
 };
@@ -541,10 +572,4 @@ WebCL.prototype._convertEventWaitList = function (eventWaitList)
 }
 
 
-//------------------------------------------------------------------------------
-// Internal functions
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([WebCL]);
-
-
-} catch(e) { ERROR ("webcl.js: "+EXCEPTIONSTR(e)); throw e; }
+} catch(e) { ERROR ("webcl.jsm: "+EXCEPTIONSTR(e)); throw e; }

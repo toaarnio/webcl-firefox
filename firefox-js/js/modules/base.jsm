@@ -24,7 +24,6 @@ Cu.import("resource://nrcwebcl/modules/logger.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
-Cu.import ("resource://nrcwebcl/modules/mixins/securitycheckedcomponent.jsm");
 
 
 // TODO: implement better identity generation
@@ -53,8 +52,6 @@ function Base ()
   //                     mechanism is designed to guard against use through dangling references.
   this._invalid = false;
 }
-
-addMixin (Base.prototype, SecurityCheckedComponentMixin);
 
 
 Base.prototype._ensureValidObject = function ()

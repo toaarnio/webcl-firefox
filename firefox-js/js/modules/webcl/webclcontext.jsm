@@ -11,6 +11,8 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCLContext" ];
+
 
 try {
 
@@ -35,51 +37,56 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/wrapper.jsm");
 
-
-var CLASSNAME =  "WebCLContext";
-var CID =        "{0e5fba5c-091f-40db-a6a9-700ba50393d0}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLContext;1";
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
-function Context ()
+function WebCLContext ()
 {
-  if (!(this instanceof Context)) return new Context ();
+  TRACE (this, "WebCLContext", arguments);
+  try {
+    if (!(this instanceof WebCLContext)) return new WebCLContext ();
 
-  Base.apply(this);
+    Base.apply(this);
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._interfaces = [ Ci.IWebCLContext,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+    this._objectRegistry = {};
 
-  this._objectRegistry = {};
+    this.__exposedProps__ =
+    {
+      getExternalIdentity: "r",
+      getManagedExternalIdentityList: "r",
+      createBuffer: "r",
+      createCommandQueue: "r",
+      createImage: "r",
+      createProgram: "r",
+      createSampler: "r",
+      createUserEvent: "r",
+      getInfo: "r",
+      getSupportedImageFormats: "r",
+      release: "r",
+      releaseAll: "r",
+
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webclcontext.jsm:WebCLContext failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
-Context.prototype = Object.create (Base.prototype);
-
-addMixin (Context.prototype, OwnerMixin);
-
-
-Context.prototype.classDescription = CLASSNAME;
-Context.prototype.classID =          Components.ID(CID);
-Context.prototype.contractID =       CONTRACTID;
-Context.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLContext,
-                                                              Ci.nsISecurityCheckedComponent,
-                                                              Ci.nsISupportsWeakReference,
-                                                              Ci.nsIClassInfo
-                                                            ]);
+WEBCLCLASSES.WebCLContext = WebCLContext;
+WebCLContext.prototype = Object.create (Base.prototype);
+addMixin (WebCLContext.prototype, OwnerMixin);
+WebCLContext.prototype.classDescription = "WebCLContext";
 
 
-//------------------------------------------------------------------------------
-// IWebCLContext
 
 // createBuffer()._owner == this == [WebCLContext]
 //
-Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
+WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 {
   TRACE (this, "createBuffer", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -102,7 +109,7 @@ Context.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 
 // createCommandQueue()._owner == this == [WebCLContext]
 //
-Context.prototype.createCommandQueue = function (device, properties)
+WebCLContext.prototype.createCommandQueue = function (device, properties)
 {
   TRACE (this, "createCommandQueue", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -116,17 +123,17 @@ Context.prototype.createCommandQueue = function (device, properties)
     if (device === undefined || device === null) {
       device = supportedDevices[0];
     }
-    else 
+    else
     {
       if (!webclutils.validateDevice(device))
         throw new CLError(ocl_errors.CL_INVALID_DEVICE,
-                          "1st argument must be a valid WebCLDevice or null, was " + device, 
-                          "Context.createCommandQueue [webclcontext.js]");
+                          "1st argument must be a valid WebCLDevice or null, was " + device,
+                          "WebCLContext.createCommandQueue [webclcontext.js]");
 
       if (supportedDevices.indexOf(device) === -1)
         throw new CLError(ocl_errors.CL_INVALID_DEVICE,
                           "the given WebCLDevice is not associated with this WebCLContext",
-                          "Context.createCommandQueue [webclcontext.js]");
+                          "WebCLContext.createCommandQueue [webclcontext.js]");
     }
 
     // Validate the given properties, or use default properties
@@ -140,14 +147,14 @@ Context.prototype.createCommandQueue = function (device, properties)
     else
     {
       if (!webclutils.validateBitfield(properties, validProperties))
-        throw new CLError(ocl_errors.CL_INVALID_VALUE, 
-                          "2nd argument must be a valid bitfield of command queue properties, was " + properties, 
-                          "Context.createCommandQueue [webclcontext.js]");
+        throw new CLError(ocl_errors.CL_INVALID_VALUE,
+                          "2nd argument must be a valid bitfield of command queue properties, was " + properties,
+                          "WebCLContext.createCommandQueue [webclcontext.js]");
 
       if (!webclutils.validateBitfield(properties, supportedProperties))
         throw new CLError(ocl_errors.CL_INVALID_QUEUE_PROPERTIES,
                           "the given properties (" + properties + ") are not supported by the selected device",
-                          "Context.createCommandQueue [webclcontext.js]");
+                          "WebCLContext.createCommandQueue [webclcontext.js]");
     }
 
     var clDevice = this._unwrapInternalOrNull (device);
@@ -164,7 +171,7 @@ Context.prototype.createCommandQueue = function (device, properties)
 
 // createImage()._owner == this == [WebCLContext]
 //
-Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
+WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
 {
   TRACE (this, "createImage", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -283,7 +290,7 @@ Context.prototype.createImage = function (memFlags, descriptor, hostPtr)
 
 // createProgram()._owner == this == [WebCLContext]
 //
-Context.prototype.createProgram = function (source)
+WebCLContext.prototype.createProgram = function (source)
 {
   TRACE (this, "createProgram", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -306,7 +313,7 @@ Context.prototype.createProgram = function (source)
 
 // createSampler()._owner == this == [WebCLContext]
 //
-Context.prototype.createSampler = function (normalizedCoords, addressingMode, filterMode)
+WebCLContext.prototype.createSampler = function (normalizedCoords, addressingMode, filterMode)
 {
   TRACE (this, "createSampler", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -326,7 +333,7 @@ Context.prototype.createSampler = function (normalizedCoords, addressingMode, fi
 
 // createUserEvent()._owner == this == [WebCLContext]
 //
-Context.prototype.createUserEvent = function ()
+WebCLContext.prototype.createUserEvent = function ()
 {
   TRACE (this, "createUserEvent", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -346,7 +353,7 @@ Context.prototype.createUserEvent = function ()
 
 // getInfo(CONTEXT_DEVICES)[i]._owner == this._owner == [WebCL]
 //
-Context.prototype.getInfo = function (name)
+WebCLContext.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -374,7 +381,7 @@ Context.prototype.getInfo = function (name)
 };
 
 
-Context.prototype.getSupportedImageFormats = function (memFlags)
+WebCLContext.prototype.getSupportedImageFormats = function (memFlags)
 {
   TRACE (this, "getSupportedImageFormats", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -409,7 +416,7 @@ Context.prototype.getSupportedImageFormats = function (memFlags)
 };
 
 
-Context.prototype.releaseAll = function ()
+WebCLContext.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
   if(!this._ensureValidObject ()) return;
@@ -431,11 +438,4 @@ Context.prototype.releaseAll = function ()
 };
 
 
-//------------------------------------------------------------------------------
-// Internal functions
-
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Context]);
-
-
-} catch(e) { ERROR ("webclcontext.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclcontext.jsm: "+e); }

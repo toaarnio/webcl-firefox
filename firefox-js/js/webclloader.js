@@ -18,16 +18,15 @@ const Cu = Components.utils;
 
 Cu.import("resource://nrcwebcl/modules/common.jsm");
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://nrcwebcl/modules/logger.jsm");
 Cu.import("resource://nrcwebcl/modules/webclutils.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 Cu.import("resource://gre/modules/Services.jsm");
 
-
-var CLASSNAME =  "WebCLLoader";
-var CID =        "{f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2}";
-var CONTRACTID = "@webcl.nokiaresearch.com/WebCLLoader;1";
+Cu.import("resource://nrcwebcl/modules/webcl/webcl.jsm");
+Cu.import("resource://nrcwebcl/modules/webcl/webclevent.jsm");
+Cu.import("resource://nrcwebcl/modules/webcl/webclimagedescriptor.jsm");
 
 
 INFO ("WebCL Loader, Nokia Research Center, 2013");
@@ -47,9 +46,9 @@ function WebCLLoader ()
 
 
 WebCLLoader.prototype = {
-  classDescription: CLASSNAME,
-  classID:          Components.ID(CID),
-  contractID:       CONTRACTID,
+  classDescription: "WebCLLoader",
+  classID:          Components.ID("{f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2}"),
+  contractID:       "@webcl.nokiaresearch.com/WebCLLoader;1",
 
   QueryInterface: XPCOMUtils.generateQI ([ Ci.nsIObserver,
                                            Ci.nsISupportsWeakReference
@@ -75,6 +74,11 @@ function handle_contentDocumentGlobalCreated (ctx, domWindow)
   // Is WebCL enabled?
   if (ctx._allowed !== 0)
   {
+    domWindow.wrappedJSObject._NokiaWebCL = WebCL;
+    domWindow.wrappedJSObject._NokiaWebCLEvent = WebCLEvent;
+    domWindow.wrappedJSObject._NokiaWebCLImageDescriptor = WebCLImageDescriptor;
+
+
     LOG ("Loading WebCL client side component. baseURI: " + domWindow.document.baseURI);
     var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                             .getService (Ci.mozIJSSubScriptLoader);
@@ -103,15 +107,30 @@ WebCLLoader.prototype.observe = function (subject, topic, data)
 
   switch (topic) {
     case "profile-after-change":
-      handle_profileAfterChange (this);
+      try {
+        handle_profileAfterChange (this);
+      } catch (e) {
+        ERROR ("WebCLLoader#observe \"profile-after-change\": " +e);
+        throw e;
+      }
       break;
 
     case "content-document-global-created":
-      handle_contentDocumentGlobalCreated (this, subject);
+      try {
+        handle_contentDocumentGlobalCreated (this, subject);
+      } catch (e) {
+        ERROR ("WebCLLoader#observe \"content-document-global-created\": " +e);
+        throw e;
+      }
       break;
 
     case "nsPref:changed":
-      handle_prefChanged (this, data);
+      try {
+        handle_prefChanged (this, data);
+      } catch (e) {
+        ERROR ("WebCLLoader#observe \"nsPref:changed\": " +e);
+        throw e;
+      }
       break;
   }
 };

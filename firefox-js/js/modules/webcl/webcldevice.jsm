@@ -11,6 +11,10 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCLDevice" ];
+
+
+try {
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -28,50 +32,45 @@ Cu.import ("resource://nrcwebcl/modules/base.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
-
-try {
-
-
-var CLASSNAME =  "WebCLDevice";
-var CID =        "{f5352722-9a35-405b-95ae-54d5b4995576}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLDevice;1";
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
-function Device ()
+function WebCLDevice ()
 {
-  if (!(this instanceof Device)) return new Device ();
+  TRACE (this, "WebCLDevice", arguments);
+  try {
+    if (!(this instanceof WebCLDevice)) return new WebCLDevice ();
 
-  Base.apply(this);
+    Base.apply(this);
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._interfaces = [ Ci.IWebCLDevice,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+    this.__exposedProps__ =
+    {
+      getExternalIdentity: "r",
+      getInfo: "r",
+      getSupportedExtensions: "r",
+      enableExtension: "r",
+
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webcldevice.jsm:WebCLDevice failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
-Device.prototype = Object.create (Base.prototype);
+WEBCLCLASSES.WebCLDevice = WebCLDevice;
+WebCLDevice.prototype = Object.create (Base.prototype);
+WebCLDevice.prototype.classDescription = "WebCLDevice";
 
-Device.prototype.classDescription = CLASSNAME;
-Device.prototype.classID =          Components.ID(CID);
-Device.prototype.contractID =       CONTRACTID;
-Device.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLDevice,
-                                                             Ci.nsISecurityCheckedComponent,
-                                                             Ci.nsISupportsWeakReference,
-                                                             Ci.nsIClassInfo
-                                                           ]);
-
-
-//------------------------------------------------------------------------------
-// IWebCLDevice
 
 
 // getInfo(DEVICE_PLATFORM)._owner == this._owner == [WebCL]
 //
-Device.prototype.getInfo = function (name)
+WebCLDevice.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -158,7 +157,7 @@ Device.prototype.getInfo = function (name)
 };
 
 
-Device.prototype.getSupportedExtensions = function ()
+WebCLDevice.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -176,7 +175,7 @@ Device.prototype.getSupportedExtensions = function ()
 };
 
 
-Device.prototype.enableExtension = function (extensionName)
+WebCLDevice.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -194,7 +193,4 @@ Device.prototype.enableExtension = function (extensionName)
 };
 
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Device]);
-
-
-} catch(e) { ERROR ("webcldevice.js: "+e); throw e; }
+} catch(e) { ERROR ("webcldevice.jsm: "+e); }

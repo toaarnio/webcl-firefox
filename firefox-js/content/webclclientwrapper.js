@@ -10,7 +10,9 @@
   }
   catch (e)
   {
-    return;
+    e = _wrapException (e, "webcl");
+    console.log ("WebCL: Failed to create or initialize Nokia WebCL Object: " +e);
+    throw e;
   }
 
 
@@ -26,7 +28,7 @@
   {
     return (n !== null) && (typeof(n) === 'number') && (!isNaN(+n));
   };
-  
+
   var _ensureWebCLAvailable = function ()
   {
     // TODO
@@ -52,31 +54,23 @@
     else if (obj && typeof(obj) == "object")
     {
       try {
-        var re = /^\[xpconnect wrapped \(?([\w ,]+)\)?\]$/.exec (obj.toString());
-
-        if (re)
+        if (obj.classDescription)
         {
-          var ifaceList = re[1].split(/\, */);
-          for (let i = 0; i < ifaceList.length; ++i)
+          switch (obj.classDescription)
           {
-            // TODO: Image, Buffer and UserEvent are expected to have their
-            //       own interface listed before inherited interface.
-            switch (ifaceList[i])
-            {
-            case "IWebCLPlatform":        return _createPlatformInstance (obj);
-            case "IWebCLDevice":          return _createDeviceInstance (obj);
-            case "IWebCLContext":         return _createContextInstance (obj);
-            case "IWebCLProgram":         return _createProgramInstance (obj);
-            case "IWebCLKernel":          return _createKernelInstance (obj);
-            case "IWebCLCommandQueue":    return _createCommandQueueInstance (obj);
-            case "IWebCLMemoryObject":    return _createMemoryObjectInstance (obj);
-            case "IWebCLBuffer":          return _createBufferInstance (obj);
-            case "IWebCLImage":           return _createImageInstance (obj);
-            case "IWebCLSampler":         return _createSamplerInstance (obj);
-            case "IWebCLEvent":           return _createEventInstance (obj);
-            case "IWebCLUserEvent":       return _createUserEventInstance (obj);
-            case "IWebCLImageDescriptor": return _createImageDescriptorInstance (obj);
-            }
+            case "WebCLPlatform":        return _createPlatformInstance (obj);
+            case "WebCLDevice":          return _createDeviceInstance (obj);
+            case "WebCLContext":         return _createContextInstance (obj);
+            case "WebCLProgram":         return _createProgramInstance (obj);
+            case "WebCLKernel":          return _createKernelInstance (obj);
+            case "WebCLCommandQueue":    return _createCommandQueueInstance (obj);
+            case "WebCLMemoryObject":    return _createMemoryObjectInstance (obj);
+            case "WebCLBuffer":          return _createBufferInstance (obj);
+            case "WebCLImage":           return _createImageInstance (obj);
+            case "WebCLSampler":         return _createSamplerInstance (obj);
+            case "WebCLEvent":           return _createEventInstance (obj);
+            case "WebCLUserEvent":       return _createUserEventInstance (obj);
+            case "WebCLImageDescriptor": return _createImageDescriptorInstance (obj);
           }
         }
       } catch(e) { }
@@ -95,7 +89,8 @@
     var message = "";
 
     try {
-      var re = /\'WEBCLEXCEPTION\:([\w=]*)\'.*/.exec(e.message);
+      var re = /WEBCLEXCEPTION\:([\w=]*).*/.exec(e);
+      //var re = /[\'\"]?WEBCLEXCEPTION\:([\w=]*).*/.exec(e.message);
       if (re)
       {
         var exData = JSON.parse(atob(re[1]));

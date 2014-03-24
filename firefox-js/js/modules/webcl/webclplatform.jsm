@@ -11,6 +11,8 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCLPlatform" ];
+
 
 try {
 
@@ -30,46 +32,46 @@ Cu.import ("resource://nrcwebcl/modules/base.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
-
-var CLASSNAME =  "WebCLPlatform";
-var CID =        "{6ab8b8cf-4d87-40a0-af8a-cc0bf5251fa3}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLPlatform;1";
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
-function Platform ()
+function WebCLPlatform ()
 {
-  if (!(this instanceof Platform)) return new Platform ();
+  TRACE (this, "WebCLPlatform", arguments);
+  try {
+    if (!(this instanceof WebCLPlatform)) return new WebCLPlatform ();
 
-  Base.apply(this);
+    Base.apply(this);
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._interfaces = [ Ci.IWebCLPlatform,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+    this.__exposedProps__ =
+    {
+      getExternalIdentity: "r",
+      getInfo: "r",
+      getDevices: "r",
+      getSupportedExtensions: "r",
+      enableExtension: "r",
+
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webclplatform.jsm:WebCLPlatform failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
+WEBCLCLASSES.WebCLPlatform = WebCLPlatform;
 
-Platform.prototype = Object.create (Base.prototype);
+WebCLPlatform.prototype = Object.create (Base.prototype);
 
-
-Platform.prototype.classDescription = CLASSNAME;
-Platform.prototype.classID =          Components.ID(CID);
-Platform.prototype.contractID =       CONTRACTID;
-Platform.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLPlatform,
-                                                               Ci.nsISecurityCheckedComponent,
-                                                               Ci.nsISupportsWeakReference,
-                                                               Ci.nsIClassInfo
-                                                             ]);
+WebCLPlatform.prototype.classDescription = "WebCLPlatform";
 
 
-//------------------------------------------------------------------------------
-// IWebCLPlatform
 
-Platform.prototype.getInfo = function (name)
+WebCLPlatform.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -94,7 +96,7 @@ Platform.prototype.getInfo = function (name)
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR("webclplatform.jsm:getInfo failed: " + String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -102,25 +104,27 @@ Platform.prototype.getInfo = function (name)
 
 // getDevices()[i]._owner == this._owner == [WebCL]
 //
-Platform.prototype.getDevices = function (deviceType)
+WebCLPlatform.prototype.getDevices = function (deviceType)
 {
   TRACE (this, "getDevices", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    if (deviceType === undefined) deviceType = 0;
+
     if (!webclutils.validateNumber(deviceType))
-      throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE, 
+      throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE,
                         "deviceType must be a valid DEVICE_TYPE",
                         "WebCLPlatform.getDevices");
 
     if (deviceType !== 0 &&
-        deviceType !== ocl_const.CL_DEVICE_TYPE_DEFAULT && 
-        deviceType !== ocl_const.CL_DEVICE_TYPE_CPU && 
-        deviceType !== ocl_const.CL_DEVICE_TYPE_GPU && 
-        deviceType !== ocl_const.CL_DEVICE_TYPE_ACCELERATOR && 
+        deviceType !== ocl_const.CL_DEVICE_TYPE_DEFAULT &&
+        deviceType !== ocl_const.CL_DEVICE_TYPE_CPU &&
+        deviceType !== ocl_const.CL_DEVICE_TYPE_GPU &&
+        deviceType !== ocl_const.CL_DEVICE_TYPE_ACCELERATOR &&
         deviceType !== ocl_const.CL_DEVICE_TYPE_ALL)
-      throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE, 
+      throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE,
                         "deviceType must be a valid DEVICE_TYPE",
                         "WebCLPlatform.getDevices");
 
@@ -128,52 +132,47 @@ Platform.prototype.getDevices = function (deviceType)
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR("webclplatform.jsm:getDevices failed: " + String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
 
 
-Platform.prototype.getSupportedExtensions = function ()
+WebCLPlatform.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
-    // TODO Platform.getSupportedExtensions
+    // TODO WebCLPlatform.getSupportedExtensions
     return [];
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR("webclplatform.jsm:getSupportedExtensions failed: " + String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
 
 
-Platform.prototype.enableExtension = function (extensionName)
+WebCLPlatform.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
-    // TODO Platform.enableExtension
+    // TODO WebCLPlatform.enableExtension
     return false;
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR("webclplatform.jsm:enableExtension failed: " + String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
 
-//------------------------------------------------------------------------------
-// Internal functions
 
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Platform]);
-
-
-} catch(e) { ERROR ("webcldevice.js: "+e); }
+} catch(e) { ERROR ("webclplatform.jsm: "+e); }

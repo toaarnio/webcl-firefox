@@ -11,6 +11,8 @@
  *
  */
 
+var EXPORTED_SYMBOLS = [ "WebCLProgram" ];
+
 
 try {
 
@@ -35,50 +37,49 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/device.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
-
-var CLASSNAME =  "WebCLProgram";
-var CID =        "{74d49a1e-31e0-41d5-8e98-8980a077fcb2}";
-var CONTRACTID = "@webcl.nokiaresearch.com/IWebCLProgram;1";
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
-function Program ()
+function WebCLProgram ()
 {
-  if (!(this instanceof Program)) return new Program ();
+  TRACE (this, "WebCLProgram", arguments);
+  try {
+    if (!(this instanceof WebCLProgram)) return new WebCLProgram ();
 
-  Base.apply(this);
+    Base.apply(this);
 
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = this;
 
-  this._interfaces = [ Ci.IWebCLProgram,
-                       Ci.nsISecurityCheckedComponent,
-                       Ci.nsISupportsWeakReference,
-                       Ci.nsIClassInfo,
-                       Ci.nsISupports
-                     ];
+    this._objectRegistry = {};
 
-  this._objectRegistry = {};
+    this.__exposedProps__ =
+    {
+      getExternalIdentity: "r",
+      getInfo: "r",
+      getBuildInfo: "r",
+      build: "r",
+      createKernel: "r",
+      createKernelsInProgram: "r",
+      release: "r",
+
+      classDescription: "r"
+    };
+  }
+  catch (e)
+  {
+    ERROR ("webclprogram.jsm:WebCLProgram failed: " + e);
+    throw webclutils.convertCLException (e);
+  }
 }
 
-
-Program.prototype = Object.create (Base.prototype);
-
-addMixin (Program.prototype, OwnerMixin);
-
-
-Program.prototype.classDescription = CLASSNAME;
-Program.prototype.classID =          Components.ID(CID);
-Program.prototype.contractID =       CONTRACTID;
-Program.prototype.QueryInterface =   XPCOMUtils.generateQI ([ Ci.IWebCLProgram,
-                                                              Ci.nsISecurityCheckedComponent,
-                                                              Ci.nsISupportsWeakReference,
-                                                              Ci.nsIClassInfo
-                                                            ]);
+WEBCLCLASSES.WebCLProgram = WebCLProgram;
+WebCLProgram.prototype = Object.create (Base.prototype);
+addMixin (WebCLProgram.prototype, OwnerMixin);
+WebCLProgram.prototype.classDescription = "WebCLProgram";
 
 
-//------------------------------------------------------------------------------
-// IWebCLProgram
 
-Program.prototype.getInfo = function (name)
+WebCLProgram.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -110,7 +111,7 @@ Program.prototype.getInfo = function (name)
 };
 
 
-Program.prototype.getBuildInfo = function (device, name)
+WebCLProgram.prototype.getBuildInfo = function (device, name)
 {
   TRACE (this, "getBuildInfo", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -143,7 +144,7 @@ Program.prototype.getBuildInfo = function (device, name)
     let d = "device";
     try { d = device.getInfo(ocl_info.CL_DEVICE_NAME); } catch(e2){}
     try { let se = String(e); }catch(e2){}
-    DEBUG("Program.getBuildInfo("+d+","+oclInfoToString(name)+"): "+se);
+    DEBUG("WebCLProgram.getBuildInfo("+d+","+oclInfoToString(name)+"): "+se);
     */
 
     try { ERROR(String(e)); }catch(e){}
@@ -152,7 +153,7 @@ Program.prototype.getBuildInfo = function (device, name)
 };
 
 
-Program.prototype.build = function (devices, options, whenFinished)
+WebCLProgram.prototype.build = function (devices, options, whenFinished)
 {
   TRACE (this, "build", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -208,7 +209,7 @@ Program.prototype.build = function (devices, options, whenFinished)
 
 // createKernel(name)._owner == this._owner == [WebCLContext]
 //
-Program.prototype.createKernel = function (kernelName)
+WebCLProgram.prototype.createKernel = function (kernelName)
 {
   TRACE (this, "createKernel", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -233,7 +234,7 @@ Program.prototype.createKernel = function (kernelName)
 
 // createKernelsInProgram()._owner == this._owner == [WebCLContext]
 //
-Program.prototype.createKernelsInProgram = function ()
+WebCLProgram.prototype.createKernelsInProgram = function ()
 {
   TRACE (this, "createKernelsInProgram", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
@@ -253,8 +254,8 @@ Program.prototype.createKernelsInProgram = function ()
 };
 
 
-// NOTE: NOT VISIBLE TO XPCOM!
-Program.prototype.releaseAll = function ()
+// NOTE: NOT EXPOSED, NOT VISIBLE TO JS!
+WebCLProgram.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
   if(!this._ensureValidObject ()) return;
@@ -276,11 +277,5 @@ Program.prototype.releaseAll = function ()
 };
 
 
-//------------------------------------------------------------------------------
-// Internal functions
 
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory ([Program]);
-
-
-} catch(e) { ERROR ("webclprogram.js: "+EXCEPTIONSTR(e)); }
+} catch(e) { ERROR ("webclprogram.jsm: "+e); }

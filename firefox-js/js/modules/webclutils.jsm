@@ -14,6 +14,8 @@
 
 var EXPORTED_SYMBOLS = [ "webclutils" ];
 
+try {
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
@@ -46,6 +48,7 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/sampler.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclconstructors.jsm");
 
 
@@ -252,19 +255,19 @@ function unwrapInternalOrNull (object, /*optional*/ maxRecursion)
   {
     if (!object || typeof(object) != "object") return null;
     var o = object;
-    if (o instanceof Ci.IWebCLPlatform || o instanceof Ci.IWebCLDevice ||
-        o instanceof Ci.IWebCLContext || o instanceof Ci.IWebCLCommandQueue ||
-        o instanceof Ci.IWebCLEvent || o instanceof Ci.IWebCLUserEvent ||
-        o instanceof Ci.IWebCLMemoryObject ||
-        o instanceof Ci.IWebCLBuffer || o instanceof Ci.IWebCLImage ||
-        o instanceof Ci.IWebCLProgram || o instanceof Ci.IWebCLKernel ||
-        o instanceof Ci.IWebCLSampler
+    if (o instanceof WEBCLCLASSES.WebCLPlatform || o instanceof WEBCLCLASSES.WebCLDevice ||
+        o instanceof WEBCLCLASSES.WebCLContext || o instanceof WEBCLCLASSES.WebCLCommandQueue ||
+        o instanceof WEBCLCLASSES.WebCLEvent || o instanceof WEBCLCLASSES.WebCLUserEvent ||
+        o instanceof WEBCLCLASSES.WebCLMemoryObject ||
+        o instanceof WEBCLCLASSES.WebCLBuffer || o instanceof WEBCLCLASSES.WebCLImage ||
+        o instanceof WEBCLCLASSES.WebCLProgram || o instanceof WEBCLCLASSES.WebCLKernel ||
+        o instanceof WEBCLCLASSES.WebCLSampler
     )
     {
       if (o.wrappedJSObject) o = o.wrappedJSObject;
       rv = o._internal;
     }
-    else if (o instanceof Ci.IWebCLImageDescriptor)
+    else if (o instanceof WEBCLCLASSES.WebCLImageDescriptor)
     {
       if (o.wrappedJSObject) o = o.wrappedJSObject;
       rv = o;
@@ -461,9 +464,9 @@ function validateImage (obj)           { return validateWrappedOrInternal(obj, M
 function validateSampler (obj)         { return validateWrappedOrInternal(obj, Sampler) && validateClassName(obj, "Sampler"); }
 function validateProgram (obj)         { return validateWrappedOrInternal(obj, Program) && validateClassName(obj, "Program"); }
 function validateKernel (obj)          { return validateWrappedOrInternal(obj, Kernel) && validateClassName(obj, "Kernel"); }
-function validateEvent(obj)            { return obj && obj instanceof Ci.IWebCLEvent; }
-function validateEventEmpty(obj)       { return obj && obj instanceof Ci.IWebCLEvent && !unwrapInternalOrNull(obj); }
-function validateEventPopulated(obj)   { return obj && obj instanceof Ci.IWebCLEvent && !!unwrapInternalOrNull(obj); }
+function validateEvent(obj)            { return obj && obj instanceof WEBCLCLASSES.WebCLEvent; }
+function validateEventEmpty(obj)       { return obj && obj instanceof WEBCLCLASSES.WebCLEvent && !unwrapInternalOrNull(obj); }
+function validateEventPopulated(obj)   { return obj && obj instanceof WEBCLCLASSES.WebCLEvent && !!unwrapInternalOrNull(obj); }
 function validateEventNotReleased(obj) { return validateEvent(obj) && validateNotReleased(obj); }
 
 function validateWrapped (obj, type)
@@ -647,3 +650,6 @@ var webclutils = {
   validateImageChannelOrder:    validateImageChannelOrder,
   validateImageChannelType:     validateImageChannelType,
 };
+
+
+} catch(e) { ERROR ("webclutils.jsm: "+e); }
