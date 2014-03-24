@@ -139,7 +139,7 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
     if (this.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) !== ocl_const.CL_COMPLETE)
       throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be COMPLETE before profiling info is available");
 
-    if (this instanceof Ci.IWebCLUserEvent)
+    if (this instanceof WEBCLCLASSES.WebCLUserEvent)
       throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "profiling info is not available for user events");
 
     switch (name)
