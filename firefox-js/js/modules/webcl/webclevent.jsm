@@ -188,7 +188,7 @@ function WebCLUserEvent ()
   try {
     if (!(this instanceof WebCLUserEvent)) return new WebCLUserEvent ();
 
-    Event.apply(this);
+    WebCLEvent.apply(this);
 
     this.wrappedJSObject = this;
 
