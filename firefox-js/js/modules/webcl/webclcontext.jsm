@@ -206,7 +206,7 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
     if (descriptor.channelType !== undefined && !webclutils.validateNumber(descriptor.channelType))
       throw new CLError(ocl_errors.CL_INVALID_IMAGE_DESCRIPTOR, "'descriptor.channelType' must be a number; was " + descriptor.channelType);
 
-    // Validate 'channelOrder' and 'channelType' (but NOT their combination with each other and memFlags)
+    // Validate 'channelOrder' and 'channelType' (TODO: validate against what's actually supported)
     //
 
     if (descriptor.channelOrder !== undefined && !webclutils.validateImageChannelOrder(descriptor))
@@ -218,7 +218,7 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
     descriptor.channelOrder = descriptor.channelOrder || ocl_const.CL_RGBA;
     descriptor.channelType = descriptor.channelType || ocl_const.CL_UNORM_INT8;
 
-    // Validate 'width' and 'height' (but NOT their combination with each other and the image format)
+    // Validate 'width' and 'height'
     //
 
     if (descriptor.width <= 0)
@@ -403,13 +403,15 @@ WebCLContext.prototype.getSupportedImageFormats = function (memFlags)
     var rv = [];
     for (var i = 0; i < list.length; ++i)
     {
-      rv.push (createWebCLImageDescriptor ({ channelOrder: list[i].channelOrder,
-                                             channelType: list[i].channelType,
-                                             width: 0,
-                                             height: 0,
-                                             rowPitch: 0 }));
+      if (webclutils.validateImageFormat(list[i]))
+      {
+        rv.push (createWebCLImageDescriptor ({ channelOrder: list[i].channelOrder,
+                                               channelType: list[i].channelType,
+                                               width: 0,
+                                               height: 0,
+                                               rowPitch: 0 }));
+      }
     }
-
     return rv;
   }
   catch (e)

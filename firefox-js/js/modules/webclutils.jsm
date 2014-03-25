@@ -423,6 +423,9 @@ function getBytesPerPixel(descriptor)
 {
   var numChannels = getNumChannels(descriptor);
 
+  if (numChannels === undefined) 
+    return undefined;
+
   switch (descriptor.channelType)
   {
   case ocl_const.CL_SNORM_INT8:
