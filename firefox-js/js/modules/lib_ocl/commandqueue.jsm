@@ -662,8 +662,8 @@ CommandQueue.prototype.enqueueMarker = function ()
 {
   TRACE (this, "enqueueMarker", arguments);
   var clEventOut = new T.cl_event();
-  var clErr = this._lib.clEnqueueWaitForEvents (this._internal,
-                                                clEventOut.address());
+  var clErr = this._lib.clEnqueueMarker (this._internal,
+                                         clEventOut.address());
   if (clErr) throw new CLError (clErr, null, "CommandQueue.enqueueMarker");
 
   return new CLEvent (clEventOut, this._lib);
