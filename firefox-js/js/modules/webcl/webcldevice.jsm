@@ -117,7 +117,7 @@ WebCLDevice.prototype.getInfo = function (name)
       case ocl_info.CL_DEVICE_MAX_PARAMETER_SIZE:                 break;
       case ocl_info.CL_DEVICE_MEM_BASE_ADDR_ALIGN:                break;
       //case ocl_info.CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE:
-      case ocl_info.CL_DEVICE_SINGLE_FP_CONFIG:                   break;
+      case ocl_info.CL_DEVICE_SINGLE_FP_CONFIG:                   return (this._internal.getInfo (name) & 0x7F);
       case ocl_info.CL_FP_ROUND_TO_NEAREST:                       break;
       case ocl_info.CL_DEVICE_GLOBAL_MEM_CACHE_TYPE:              break;
       case ocl_info.CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE:          break;
