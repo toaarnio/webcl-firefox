@@ -324,6 +324,24 @@ WebCLContext.prototype.createSampler = function (normalizedCoords, addressingMod
 
   try
   {
+    if (!webclutils.validateBoolean(normalizedCoords))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'normalizedCoords' must be a boolean; was " + normalizedCoords);
+
+    if (addressingMode !== ocl_const.CL_ADDRESS_CLAMP &&
+        addressingMode !== ocl_const.CL_ADDRESS_CLAMP_TO_EDGE &&
+        addressingMode !== ocl_const.CL_ADDRESS_REPEAT &&
+        addressingMode !== ocl_const.CL_ADDRESS_MIRRORED_REPEAT)
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'addressingMode' must be a valid CLenum; was " + addressingMode);
+
+    if (filterMode !== ocl_const.CL_FILTER_NEAREST &&
+        filterMode !== ocl_const.CL_FILTER_LINEAR)
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'addressingMode' must be a valid CLenum; was " + addressingMode);
+
+    if (normalizedCoords === false && 
+        (addressingMode === ocl_const.CL_ADDRESS_REPEAT ||
+         addressingMode === ocl_const.CL_ADDRESS_MIRRORED_REPEAT))
+      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'addressingMode' must not be REPEAT or MIRRORED_REPEAT if normalizedCoords is false");
+
     var clSampler = this._internal.createSampler (normalizedCoords, addressingMode, filterMode);
     return this._wrapInternal (clSampler, this);
   }
