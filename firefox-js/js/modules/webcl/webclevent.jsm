@@ -93,14 +93,31 @@ WebCLEvent.prototype.getInfo = function (name)
     if (!this._internal)
       return -1;
 
-    switch (name)
+    if (this instanceof WebCLUserEvent)
     {
-    case ocl_info.CL_EVENT_COMMAND_TYPE:
-    case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
-    case ocl_info.CL_EVENT_COMMAND_QUEUE:
-    case ocl_info.CL_EVENT_CONTEXT:
-      var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem);
+      switch (name)
+      {
+      case ocl_info.CL_EVENT_COMMAND_TYPE:
+        return ocl_const.CL_COMMAND_USER;
+      case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
+        return ocl_const.CL_SUBMITTED;
+      case ocl_info.CL_EVENT_COMMAND_QUEUE:
+        return null;
+      case ocl_info.CL_EVENT_CONTEXT:
+        return this._wrapInternal (this._owner);
+      }
+    }
+    else 
+    {
+      switch (name)
+      {
+      case ocl_info.CL_EVENT_COMMAND_TYPE:
+      case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
+      case ocl_info.CL_EVENT_COMMAND_QUEUE:
+      case ocl_info.CL_EVENT_CONTEXT:
+        var clInfoItem = this._internal.getInfo (name);
+        return this._wrapInternal (clInfoItem);
+      }
     }
   }
   catch (e)
