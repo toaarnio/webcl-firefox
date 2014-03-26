@@ -410,7 +410,7 @@ WebCLContext.prototype.getSupportedImageFormats = function (memFlags)
 
   try
   {
-    if (memFlags === undefined || memFlags === null)
+    if (memFlags === undefined)
       memFlags = ocl_const.CL_MEM_READ_WRITE;
 
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
