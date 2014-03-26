@@ -307,7 +307,7 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     this._validateBuffer(buffer, "buffer");
 
     if (!webclutils.validateBoolean(blockingRead))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingRead' must be a boolean; was " + blockingRead);
+      throw new INVALID_VALUE("'blockingRead' must be a boolean; was ", blockingRead);
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
 
@@ -816,7 +816,7 @@ WebCLCommandQueue.prototype.getInfo = function (name)
   try
   {
     if (!webclutils.validateInteger(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLCommandQueue.getInfo");
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -826,7 +826,7 @@ WebCLCommandQueue.prototype.getInfo = function (name)
       var clInfoItem = this._internal.getInfo (name);
       return this._wrapInternal (clInfoItem);
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLCommandQueue.getInfo");
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)

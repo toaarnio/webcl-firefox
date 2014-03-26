@@ -78,8 +78,8 @@ WebCLPlatform.prototype.getInfo = function (name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLPlatform.getInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -89,7 +89,7 @@ WebCLPlatform.prototype.getInfo = function (name)
       case ocl_info.CL_PLATFORM_VENDOR:                   break;
       case ocl_info.CL_PLATFORM_EXTENSIONS:               break;
       default:
-        throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLPlatform.getInfo");
+        throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
 
     return this._wrapInternal (this._internal.getInfo (name));

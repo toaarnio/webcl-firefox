@@ -77,8 +77,8 @@ WebCLDevice.prototype.getInfo = function (name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLDevice.getInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -93,15 +93,15 @@ WebCLDevice.prototype.getInfo = function (name)
       case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT:         break;
       case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG:        break;
       case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT:       break;
-      case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:      throw new CLError(ocl_errors.CL_INVALID_VALUE);
-      case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:        throw new CLError(ocl_errors.CL_INVALID_VALUE);
+      //case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:      throw new CLError(ocl_errors.CL_INVALID_VALUE);
+      //case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:        throw new CLError(ocl_errors.CL_INVALID_VALUE);
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR:           break;
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT:          break;
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_INT:            break;
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG:           break;
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT:          break;
-      case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE:         throw new CLError(ocl_errors.CL_INVALID_VALUE);
-      case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF:           throw new CLError(ocl_errors.CL_INVALID_VALUE);
+      //case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE:         throw new CLError(ocl_errors.CL_INVALID_VALUE);
+      //case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF:           throw new CLError(ocl_errors.CL_INVALID_VALUE);
       case ocl_info.CL_DEVICE_MAX_CLOCK_FREQUENCY:                break;
       case ocl_info.CL_DEVICE_ADDRESS_BITS:                       break;
       case ocl_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE:                 break;
@@ -144,7 +144,7 @@ WebCLDevice.prototype.getInfo = function (name)
       case ocl_info.CL_DEVICE_OPENCL_C_VERSION:                   return "WebCL C 1.0";
       case ocl_info.CL_DEVICE_EXTENSIONS:                         break;
       default:
-        throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLDevice.getInfo");
+        throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
 
     return this._wrapInternal (this._internal.getInfo (name));

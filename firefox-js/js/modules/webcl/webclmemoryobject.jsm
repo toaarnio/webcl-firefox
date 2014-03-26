@@ -187,7 +187,7 @@ WebCLImage.prototype.getInfo = function (name)
 
   try
   {
-    if (name === undefined || name === null) {
+    if (name === undefined) {
       var imageFormat = this._internal.getImageInfo (ocl_info.CL_IMAGE_FORMAT);
       var width = this._internal.getImageInfo (ocl_info.CL_IMAGE_WIDTH);
       var height = this._internal.getImageInfo (ocl_info.CL_IMAGE_HEIGHT);
@@ -201,12 +201,11 @@ WebCLImage.prototype.getInfo = function (name)
         rowPitch:     +rowPitch || 0
       };
 
-      // NOTE: No need to wrapInternal
-      return createWebCLImageDescriptor (values);
+      return createWebCLImageDescriptor (values);    // NOTE: No need to wrapInternal
     }
 
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLImage.getInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -224,7 +223,7 @@ WebCLImage.prototype.getInfo = function (name)
       return null;
 
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLImage.getInfo");
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)

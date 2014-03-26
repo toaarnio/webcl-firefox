@@ -95,8 +95,8 @@ WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
   {
     if (hostPtr === undefined) hostPtr = null;
 
-    if (!webclutils.validateNumber(memFlags) || !webclutils.validateMemFlags(memFlags))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'memFlags' must be a valid CLenum; was " + memFlags, "WebCLContext.createBuffer");
+    if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
+      throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
 
     var clBuffer = this._internal.createBuffer (memFlags, sizeInBytes, hostPtr);
     return this._wrapInternal (clBuffer, this);
@@ -185,8 +185,8 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
     // Validate 'memFlags'
     //
 
-    if (!webclutils.validateNumber(memFlags) || !webclutils.validateMemFlags(memFlags))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'memFlags' must be a valid CLenum; was " + memFlags);
+    if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
+      throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
 
     // Validate the presence and type of required fields in 'descriptor'
     //
@@ -302,7 +302,7 @@ WebCLContext.prototype.createProgram = function (source)
   try
   {
     if (!webclutils.validateString(source))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'source' must be a non-empty string; was " + source, "WebCLContext.createProgram");
+      throw new INVALID_VALUE("'source' must be a non-empty string; was ", source);
 
     var clProgram = this._internal.createProgramWithSource (source);
     return this._wrapInternal (clProgram, this);
@@ -325,22 +325,22 @@ WebCLContext.prototype.createSampler = function (normalizedCoords, addressingMod
   try
   {
     if (!webclutils.validateBoolean(normalizedCoords))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'normalizedCoords' must be a boolean; was " + normalizedCoords);
+      throw new INVALID_VALUE("normalizedCoords must be a boolean; was ", normalizedCoords);
 
     if (addressingMode !== ocl_const.CL_ADDRESS_CLAMP &&
         addressingMode !== ocl_const.CL_ADDRESS_CLAMP_TO_EDGE &&
         addressingMode !== ocl_const.CL_ADDRESS_REPEAT &&
         addressingMode !== ocl_const.CL_ADDRESS_MIRRORED_REPEAT)
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'addressingMode' must be a valid CLenum; was " + addressingMode);
+      throw new INVALID_VALUE("addressingMode must be a valid CLenum; was ", addressingMode);
 
     if (filterMode !== ocl_const.CL_FILTER_NEAREST &&
         filterMode !== ocl_const.CL_FILTER_LINEAR)
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'addressingMode' must be a valid CLenum; was " + addressingMode);
+      throw new INVALID_VALUE("filterMode must be a valid CLenum; was ", filterMode);
 
     if (normalizedCoords === false && 
         (addressingMode === ocl_const.CL_ADDRESS_REPEAT ||
          addressingMode === ocl_const.CL_ADDRESS_MIRRORED_REPEAT))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'addressingMode' must not be REPEAT or MIRRORED_REPEAT if normalizedCoords is false");
+      throw new INVALID_VALUE("addressingMode must not be {MIRRORED_}REPEAT if normalizedCoords is false; was ", addressingMode);
 
     var clSampler = this._internal.createSampler (normalizedCoords, addressingMode, filterMode);
     return this._wrapInternal (clSampler, this);
@@ -382,8 +382,8 @@ WebCLContext.prototype.getInfo = function (name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLContext.getInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -392,7 +392,7 @@ WebCLContext.prototype.getInfo = function (name)
       var clInfoItem = this._internal.getInfo (name);
       return this._wrapInternal (clInfoItem);
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLContext.getInfo");
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)
@@ -413,8 +413,8 @@ WebCLContext.prototype.getSupportedImageFormats = function (memFlags)
     if (memFlags === undefined || memFlags === null)
       memFlags = ocl_const.CL_MEM_READ_WRITE;
 
-    if (!webclutils.validateNumber(memFlags) || !webclutils.validateMemFlags(memFlags))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'memFlags' must be a valid CLenum; was " + memFlags, "WebCLContext.getSupportedImageFormats");
+    if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
+      throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
 
     var list = this._internal.getSupportedImageFormats (memFlags, ocl_const.CL_MEM_OBJECT_IMAGE2D);
 

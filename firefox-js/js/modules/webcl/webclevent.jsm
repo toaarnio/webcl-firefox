@@ -76,8 +76,8 @@ WebCLEvent.prototype.getInfo = function (name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLEvent.getInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -87,7 +87,7 @@ WebCLEvent.prototype.getInfo = function (name)
     case ocl_info.CL_EVENT_COMMAND_QUEUE:
       break;
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLEvent.getInfo");
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
 
     if (!this._internal)
@@ -135,8 +135,8 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name);
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -147,7 +147,7 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
       break;
 
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "'name' must be one of the accepted CLenums; was " + name);
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
 
     if (!this._internal)

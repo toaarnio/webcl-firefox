@@ -77,8 +77,8 @@ WebCLKernel.prototype.getInfo = function (name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLKernel.getInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -90,7 +90,7 @@ WebCLKernel.prototype.getInfo = function (name)
       return this._wrapInternal (clInfoItem);
 
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLKernel.getInfo");
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)
@@ -108,8 +108,8 @@ WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLKernel.getWorkGroupInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -123,7 +123,7 @@ WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
       return this._wrapInternal (clInfoItem);
 
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLKernel.getWorkGroupInfo");
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)

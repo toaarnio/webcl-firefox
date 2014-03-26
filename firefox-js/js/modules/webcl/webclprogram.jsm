@@ -86,8 +86,8 @@ WebCLProgram.prototype.getInfo = function (name)
 
   try
   {
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLProgram.getInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -100,7 +100,7 @@ WebCLProgram.prototype.getInfo = function (name)
       return this._wrapInternal (clInfoItem);
 
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLProgram.getInfo");
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)
@@ -119,10 +119,10 @@ WebCLProgram.prototype.getBuildInfo = function (device, name)
   try
   {
     if (!webclutils.validateDevice(device))
-      throw new CLError(ocl_errors.CL_INVALID_DEVICE, "'device' must be a valid WebCLDevice; was " + device, "WebCLProgram.getBuildInfo");
+      throw new INVALID_DEVICE("'device' must be a valid WebCLDevice; was ", device);
 
-    if (!webclutils.validateNumber(name))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'name' must be a valid CLenum; was " + name, "WebCLProgram.getBuildInfo");
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)
     {
@@ -135,7 +135,7 @@ WebCLProgram.prototype.getBuildInfo = function (device, name)
       return this._wrapInternal (clInfoItem);
 
     default:
-      throw new CLError (ocl_errors.CL_INVALID_VALUE, "Unrecognized enum " + name, "WebCLProgram.getBuildInfo");
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)
@@ -178,19 +178,19 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
   try
   {
     if (devices !== null && (!Array.isArray(devices) || devices.length === 0))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "devices", "'devices' must be null or an Array with at least one element; was " + devices);
+      throw new INVALID_VALUE("'devices' must be null or an Array with at least one element; was ", devices);
 
     if (devices !== null && !webclutils.validateArray(devices, webclutils.validateDevice))
-      throw new CLError(ocl_errors.CL_INVALID_DEVICE, "'devices' must only contain instances of WebCLDevice; was " + devices);
+      throw new INVALID_DEVICE("'devices' must only contain instances of WebCLDevice; was ", devices);
 
     if (options !== null && typeof(options) !== 'string')
-      throw new CLError(ocl_errors.CL_INVALID_BUILD_OPTIONS, "invalid build options '"+options+"'");
+      throw new INVALID_BUILD_OPTIONS("'options' must be a string of valid build options or null; was ", options);
 
     if (options !== null && !webclutils.validateBuildOptions(options, validBuildOptions))
-      throw new CLError(ocl_errors.CL_INVALID_BUILD_OPTIONS, "invalid build options '"+options+"'");
+      throw new INVALID_BUILD_OPTIONS("'options' must be a string of valid build options or null; was ", options);
 
     if (whenFinished !== null && typeof(whenFinished) !== "function")
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'whenFinished' must be null or a WebCLCallback function; was " + whenFinished);
+      throw new INVALID_VALUE("'whenFinished' must be null or a WebCLCallback function; was ", whenFinished);
 
     for (var i=0; devices !== null && i < devices.length; i++)
       devices[i] = this._unwrapInternalOrNull(devices[i]);

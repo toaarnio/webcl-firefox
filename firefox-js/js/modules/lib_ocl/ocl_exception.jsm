@@ -12,7 +12,8 @@
  */
 
 
-var EXPORTED_SYMBOLS = [ "CLException", "CLInvalidated", "CLError", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented" ];
+var EXPORTED_SYMBOLS = [ "CLException", "CLInvalidated", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented", "CLError",
+                         "INVALID_VALUE", "INVALID_DEVICE", "INVALID_BUILD_OPTIONS" ];
 
 
 const Cu = Components.utils;
@@ -106,7 +107,6 @@ CLError.prototype.toString = function ()
 };
 
 
-
 function CLUnsupportedInfo (name, msg, context)
 {
   CLException.apply (this);
@@ -179,6 +179,33 @@ CLNotImplemented.prototype.toString = function ()
 {
   return "Not implemented" + (this.name ? ": "+this.name : "");
 };
+
+
+//  Specialized constructors for commonly used OpenCL errors.
+//
+function INVALID_VALUE (msg, value)
+{
+  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
+  CLError.call(this, ocl_errors.CL_INVALID_VALUE, msg);
+};
+INVALID_VALUE.prototype = Object.create (CLError.prototype);
+
+
+function INVALID_DEVICE (msg, value)
+{
+  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
+  CLError.call(this, ocl_errors.CL_INVALID_DEVICE, msg);
+};
+INVALID_DEVICE.prototype = Object.create (CLError.prototype);
+
+
+function INVALID_BUILD_OPTIONS (msg, value)
+{
+  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
+  CLError.call(this, ocl_errors.CL_INVALID_BUILD_OPTIONS, msg);
+};
+INVALID_BUILD_OPTIONS.prototype = Object.create (CLError.prototype);
+
 
 
 } catch (e) { ERROR ("exception.jsm: " + e + "."); throw e; }
