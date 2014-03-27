@@ -307,16 +307,10 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     /*
     INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
   x INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as buffer
-    INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as all events in eventWaitList
   x INVALID_MEM_OBJECT -- if buffer is not a valid buffer object
   x INVALID_VALUE -- if any part of the region being read, specified by bufferOffset and numBytes, is out of bounds of buffer
   x INVALID_VALUE -- if any part of the region being written, specified by hostPtr and numBytes is out of bounds of hostPtr
   x INVALID_VALUE -- if numBytes % hostPtr.BYTES_PER_ELEMENT !== 0
-    INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
-    INVALID_EVENT_WAIT_LIST -- if blockingRead is true, and any event in eventWaitList is a WebCLUserEvent or a newly created (non-activated) WebCLEvent
-    EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST -- if blockingRead is true and the execution status of any event in eventWaitList
-      is a negative integer value
-  x INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
 
     this._validateBuffer(buffer, "buffer");
@@ -418,18 +412,12 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     /*
     INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
   x INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as image
-    INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as all events in eventWaitList
   x INVALID_MEM_OBJECT -- if image is not a valid WebCLImage object
     INVALID_IMAGE_SIZE -- if the image dimensions of image are not supported by this WebCLCommandQueue
   x INVALID_VALUE -- if origin or region does not have exactly two elements
   x INVALID_VALUE -- if any part of the region being read, specified by origin and region, is out of bounds of image
   x INVALID_VALUE -- if any part of the region being written, specified by region and hostRowPitch, is out of bounds of hostPtr
   x INVALID_VALUE -- if hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0
-    INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
-    INVALID_EVENT_WAIT_LIST -- if blockingRead is true, and any event in eventWaitList is a WebCLUserEvent or a newly created (non-activated) WebCLEvent
-    EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST -- if blockingRead is true and the execution status of any event in eventWaitList
-      is a negative integer value
-  x INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
 
     this._validateImage(image, "image");
@@ -507,32 +495,46 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer, blockingWrite
 
   try
   {
+    /*
+    INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
+  x INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as buffer
+  x INVALID_MEM_OBJECT -- if buffer is not a valid buffer object
+  x INVALID_VALUE -- if any part of the region being written, specified by bufferOffset and numBytes, is out of bounds of buffer
+  x INVALID_VALUE -- if any part of the region being read, specified by hostPtr and numBytes, is out of bounds of hostPtr
+  x INVALID_VALUE -- if numBytes % hostPtr.BYTES_PER_ELEMENT !== 0
+    */
     this._validateBuffer(buffer, "buffer");
 
     if (!webclutils.validateBoolean(blockingWrite))
-      throw new CLError(ocl_errors.CL_INVALID_VALUE, "'blockingWrite' must be a boolean; was " + blockingWrite);
+      throw new INVALID_VALUE("'blockingWrite' must be a boolean; was ", blockingWrite);
 
-    var clBuffer = this._unwrapInternalOrNull (buffer);
+    if (!webclutils.validateNonNegativeInt32(bufferOffset))
+      throw new INVALID_VALUE("'bufferOffset' must be non-negative and less than 2^32; was ", bufferOffset);
 
-    if (!webclutils.validateInteger(bufferOffset))
-      throw new CLInvalidArgument ("bufferOffset");
-    if (!webclutils.validateInteger(numBytes))
-      throw new CLInvalidArgument ("numBytes");
+    if (!webclutils.validatePositiveInt32(numBytes))
+      throw new INVALID_VALUE("'numBytes' must be greater than zero and less than 2^32; was ", numBytes);
 
-    // TODO: validate hostPtr
+    if (!webclutils.validateArrayBufferView(hostPtr))
+      throw new INVALID_VALUE("'hostPtr' must be an instance of ArrayBufferView, was ", hostPtr);
+
+    if (numBytes > hostPtr.byteLength)
+      throw new INVALID_VALUE("numBytes = "+numBytes+" must not be greater than hostPtr.byteLength = ", hostPtr.byteLength);
+
+    if (numBytes % hostPtr.BYTES_PER_ELEMENT !== 0)
+      throw new INVALID_VALUE("'numBytes' = "+numBytes+" must be zero or a multiple of hostPtr.BYTES_PER_ELEMENT = ", hostPtr.BYTES_PER_ELEMENT);
+
+    if ((range = bufferOffset + numBytes) > (bufferSize = buffer.getInfo(ocl_info.CL_MEM_SIZE)))
+      throw new INVALID_VALUE("bufferOffset + numBytes = "+range+" must not be greater than buffer size = ", bufferSize);
+
+    // TODO: validate eventWaitList
 
     var clEventWaitList = [];
-    if (eventWaitList)
-    {
-      clEventWaitList = this._convertEventWaitList (eventWaitList);
-    }
+    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
 
     this._validateEventOut (eventOut);
 
-    var ev = this._internal.enqueueWriteBuffer (clBuffer, !!blockingWrite,
-                                                bufferOffset,
-                                                numBytes, hostPtr,
-                                                clEventWaitList);
+    var clBuffer = this._unwrapInternalOrNull (buffer);
+    var ev = this._internal.enqueueWriteBuffer (clBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
   catch (e)
