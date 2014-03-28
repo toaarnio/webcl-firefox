@@ -13,7 +13,7 @@
 
 
 var EXPORTED_SYMBOLS = [ "CLException", "CLInvalidated", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented", "CLError",
-                         "INVALID_VALUE", "INVALID_DEVICE", "INVALID_BUILD_OPTIONS" ];
+                         "INVALID_VALUE", "INVALID_DEVICE", "INVALID_BUILD_OPTIONS", "INVALID_OPERATION", "INVALID_EVENT" ];
 
 
 const Cu = Components.utils;
@@ -205,6 +205,20 @@ function INVALID_BUILD_OPTIONS (msg, value)
   CLError.call(this, ocl_errors.CL_INVALID_BUILD_OPTIONS, msg);
 };
 INVALID_BUILD_OPTIONS.prototype = Object.create (CLError.prototype);
+
+
+function INVALID_OPERATION (msg)
+{
+  CLError.call(this, ocl_errors.CL_INVALID_OPERATION, msg);
+};
+INVALID_OPERATION.prototype = Object.create (CLError.prototype);
+
+
+function INVALID_EVENT (msg)
+{
+  CLError.call(this, ocl_errors.CL_INVALID_EVENT, msg);
+};
+INVALID_EVENT.prototype = Object.create (CLError.prototype);
 
 
 
