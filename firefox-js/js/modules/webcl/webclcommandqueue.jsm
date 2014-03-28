@@ -924,16 +924,16 @@ WebCLCommandQueue.prototype._validateEventOut = function (eventOut)
   if (eventOut === undefined) eventOut = null;
 
   if (eventOut !== null && eventOut instanceof WEBCLCLASSES.WebCLUserEvent)
-    throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was a WebCLUserEvent");
+    throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was a WebCLUserEvent");
 
   if (eventOut !== null && !webclutils.validateEvent(eventOut))
-    throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was " + eventOut);
+    throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
   if (eventOut !== null && !webclutils.validateEventNotReleased(eventOut))
-    throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was already released");
+    throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was already released");
 
   if (eventOut !== null && !webclutils.validateEventEmpty(eventOut))
-    throw new CLError(ocl_errors.CL_INVALID_EVENT, "'event' must be a newly created empty WebCLEvent; was already populated");
+    throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was already populated");
 }
 
 

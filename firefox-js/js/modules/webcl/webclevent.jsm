@@ -76,6 +76,9 @@ WebCLEvent.prototype.getInfo = function (name)
 
   try
   {
+    if (!this._internal)
+      throw new INVALID_EVENT("event must be populated before calling getInfo");
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
@@ -83,41 +86,13 @@ WebCLEvent.prototype.getInfo = function (name)
     {
     case ocl_info.CL_EVENT_COMMAND_TYPE:
     case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
-    case ocl_info.CL_EVENT_CONTEXT:
     case ocl_info.CL_EVENT_COMMAND_QUEUE:
-      break;
+    case ocl_info.CL_EVENT_CONTEXT:
+      var clInfoItem = this._internal.getInfo (name);
+      return this._wrapInternal (clInfoItem);
+
     default:
       throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
-    }
-
-    if (!this._internal)
-      return -1;
-
-    if (this instanceof WebCLUserEvent)
-    {
-      switch (name)
-      {
-      case ocl_info.CL_EVENT_COMMAND_TYPE:
-        return ocl_const.CL_COMMAND_USER;
-      case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
-        return ocl_const.CL_SUBMITTED;
-      case ocl_info.CL_EVENT_COMMAND_QUEUE:
-        return null;
-      case ocl_info.CL_EVENT_CONTEXT:
-        return this._wrapInternal (this._owner);
-      }
-    }
-    else 
-    {
-      switch (name)
-      {
-      case ocl_info.CL_EVENT_COMMAND_TYPE:
-      case ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
-      case ocl_info.CL_EVENT_COMMAND_QUEUE:
-      case ocl_info.CL_EVENT_CONTEXT:
-        var clInfoItem = this._internal.getInfo (name);
-        return this._wrapInternal (clInfoItem);
-      }
     }
   }
   catch (e)
@@ -135,6 +110,15 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
 
   try
   {
+    if (!this._internal)
+      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be populated before calling getProfilingInfo");
+
+    if (this instanceof WEBCLCLASSES.WebCLUserEvent)
+      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "profiling info is not available for user events");
+
+    if (this.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) !== ocl_const.CL_COMPLETE)
+      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be COMPLETE before calling getProfilingInfo");
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
@@ -144,31 +128,12 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
     case ocl_info.CL_PROFILING_COMMAND_SUBMIT:
     case ocl_info.CL_PROFILING_COMMAND_START:
     case ocl_info.CL_PROFILING_COMMAND_END:
-      break;
-
-    default:
-      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
-    }
-
-    if (!this._internal)
-      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be populated before profiling info is available");
-
-    if (this.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) !== ocl_const.CL_COMPLETE)
-      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be COMPLETE before profiling info is available");
-
-    if (this instanceof WEBCLCLASSES.WebCLUserEvent)
-      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "profiling info is not available for user events");
-
-    switch (name)
-    {
-    // TODO implement some means to return the true 64-bit value (currently limited to 52 low-order bits)
-    case ocl_info.CL_PROFILING_COMMAND_QUEUED:
-    case ocl_info.CL_PROFILING_COMMAND_SUBMIT:
-    case ocl_info.CL_PROFILING_COMMAND_START:
-    case ocl_info.CL_PROFILING_COMMAND_END:
       var clInfoItem64bit = this._internal.getProfilingInfo (name);
       var clInfoItem52bit = 0x100000000 * (clInfoItem64bit.hi & 0xfffff) + clInfoItem64bit.lo;
       return this._wrapInternal (clInfoItem52bit);
+
+    default:
+      throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)
@@ -179,13 +144,16 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
 };
 
 
-WebCLEvent.prototype.setCallback = function ()
+WebCLEvent.prototype.setCallback = function (commandExecCallbackType, notify)
 {
   TRACE (this, "setCallback", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    if (!this._internal)
+      throw new INVALID_EVENT("event must be populated before calling setCallback");
+
     throw new Exception ("NOT IMPLEMENTED");
   }
   catch (e)
@@ -209,6 +177,8 @@ function WebCLUserEvent ()
 
     this.wrappedJSObject = this;
 
+    this.alreadySet = false;
+
     this.__exposedProps__.setStatus = "r";
   }
   catch (e)
@@ -231,11 +201,20 @@ WebCLUserEvent.prototype.setStatus = function (executionStatus)
   TRACE (this, "setStatus", arguments);
   if(!this._ensureValidObject ()) throw new CLInvalidated();
 
-  if (!this._internal) return; // TODO
-
   try
   {
+    if (!webclutils.validateInteger(executionStatus))
+      throw new INVALID_VALUE("'executionStatus' must be COMPLETE or a negative integer value; was ", executionStatus);
+
+    if (executionStatus >= 0 && executionStatus !== ocl_const.CL_COMPLETE)
+      throw new INVALID_VALUE("'executionStatus' must be COMPLETE or a negative integer value; was ", executionStatus);
+
+    if (this.alreadySet === true)
+      throw new INVALID_OPERATION("the execution status of this WebCLUserEvent has already been changed by a previous call to setStatus");
+
     this._internal.setStatus (executionStatus);
+
+    this.alreadySet = true;
   }
   catch (e)
   {
