@@ -108,6 +108,9 @@ WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
 
   try
   {
+    if (!webclutils.validateDevice(device))
+      throw new INVALID_DEVICE("'device' must be a valid WebCLDevice; was ", device);
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
