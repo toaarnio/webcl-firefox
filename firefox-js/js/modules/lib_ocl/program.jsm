@@ -293,10 +293,7 @@ Program.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
-  DEBUG("Calling clReleaseProgram with this._internal = " + this._internal);
   var err = this._lib.clReleaseProgram (this._internal);
-  DEBUG("clReleaseProgram completed with error code = " + err);
-
   if (err) throw new CLError (err, null, "Program.release");
 };
 
