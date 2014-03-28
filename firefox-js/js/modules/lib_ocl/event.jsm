@@ -176,6 +176,20 @@ CLEvent.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
 
+  if (this.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) > 0)
+  {
+    ERROR("Releasing an event with execution status > 0. This implies an error in application logic.")
+
+    // OPENCL DRIVER BUG WORKAROUND: User event status must be set to -1 or CL_COMPLETE before
+    // calling clReleaseEvent, or otherwise some drivers (e.g., NVIDIA on Windows) will crash.
+    //
+    if (this.getInfo(ocl_info.CL_EVENT_COMMAND_TYPE) === ocl_const.CL_COMMAND_USER)
+    {
+      ERROR("OPENCL DRIVER BUG WORKAROUND: Enforcing user event status to -1 before calling clReleaseEvent.");
+      this.setStatus(-1);
+    }
+  }
+
   var err = this._lib.clReleaseEvent (this._internal);
   if (err) throw new CLError (err, "Event.release");
 };
