@@ -50,6 +50,10 @@ function WebCLProgram ()
 
     this.wrappedJSObject = this;
 
+    this.buildOptions = "";
+
+    this.kernelsAlreadyCreated = false;
+
     this._objectRegistry = {};
 
     this.__exposedProps__ =
@@ -126,8 +130,9 @@ WebCLProgram.prototype.getBuildInfo = function (device, name)
 
     switch (name)
     {
-    case ocl_info.CL_PROGRAM_BUILD_STATUS:
     case ocl_info.CL_PROGRAM_BUILD_OPTIONS:
+      return this.buildOptions;
+    case ocl_info.CL_PROGRAM_BUILD_STATUS:
     case ocl_info.CL_PROGRAM_BUILD_LOG:
       var clDevice = this._unwrapInternalOrNull (device);
       var clInfoItem = this._internal.getBuildInfo (clDevice, name);
@@ -177,11 +182,11 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
   try
   {
+    if (this.kernelsAlreadyCreated === true)
+      throw new INVALID_OPERATION("cannot build a WebCLProgram that has kernels already attached to it");
+
     if (devices !== null && (!Array.isArray(devices) || devices.length === 0))
       throw new INVALID_VALUE("'devices' must be null or an Array with at least one element; was ", devices);
-
-    if (devices !== null && !webclutils.validateArray(devices, webclutils.validateDevice))
-      throw new INVALID_DEVICE("'devices' must only contain instances of WebCLDevice; was ", devices);
 
     if (options !== null && typeof(options) !== 'string')
       throw new INVALID_BUILD_OPTIONS("'options' must be a string of valid build options or null; was ", options);
@@ -192,8 +197,29 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     if (whenFinished !== null && typeof(whenFinished) !== "function")
       throw new INVALID_VALUE("'whenFinished' must be null or a WebCLCallback function; was ", whenFinished);
 
-    for (var i=0; devices !== null && i < devices.length; i++)
+    for (var i=0; devices !== null && i < devices.length; i++) {
+      
+      if (!webclutils.validateDevice(devices[i]))
+        throw new INVALID_DEVICE("'devices' must only contain instances of WebCLDevice; devices["+i+"] = ", devices[i]);
+
+      if (this.getInfo(ocl_info.CL_PROGRAM_DEVICES).indexOf(devices[i]) === -1)
+        throw new INVALID_DEVICE("'devices' must all be associated with this WebCLProgram; devices["+i+"] = ", devices[i]);
+
       devices[i] = this._unwrapInternalOrNull(devices[i]);
+    }
+
+    this.buildOptions = (options === null) ? "" : options;
+
+    var supportsKernelArgInfo = true;
+    this.getInfo(ocl_info.CL_PROGRAM_DEVICES).forEach(function(device) {
+      var deviceVersion = device._internal.getInfo(ocl_info.CL_DEVICE_VERSION);
+      var supportsCL12 = (deviceVersion.indexOf("OpenCL 1.2") >= 0);
+      supportsKernelArgInfo = supportsKernelArgInfo && supportsCL12;
+    });
+
+    if (supportsKernelArgInfo === true) {
+      options = this.buildOptions + " -cl-kernel-arg-info";
+    }
 
     // TODO: PROPER WEBCL CALLBACK!
     // TODO: THIS IS LIKELY TO BE TOTALLY UNSAFE!
@@ -222,7 +248,12 @@ WebCLProgram.prototype.createKernel = function (kernelName)
     // NOTE: Ensure proper memory management on certain platforms by acquiring
     //       ownership of created kernels. This ensures that on releaseAll
     //       kernel's will be released before program.
-    return this._wrapInternal (this._internal.createKernel(kernelName), this);
+
+    var clKernel = this._wrapInternal (this._internal.createKernel(kernelName), this);
+
+    this.kernelsAlreadyCreated = true;
+
+    return clKernel;
   }
   catch (e)
   {
@@ -244,7 +275,12 @@ WebCLProgram.prototype.createKernelsInProgram = function ()
     // NOTE: Ensure proper memory management on certain platforms by acquiring
     //       ownership of created kernels. This ensures that on releaseAll
     //       kernel's will be released before program.
-    return this._wrapInternal (this._internal.createKernelsInProgram(), this);
+
+    var clKernels = this._wrapInternal (this._internal.createKernelsInProgram(), this);
+
+    this.kernelsAlreadyCreated = true;
+
+    return clKernels;
   }
   catch (e)
   {
