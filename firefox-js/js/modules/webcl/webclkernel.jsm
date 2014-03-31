@@ -161,6 +161,26 @@ WebCLKernel.prototype.setArg = function (index, value)
 
   try
   {
+    if (!webclutils.validateNonNegativeInt32(index))
+      throw new INVALID_ARG_INDEX("'index' must be a non-negative integer; was ", index);
+
+    if (index >= (numArgs = this.getInfo(ocl_info.CL_KERNEL_NUM_ARGS)))
+      throw new INVALID_ARG_INDEX("'index' must be at most "+(numArgs-1)+" for this kernel; was ", index);
+
+    if (webclutils.validateMemObject(value))
+      if (this.getInfo(ocl_info.CL_KERNEL_CONTEXT) !== value.getInfo(ocl_info.CL_MEM_CONTEXT))
+        throw new INVALID_CONTEXT("the given WebCLMemoryObject and this WebCLKernel must have the same WebCLContext");
+
+    if (webclutils.validateArrayBufferView(value) &&
+        !(value.length === 1 || value.length === 2 || value.length === 4 ||
+          value.length === 8 || value.length === 16 || value.length === 32))
+      throw new INVALID_ARG_SIZE("the given ArrayBufferView must have a length of 1, 2, 4, 8, 16, or 32; was ", value.length);
+
+    if (!webclutils.validateMemObject(value) &&
+        !webclutils.validateSampler(value) &&
+        !webclutils.validateArrayBufferView(value))
+      throw new INVALID_ARG_VALUE("'value' must be a Buffer, Image, Sampler or ArrayBufferView; was ", value);
+
     // Handle arguments with local address space qualifier.
     // The number of bytes allocated is set using Uint32Array of length 1.
     // As we don't have getArgInfo we'll just test any such argument by treating
@@ -170,10 +190,10 @@ WebCLKernel.prototype.setArg = function (index, value)
       if (value && typeof(value) == "object")
       {
         let re = /\[object (\w*)\]/.exec(Object.prototype.toString.call(value));
-        if (re && re[1] && re[1] == "Uint32Array" && value.length == 1)
+        if (re && re[1] && re[1] == "Uint32Array" && value.length == 1 && value[0] > 0)
         {
           DEBUG ("WebCLKernel.setArg: Possible local arg detected, index="+index+" size="+value[0]+".");
-          this._internal.setArg (+index, +(value[0]));
+          this._internal.setArg (index, value[0]);
 
           // setArg didn't fail so arg seems to have been local.
           return;
@@ -181,7 +201,7 @@ WebCLKernel.prototype.setArg = function (index, value)
       }
     } catch(e) {}
 
-    this._internal.setArg (+index, this._unwrapInternal (value));
+    this._internal.setArg (index, this._unwrapInternal (value));
   }
   catch (e)
   {
@@ -189,7 +209,6 @@ WebCLKernel.prototype.setArg = function (index, value)
     throw webclutils.convertCLException (e);
   }
 };
-
 
 
 

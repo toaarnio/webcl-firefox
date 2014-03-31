@@ -462,6 +462,7 @@ function validatePlatform (obj)        { return validateWrappedOrInternal(obj, P
 function validateDevice (obj)          { return validateWrappedOrInternal(obj, Device) && validateClassName(obj, "Device"); }
 function validateContext (obj)         { return validateWrappedOrInternal(obj, Context) && validateClassName(obj, "Context"); }
 function validateQueue (obj)           { return validateWrappedOrInternal(obj, CommandQueue) && validateClassName(obj, "CommandQueue"); }
+function validateMemObject( obj)       { return validateBuffer(obj) || validateImage(obj); }
 function validateBuffer (obj)          { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Buffer"); }
 function validateImage (obj)           { return validateWrappedOrInternal(obj, MemoryObject) && validateClassName(obj, "Image"); }
 function validateSampler (obj)         { return validateWrappedOrInternal(obj, Sampler) && validateClassName(obj, "Sampler"); }
@@ -646,6 +647,7 @@ var webclutils = {
   validateContext:              validateContext,
   validateQueue:                validateQueue,
   validateBuffer:               validateBuffer,
+  validateMemObject:            validateMemObject,
   validateImage:                validateImage,
   validateSampler:              validateSampler,
   validateProgram:              validateProgram,

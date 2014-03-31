@@ -204,68 +204,20 @@ Kernel.prototype.setArg = function (index, value)
     ptr = value._internal.address();
     size = T.cl_sampler.size;
   }
-  //if (value instanceof Int8Array)
-  else if (className == "Int8Array")
-  {
+  else switch(className) {
+  case "Int8Array":
+  case "Uint8Array":
+  case "Uint8ClampedArray":
+  case "Int16Array":
+  case "Uint16Array":
+  case "Int32Array":
+  case "Uint32Array":
+  case "Float32Array":
+  case "Float64Array":
     ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Uint8Array)
-  else if (className == "Uint8Array")
-  {
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Uint8ClampedArray)
-  else if (className == "Uint8ClampedArray")
-  {
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Int16Array)
-  else if (className == "Int16Array")
-  {
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Uint16Array)
-  else if (className == "Uint16Array")
-  {
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Int32Array)
-  else if (className == "Int32Array")
-  {
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Uint32Array)
-  else if (className == "Uint32Array")
-  {
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Float32Array)
-  else if (className == "Float32Array")
-  {
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Float64Array)
-  else if (className == "Float64Array")
-  {
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof ArrayBuffer)
-  else if (className == "ArrayBuffer")
-  {
-    ptr = ctypes.voidptr_t (value);
     size = value.byteLength;
-  }
-  else
-  {
+    break;
+  default:
     throw new CLInvalidArgument ("value", null, "Kernel.setArg");
   }
 
