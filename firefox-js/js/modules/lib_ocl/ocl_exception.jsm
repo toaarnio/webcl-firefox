@@ -12,20 +12,7 @@
  */
 
 
-var EXPORTED_SYMBOLS = [ "CLException", "CLInvalidated", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented", "CLError",
-                         "INVALID_VALUE", 
-                         "INVALID_DEVICE",
-                         "INVALID_BUFFER_SIZE",
-                         "INVALID_HOST_PTR",
-                         "INVALID_BUILD_OPTIONS",
-                         "INVALID_CONTEXT", 
-                         "INVALID_OPERATION",
-                         "INVALID_EVENT",
-                         "INVALID_QUEUE_PROPERTIES",
-                         "INVALID_ARG_INDEX",
-                         "INVALID_ARG_VALUE",
-                         "INVALID_ARG_SIZE" ];
-
+var EXPORTED_SYMBOLS = [ "CLException", "CLInvalidated", "CLError", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented" ];
 
 const Cu = Components.utils;
 const Cr = Components.results;
@@ -192,100 +179,30 @@ CLNotImplemented.prototype.toString = function ()
 };
 
 
-//  Specialized constructors for commonly used OpenCL errors.
+// Generate shorthand constructors for all OpenCL errors.
 //
-function INVALID_VALUE (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_VALUE, msg);
-};
-INVALID_VALUE.prototype = Object.create (CLError.prototype);
+// Usage examples:
+//   throw new INVALID_VALUE("'value' was invalid");
+//   throw new INVALID_VALUE("'value' must be less than 10; was ", value);
+//
+
+var namespace = this;
+
+(function generateCLExceptions() {
+  for (var name in ocl_errors) {
+    var code = ocl_errors[name];
+    name = name.slice(3);
+    namespace[name] = (function(clError) {
+      return function(msg, value) {
+        if (arguments.length === 2)
+          msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
+        CLError.call(this, clError, msg);
+      }
+    })(code);
+    namespace[name].prototype = Object.create (CLError.prototype);
+    EXPORTED_SYMBOLS.push(name);
+  }
+})();
 
 
-function INVALID_DEVICE (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_DEVICE, msg);
-};
-INVALID_DEVICE.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_BUFFER_SIZE (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_BUFFER_SIZE, msg);
-};
-INVALID_BUFFER_SIZE.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_HOST_PTR (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_HOST_PTR, msg);
-};
-INVALID_HOST_PTR.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_ARG_INDEX (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_ARG_INDEX, msg);
-};
-INVALID_ARG_INDEX.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_ARG_VALUE (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_ARG_VALUE, msg);
-};
-INVALID_ARG_VALUE.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_ARG_SIZE (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_ARG_SIZE, msg);
-};
-INVALID_ARG_SIZE.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_BUILD_OPTIONS (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_BUILD_OPTIONS, msg);
-};
-INVALID_BUILD_OPTIONS.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_QUEUE_PROPERTIES (msg, value)
-{
-  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
-  CLError.call(this, ocl_errors.CL_INVALID_QUEUE_PROPERTIES, msg);
-};
-INVALID_QUEUE_PROPERTIES.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_CONTEXT (msg)
-{
-  CLError.call(this, ocl_errors.CL_INVALID_CONTEXT, msg);
-};
-INVALID_CONTEXT.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_OPERATION (msg)
-{
-  CLError.call(this, ocl_errors.CL_INVALID_OPERATION, msg);
-};
-INVALID_OPERATION.prototype = Object.create (CLError.prototype);
-
-
-function INVALID_EVENT (msg)
-{
-  CLError.call(this, ocl_errors.CL_INVALID_EVENT, msg);
-};
-INVALID_EVENT.prototype = Object.create (CLError.prototype);
-
-
-
-} catch (e) { ERROR ("exception.jsm: " + e + "."); throw e; }
+} catch (e) { ERROR ("ocl_exception.jsm: " + e + "."); throw e; }
