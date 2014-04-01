@@ -80,8 +80,12 @@ WebCLMemoryObject.prototype.getInfo = function (name)
 
     switch (name)
     {
-    case ocl_info.CL_MEM_TYPE:
     case ocl_info.CL_MEM_FLAGS:
+      var clInfoItem = this._internal.getInfo (name);
+      clInfoItem = clInfoItem & ~(ocl_const.CL_MEM_COPY_HOST_PTR);
+      return this._wrapInternal (clInfoItem);
+
+    case ocl_info.CL_MEM_TYPE:
     case ocl_info.CL_MEM_SIZE:
     case ocl_info.CL_MEM_OFFSET:
     case ocl_info.CL_MEM_CONTEXT:
@@ -209,8 +213,12 @@ WebCLImage.prototype.getInfo = function (name)
 
     switch (name)
     {
-    case ocl_info.CL_MEM_TYPE:
     case ocl_info.CL_MEM_FLAGS:
+      var clInfoItem = this._internal.getInfo (name);
+      clInfoItem = clInfoItem & ~(ocl_const.CL_MEM_COPY_HOST_PTR);
+      return this._wrapInternal (clInfoItem);
+
+    case ocl_info.CL_MEM_TYPE:
     case ocl_info.CL_MEM_SIZE:
     case ocl_info.CL_MEM_CONTEXT:
       var clInfoItem = this._internal.getInfo (name);
