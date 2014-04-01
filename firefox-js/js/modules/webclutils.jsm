@@ -419,6 +419,40 @@ function getNumChannels(descriptor)
   };
 }
 
+function getBytesPerElement(descriptor)
+{
+  switch (descriptor.channelType)
+  {
+  case ocl_const.CL_SNORM_INT8:
+  case ocl_const.CL_UNORM_INT8:
+  case ocl_const.CL_SIGNED_INT8:
+  case ocl_const.CL_UNSIGNED_INT8:
+    return 1;
+
+  case ocl_const.CL_SNORM_INT16:
+  case ocl_const.CL_UNORM_INT16:
+  case ocl_const.CL_SIGNED_INT16:
+  case ocl_const.CL_UNSIGNED_INT16:
+  case ocl_const.CL_HALF_FLOAT:
+    return 2;
+
+  case ocl_const.CL_SIGNED_INT32:
+  case ocl_const.CL_UNSIGNED_INT32:
+  case ocl_const.CL_FLOAT:
+    return 4;
+
+  case ocl_const.CL_UNORM_SHORT_565:
+  case ocl_const.CL_UNORM_SHORT_555:
+    return 2;
+
+  case ocl_const.CL_UNORM_INT_101010:
+    return 4;
+
+  default:
+    return undefined;
+  };
+}
+
 function getBytesPerPixel(descriptor)
 {
   var numChannels = getNumChannels(descriptor);
@@ -604,17 +638,22 @@ function validateBuildOptions (options, validOptions)
 
 function validateImageFormat (descriptor)
 {
-  return (getBytesPerPixel(descriptor) !== undefined);
+  return validateImageChannelOrder(descriptor) && validateImageChannelType(descriptor);
 }
 
 function validateImageChannelOrder (descriptor)
 {
-  return (getNumChannels(descriptor) !== undefined);
+  return validatePositiveInt32(descriptor.channelOrder) && (getNumChannels(descriptor) !== undefined);
 }
 
 function validateImageChannelType (descriptor)
 {
-  return (getBytesPerPixel(descriptor) !== undefined)
+  return validatePositiveInt32(descriptor.channelType) && (getBytesPerElement(descriptor) !== undefined);
+}
+
+function defaultTo (value, defaultIfUndefined)
+{
+  return (value !== undefined) ? value : defaultIfUndefined;
 }
 
 
@@ -641,6 +680,8 @@ var webclutils = {
 
   getNumChannels:               getNumChannels,
   getBytesPerPixel:             getBytesPerPixel,
+
+  defaultTo:                    defaultTo,
 
   validatePlatform:             validatePlatform,
   validateDevice:               validateDevice,

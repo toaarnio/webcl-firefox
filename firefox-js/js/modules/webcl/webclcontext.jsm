@@ -197,87 +197,56 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
 
   try
   {
-    if (hostPtr === undefined) hostPtr = null;
+    // Validate the presence and type of mandatory arguments
 
-    // Validate 'memFlags'
-    //
+    if (arguments.length < 2 || arguments.length > 3)
+      throw new CLInvalidArgument("Expected 2 or 3 arguments, received " + arguments.length);
 
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
       throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
 
-    // Validate the presence and type of required fields in 'descriptor'
-    //
-
     if (!webclutils.validateObject(descriptor))
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_DESCRIPTOR, "'descriptor' must be a valid WebCLImageDescriptor; was " + descriptor);
+      throw new INVALID_IMAGE_DESCRIPTOR("'descriptor' must be a valid WebCLImageDescriptor; was ", descriptor);
 
-    if (!webclutils.validateNumber(descriptor.width))
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_DESCRIPTOR, "'descriptor.width' must be a number; was " + descriptor.width);
+    // Fill in defaults for optional arguments (only if they're left undefined)
 
-    if (!webclutils.validateNumber(descriptor.height))
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_DESCRIPTOR, "'descriptor.height' must be a number; was " + descriptor.height);
+    descriptor.channelOrder = webclutils.defaultTo(descriptor.channelOrder, ocl_const.CL_RGBA);
+    descriptor.channelType = webclutils.defaultTo(descriptor.channelType, ocl_const.CL_UNORM_INT8);
+    descriptor.rowPitch = webclutils.defaultTo(descriptor.rowPitch, 0);
+    hostPtr = webclutils.defaultTo(hostPtr, null);
 
-    if (descriptor.channelOrder !== undefined && !webclutils.validateNumber(descriptor.channelOrder))
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_DESCRIPTOR, "'descriptor.channelOrder' must be a number; was " + descriptor.channelOrder);
+    // Validate channelOrder and channelType (TODO: validate against what's actually supported)
 
-    if (descriptor.channelType !== undefined && !webclutils.validateNumber(descriptor.channelType))
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_DESCRIPTOR, "'descriptor.channelType' must be a number; was " + descriptor.channelType);
+    if (!webclutils.validateImageChannelOrder(descriptor))
+      throw new INVALID_IMAGE_FORMAT_DESCRIPTOR("'descriptor.channelOrder' must be a valid CLenum; was ", descriptor.channelOrder);
 
-    // Validate 'channelOrder' and 'channelType' (TODO: validate against what's actually supported)
-    //
+    if (!webclutils.validateImageChannelType(descriptor))
+      throw new INVALID_IMAGE_FORMAT_DESCRIPTOR("'descriptor.channelType' must be a valid CLenum; was ", descriptor.channelType);
 
-    if (descriptor.channelOrder !== undefined && !webclutils.validateImageChannelOrder(descriptor))
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_FORMAT_DESCRIPTOR, "'descriptor.channelOrder' must be a valid CLenum; was "+descriptor.channelOrder);
+    // Validate width, height, and rowPitch
 
-    if (descriptor.channelType !== undefined && !webclutils.validateImageChannelType(descriptor))
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_FORMAT_DESCRIPTOR, "'descriptor.channelType' must be a valid CLenum; was "+descriptor.channelType);
+    if (!webclutils.validatePositiveInt32(descriptor.width))
+      throw new INVALID_IMAGE_DESCRIPTOR("'descriptor.width' must be a positive integer; was ", descriptor.width);
 
-    descriptor.channelOrder = descriptor.channelOrder || ocl_const.CL_RGBA;
-    descriptor.channelType = descriptor.channelType || ocl_const.CL_UNORM_INT8;
-
-    // Validate 'width' and 'height'
-    //
-
-    if (descriptor.width <= 0)
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.width' must be greater than 0; was " + descriptor.width);
-
-    if (descriptor.height <= 0)
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.height' must be greater than 0; was " + descriptor.height);
+    if (!webclutils.validatePositiveInt32(descriptor.height))
+      throw new INVALID_IMAGE_DESCRIPTOR("'descriptor.height' must be a positive integer; was ", descriptor.height);
 
     if (descriptor.width > 8192) // TODO get real DEVICE_IMAGE2D_MAX_WIDTH
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.width' must be <= 8192; was " + descriptor.width);
+      throw new INVALID_IMAGE_SIZE("'descriptor.width' must be <= 8192; was ", descriptor.width);
 
     if (descriptor.height > 8192)  // TODO get real DEVICE_IMAGE2D_MAX_HEIGHT
-      throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.height' must be <= 8192; was " + descriptor.height);
+      throw new INVALID_IMAGE_SIZE("'descriptor.height' must be <= 8192; was ", descriptor.height);
 
-    // Validate 'rowPitch'
-    //
+    if (!webclutils.validateNonNegativeInt32(descriptor.rowPitch))
+      throw new INVALID_IMAGE_DESCRIPTOR("'descriptor.rowPitch' must be a non-negative integer; was ", descriptor.rowPitch);
 
-    if (descriptor.rowPitch !== undefined) {
+    if (hostPtr === null && descriptor.rowPitch !== 0)
+      throw new INVALID_IMAGE_SIZE("'descriptor.rowPitch' must be zero if 'hostPtr' is null; was ", descriptor.rowPitch);
 
-      if (!webclutils.validateNumber(descriptor.rowPitch))
-        throw new CLError(ocl_errors.CL_INVALID_IMAGE_DESCRIPTOR, "'descriptor.rowPitch' must be a number; was " + descriptor.rowPitch);
+    if (hostPtr !== null && (descriptor.rowPitch > 0) && (descriptor.rowPitch < descriptor.width * webclutils.getBytesPerPixel(descriptor)))
+      throw new INVALID_IMAGE_SIZE("'descriptor.rowPitch' must be zero or >= width*bytesPerPixel if hostPtr is not null; was ", descriptor.rowPitch);
 
-      if (descriptor.rowPitch < 0)
-        throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.rowPitch' must be >= 0; was " + descriptor.rowPitch);
-
-      if (hostPtr === null && descriptor.rowPitch !== 0)
-        throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.rowPitch' must be zero if 'hostPtr' is null; was " + descriptor.rowPitch);
-
-      DEBUG( "descriptor.rowPitch = " + descriptor.rowPitch);
-      DEBUG( "descriptor.width = " + descriptor.width);
-      DEBUG( "descriptor.channelOrder = " + descriptor.channelOrder);
-      DEBUG( "descriptor.channelType = " + descriptor.channelType);
-      DEBUG( "bytesPerPixel = " + webclutils.getBytesPerPixel(descriptor));
-
-      if (hostPtr !== null && (descriptor.rowPitch > 0) && (descriptor.rowPitch < descriptor.width * webclutils.getBytesPerPixel(descriptor)))
-        throw new CLError(ocl_errors.CL_INVALID_IMAGE_SIZE, "'descriptor.rowPitch' must be zero or >= width*bytesPerPixel; was " + descriptor.rowPitch);
-    }
-
-    descriptor.rowPitch = descriptor.rowPitch || 0;
-
-    // Validate 'hostPtr'
-    //
+    // Validate hostPtr
 
     if (hostPtr !== null) {
 
@@ -285,10 +254,10 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
       var rowPitch = descriptor.rowPitch || (descriptor.width * bytesPerPixel);
 
       if (!webclutils.validateArrayBufferView(hostPtr))
-        throw new CLError(ocl_errors.CL_INVALID_HOST_PTR, "'hostPtr' must be a valid ArrayBufferView; was " + hostPtr);
+        throw new INVALID_HOST_PTR("'hostPtr' must be a valid ArrayBufferView; was ", hostPtr);
 
       if (hostPtr.byteLength < descriptor.height * rowPitch)
-        throw new CLError(ocl_errors.CL_INVALID_HOST_PTR, "'hostPtr.byteLength' must be >= height*rowPitch; was " + hostPtr.byteLength);
+        throw new INVALID_HOST_PTR("'hostPtr.byteLength' must be >= height*rowPitch; was ", hostPtr.byteLength);
 
       memFlags |= ocl_const.CL_MEM_COPY_HOST_PTR;
     }
