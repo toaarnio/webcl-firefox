@@ -95,8 +95,33 @@ WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
   {
     if (hostPtr === undefined) hostPtr = null;
 
+    // Validate 'memFlags'
+    //
+
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
       throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
+
+    // Validate 'sizeInBytes'
+    //
+
+    if (!webclutils.validatePositiveInt32(sizeInBytes))
+      throw new INVALID_BUFFER_SIZE("'sizeInBytes' must be a positive integer; was ", sizeInBytes);
+
+    // TODO: validate sizeInBytes <= DEVICE_MAX_MEM_ALLOC_SIZE
+
+    // Validate 'hostPtr'
+    //
+
+    if (hostPtr !== null) {
+
+      if (!webclutils.validateArrayBufferView(hostPtr))
+        throw new INVALID_HOST_PTR("'hostPtr' must be a valid ArrayBufferView; was ", hostPtr);
+
+      if (hostPtr.byteLength < sizeInBytes)
+        throw new INVALID_HOST_PTR("'hostPtr.byteLength' must be >= sizeInBytes; was ", hostPtr.byteLength);
+
+      memFlags |= ocl_const.CL_MEM_COPY_HOST_PTR;
+    }
 
     var clBuffer = this._internal.createBuffer (memFlags, sizeInBytes, hostPtr);
     return this._wrapInternal (clBuffer, this);
@@ -128,14 +153,10 @@ WebCLContext.prototype.createCommandQueue = function (device, properties)
     else
     {
       if (!webclutils.validateDevice(device))
-        throw new CLError(ocl_errors.CL_INVALID_DEVICE,
-                          "1st argument must be a valid WebCLDevice or null, was " + device,
-                          "WebCLContext.createCommandQueue [webclcontext.js]");
+        throw new INVALID_DEVICE("'device' must be a valid WebCLDevice or null, was ", device);
 
       if (supportedDevices.indexOf(device) === -1)
-        throw new CLError(ocl_errors.CL_INVALID_DEVICE,
-                          "the given WebCLDevice is not associated with this WebCLContext",
-                          "WebCLContext.createCommandQueue [webclcontext.js]");
+        throw new INVALID_DEVICE("'device' must be associated with this WebCLContext; was ", device);
     }
 
     // Validate the given properties, or use default properties
@@ -149,14 +170,10 @@ WebCLContext.prototype.createCommandQueue = function (device, properties)
     else
     {
       if (!webclutils.validateBitfield(properties, validProperties))
-        throw new CLError(ocl_errors.CL_INVALID_VALUE,
-                          "2nd argument must be a valid bitfield of command queue properties, was " + properties,
-                          "WebCLContext.createCommandQueue [webclcontext.js]");
+        throw new INVALID_VALUE("'properties' must be a valid bitfield of command queue properties; was ", properties);
 
       if (!webclutils.validateBitfield(properties, supportedProperties))
-        throw new CLError(ocl_errors.CL_INVALID_QUEUE_PROPERTIES,
-                          "the given properties (" + properties + ") are not supported by the selected device",
-                          "WebCLContext.createCommandQueue [webclcontext.js]");
+        throw new INVALID_QUEUE_PROPERTIES("the given WebCLDevice does not support the given queue properties: ", properties);
     }
 
     var clDevice = this._unwrapInternalOrNull (device);

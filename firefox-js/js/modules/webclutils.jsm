@@ -571,7 +571,7 @@ function validateString (str)
 
 function validateBitfield (bitfield, validMask)
 {
-  return (typeof(bitfield) === 'number' && (bitfield & ~validMask) === 0);
+  return validateInteger(bitfield) && (bitfield & ~validMask) === 0;
 }
 
 function validateMemFlags (memFlags)

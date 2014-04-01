@@ -13,8 +13,18 @@
 
 
 var EXPORTED_SYMBOLS = [ "CLException", "CLInvalidated", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented", "CLError",
-                         "INVALID_VALUE", "INVALID_DEVICE", "INVALID_BUILD_OPTIONS", "INVALID_CONTEXT", "INVALID_OPERATION", "INVALID_EVENT",
-                         "INVALID_ARG_INDEX", "INVALID_ARG_VALUE", "INVALID_ARG_SIZE" ];
+                         "INVALID_VALUE", 
+                         "INVALID_DEVICE",
+                         "INVALID_BUFFER_SIZE",
+                         "INVALID_HOST_PTR",
+                         "INVALID_BUILD_OPTIONS",
+                         "INVALID_CONTEXT", 
+                         "INVALID_OPERATION",
+                         "INVALID_EVENT",
+                         "INVALID_QUEUE_PROPERTIES",
+                         "INVALID_ARG_INDEX",
+                         "INVALID_ARG_VALUE",
+                         "INVALID_ARG_SIZE" ];
 
 
 const Cu = Components.utils;
@@ -200,6 +210,22 @@ function INVALID_DEVICE (msg, value)
 INVALID_DEVICE.prototype = Object.create (CLError.prototype);
 
 
+function INVALID_BUFFER_SIZE (msg, value)
+{
+  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
+  CLError.call(this, ocl_errors.CL_INVALID_BUFFER_SIZE, msg);
+};
+INVALID_BUFFER_SIZE.prototype = Object.create (CLError.prototype);
+
+
+function INVALID_HOST_PTR (msg, value)
+{
+  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
+  CLError.call(this, ocl_errors.CL_INVALID_HOST_PTR, msg);
+};
+INVALID_HOST_PTR.prototype = Object.create (CLError.prototype);
+
+
 function INVALID_ARG_INDEX (msg, value)
 {
   msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
@@ -230,6 +256,14 @@ function INVALID_BUILD_OPTIONS (msg, value)
   CLError.call(this, ocl_errors.CL_INVALID_BUILD_OPTIONS, msg);
 };
 INVALID_BUILD_OPTIONS.prototype = Object.create (CLError.prototype);
+
+
+function INVALID_QUEUE_PROPERTIES (msg, value)
+{
+  msg += "'" + value + "'" + " (typeof " + typeof(value) + ")";
+  CLError.call(this, ocl_errors.CL_INVALID_QUEUE_PROPERTIES, msg);
+};
+INVALID_QUEUE_PROPERTIES.prototype = Object.create (CLError.prototype);
 
 
 function INVALID_CONTEXT (msg)
