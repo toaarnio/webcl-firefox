@@ -1,306 +1,43 @@
 (function() {
 
-  if (window.WebCL) return;
-
-
-  try
-  {
-    var _handle = new _NokiaWebCL ();
-    _handle.init (window);
-  }
-  catch (e)
-  {
-    e = _wrapException (e, "webcl");
-    console.log ("WebCL: Failed to create or initialize Nokia WebCL Object: " +e);
-    throw e;
-  }
-
-
-  // == Internal functions =====================================================
-
-  var _ensureWebCLAvailable = function ()
-  {
-    // TODO
-    if (!_handle)
-    {
-      alert ("No WebCL Implementation?");
-    }
-
-    return (!!_handle);
-  };
-
-  var _wrapInternalObject = function (obj)
-  {
-    if (Array.isArray(obj))
-    {
-      var tmp = [];
-      for (var i = 0; i < obj.length; ++i)
-      {
-        tmp[i] = _wrapInternalObject (obj[i]);
-      }
-      obj = tmp;
-    }
-    else if (obj && typeof(obj) == "object")
-    {
-      try {
-        if (obj.classDescription)
-        {
-          switch (obj.classDescription)
-          {
-            case "WebCLPlatform":        return _createPlatformInstance (obj);
-            case "WebCLDevice":          return _createDeviceInstance (obj);
-            case "WebCLContext":         return _createContextInstance (obj);
-            case "WebCLProgram":         return _createProgramInstance (obj);
-            case "WebCLKernel":          return _createKernelInstance (obj);
-            case "WebCLCommandQueue":    return _createCommandQueueInstance (obj);
-            case "WebCLMemoryObject":    return _createMemoryObjectInstance (obj);
-            case "WebCLBuffer":          return _createBufferInstance (obj);
-            case "WebCLImage":           return _createImageInstance (obj);
-            case "WebCLSampler":         return _createSamplerInstance (obj);
-            case "WebCLEvent":           return _createEventInstance (obj);
-            case "WebCLUserEvent":       return _createUserEventInstance (obj);
-            case "WebCLImageDescriptor": return _createImageDescriptorInstance (obj);
-          }
-        }
-      } catch(e) { }
-    }
-    return obj;
-  };
-
-  var _wrapException = function (e, ctx)
-  {
-    if (e instanceof _WebCLException)
-    {
-      return e;
-    }
-
-    var name = "WEBCL_IMPLEMENTATION_FAILURE";
-    var message = "";
-
-    try {
-      var re = /WEBCLEXCEPTION\:([\w=]*).*/.exec(e);
-      if (re)
-      {
-        var exData = JSON.parse(atob(re[1]));
-        if (exData)
-        {
-          ctx += " [" + exData.fileName + ":" + exData.lineNumber + "]";
-
-          switch (exData.type)
-          {
-          case "cl":
-            name = exData.name;
-            message = exData.message;
-            break;
-
-          case "syntaxerror":
-            name = exData.name || "WEBCL_SYNTAX_ERROR";
-            message = exData.message || "Invalid number of arguments."
-            break;
-
-          case "notimplemented":
-            name = exData.name || "WEBCL_NOT_IMPLEMENTED";
-            message = exData.message || "Function or feature not implemented.";
-            break;
-
-          case "internal":
-            name = exData.name || "WEBCL_IMPLEMENTATION_FAILURE";
-            message = exData.message || "Internal error.";
-            break;
-
-          case "invalidobject":
-            name = exData.name || "WEBCL_INVALID_OBJECT";
-            message = exData.message || "Invalid/released WebCL object.";
-            break;
-
-          default:
-            name = exData.name || "WEBCL_UNKNOWN_EXCEPTION";
-            message = exData.message || "Unknown WebCL exception.";
-            break;
-          }
-        }
-      }
-    } catch (e2) { msg = "_wrapException: Failed to process exception: " + e2; }
-
-    return new _WebCLException (String(name), String(message), String(ctx));
-  };
-
-  var _unwrapInternalObject = function (obj)
-  {
-    if (Array.isArray(obj))
-    {
-      var tmp = [];
-      for (var i = 0; i < obj.length; ++i)
-      {
-        tmp[i] = _unwrapInternalObject (obj[i]);
-      }
-      obj = tmp;
-    }
-    else if (obj && typeof(obj) == "object")
-    {
-      if (obj instanceof _Platform) return obj._internal;
-      if (obj instanceof _Device) return obj._internal;
-      if (obj instanceof _Context) return obj._internal;
-      if (obj instanceof _Program) return obj._internal;
-      if (obj instanceof _Kernel) return obj._internal;
-      if (obj instanceof _CommandQueue) return obj._internal;
-      if (obj instanceof _MemoryObject) return obj._internal;
-      if (obj instanceof _Buffer) return obj._internal;
-      if (obj instanceof _Image) return obj._internal;
-      if (obj instanceof _Sampler) return obj._internal;
-      if (obj instanceof _Event) return obj._internal;
-      if (obj instanceof _UserEvent) return obj._internal;
-      if (obj instanceof _ImageDescriptor) return obj;  // NOTE: no unwrapping
-
-      // NOTE: We may get objects that contain _Base instances as properties,
-      //       that would need unwrapping. Simple object cloning won't do since
-      //       that would break e.g. ArrayBufferViews.
-      //       The workaround is that for now webclutils.unwrapInternalOrNull
-      //       will attempt a 2nd stage unwrap on objects with "_internal"
-      //       property.
-      /*
-      var tmp = Object.create (obj.prototype || {});
-      var keys = Object.keys(obj);
-      for (var k = 0; k < keys.length; ++k)
-      {
-        if (obj.hasOwnProperty(keys[k]))
-        {
-          tmp[keys[k]] = _unwrapInternalObject(obj[keys[k]]);
-        }
-      }
-      obj = tmp;
-      */
-    }
-    return obj;
-  };
-
-  function _validateInternal (obj)
-  {
-    if (!obj || !obj._internal)
-    {
-      var err;
-      if (obj instanceof _Context) err = "INVALID_CONTEXT";
-      else if (obj instanceof _Program) err = "INVALID_PROGRAM";
-      else if (obj instanceof _Kernel) err = "INVALID_KERNEL";
-      else if (obj instanceof _CommandQueue) err = "INVALID_COMMAND_QUEUE";
-      else if (obj instanceof _MemoryObject) err = "INVALID_MEM_OBJECT";
-      else if (obj instanceof _Buffer) err = "INVALID_MEM_OBJECT";
-      else if (obj instanceof _Image) err = "INVALID_MEM_OBJECT";
-      else if (obj instanceof _Sampler) err = "INVALID_SAMPLER";
-      else if (obj instanceof _Event) err = "INVALID_EVENT";
-      else if (obj instanceof _UserEvent) err = "INVALID_EVENT";
-      else if (obj instanceof _ImageDescriptor) err = "INVALID_IMAGE_FORMAT_DESCRIPTOR";
-      else err = "WEBCL_IMPLEMENTATION_FAILURE";
-
-      throw new _WebCLException (err, "Invalid internal object: " + obj, "_validateInternal");
-    }
-  };
-
-  function _createGlobalFunctionWrapper (fname)
-  {
-    return function() 
-    {
-      try
-      {
-        if (!_ensureWebCLAvailable ()) return;
-        
-        if (fname === "releaseAll") {
-          var managedWrapperList = _handle.getManagedExternalIdentityList ();
-          for (var i = 0; i < managedWrapperList.length; ++i) {
-            _unregisterWrapperInstance (managedWrapperList[i]);
-          }
-        }
-
-        var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-        return _wrapInternalObject (_handle[fname].apply (_handle, args));
-      }
-      catch (e)
-      {
-        throw _wrapException (e, "webcl."+fname);
-      }
-    };
-  };
-
-  function _createDefaultFunctionWrapper (fname, preProcFn, postProcFn)
-  {
-    return function ()
-    {
-      try
-      {
-        _validateInternal (this);
-
-        var args = Array.prototype.slice.call(arguments);
-
-        if (preProcFn && typeof(preProcFn) == "function")
-        {
-          args = preProcFn (args);
-        }
-
-
-        // Special handling for release & releaseAll
-        try
-        {
-          if (fname === "releaseAll")
-          {
-            var managedWrapperList = this._internal.getManagedExternalIdentityList ();
-            for (var i = 0; i < managedWrapperList.length; ++i)
-            {
-              _unregisterWrapperInstance (managedWrapperList[i]);
-            }
-
-            _unregisterWrapperInstance (this._identity);
-          }
-          else if (fname === "release")
-          {
-            _unregisterWrapperInstance (this._identity);
-          }
-        }
-        catch (e)
-        {
-          console.log ("WebCL wrapper internal error: Failed to unregister wrapper on " + fname + ": " + e);
-        }
-
-
-        var rv = this._internal[fname].apply (this._internal, _unwrapInternalObject(args));
-
-        if (postProcFn && typeof(postProcFn) == "function")
-        {
-          rv = postProcFn (rv, args);
-        }
-
-        if (rv !== undefined)
-        {
-          return _wrapInternalObject (rv);
-        }
-      }
-      catch (e)
-      {
-        throw _wrapException (e, this._name+"."+fname);
-      }
-    };
-  };
-
-
-
-  // == WebCLException ===========================================================
-  function _WebCLException (name, message, ctx) {
-    this.name = name || "WEBCL_IMPLEMENTATION_FAILURE";
-    this.message = message;
-    this.ctx = ctx;
-  }
-
-  _WebCLException.prototype.toString = function ()
-  {
-    return "[" + this.ctx + "] " + this.name + ": " + this.message;
-  };
+  if (window.webcl) return;
 
 
 
   // == WebCL ====================================================================
-  this.WebCL = { version : "YYYY-MM-DD" };
-  this.webCL = WebCL;
-  this.webcl = WebCL;
+  function _WebCL ()
+  {
+    if (!(this instanceof _WebCL)) return;
 
+    try 
+    {
+      this._internal = new _NokiaWebCL ();
+      this._internal.init(window);
+      this._name = "webcl";
+    } 
+    catch(e) 
+    {
+      e = _wrapException (e, "webcl");
+      console.log ("WebCL: Failed to create or initialize Nokia WebCL Object: " + e);
+      throw e;
+    }
+  };
+
+  _WebCL.prototype = new Object();
+  _WebCL.prototype.version = "YYYY-MM-DD";
+  _WebCL.prototype.getPlatforms = _createDefaultFunctionWrapper ("getPlatforms");
+  _WebCL.prototype.createContext = _createDefaultFunctionWrapper ("createContext");
+  _WebCL.prototype.getSupportedExtensions = _createDefaultFunctionWrapper ("getSupportedExtensions");
+  _WebCL.prototype.enableExtension = _createDefaultFunctionWrapper ("enableExtension");
+  _WebCL.prototype.waitForEvents = _createDefaultFunctionWrapper ("waitForEvents");
+  _WebCL.prototype.releaseAll = _createDefaultFunctionWrapper ("releaseAll");
+  _WebCL.prototype.enumString = _enumString;
+
+
+
+  // == Window ===================================================================
+  window.webcl = new _WebCL();
+  window.WebCL = _WebCL;
   window.WebCLPlatform = _Platform;
   window.WebCLDevice = _Device;
   window.WebCLContext = _Context;
@@ -316,23 +53,6 @@
   window.WebCLImageDescriptor = _ImageDescriptor;
   window.WebCLException = _WebCLException;
 
-  WebCL.getPlatforms = _createGlobalFunctionWrapper ("getPlatforms");
-  WebCL.createContext = _createGlobalFunctionWrapper ("createContext");
-  WebCL.getSupportedExtensions = _createGlobalFunctionWrapper ("getSupportedExtensions");
-  WebCL.enableExtension = _createGlobalFunctionWrapper ("enableExtension");
-  WebCL.waitForEvents = _createGlobalFunctionWrapper ("waitForEvents");
-  WebCL.releaseAll = _createGlobalFunctionWrapper ("releaseAll");
-
-  WebCL.enumString = function(enumValue)
-  {
-    var names = [];
-    for (var name in WebCL) {
-      if (WebCL[name] === enumValue) {
-        names.push(name);
-      }
-    }
-    return (names.length === 1) ? names[0] : names;
-  };
 
 
   // == Base =====================================================================
@@ -588,6 +308,263 @@
   _ImageDescriptor.prototype.height = 0;
   _ImageDescriptor.prototype.rowPitch = 0;
   delete _ImageDescriptor.prototype.getInfo;
+
+
+
+  // == WebCLException ===========================================================
+  function _WebCLException (name, message, ctx) {
+    this.name = name || "WEBCL_IMPLEMENTATION_FAILURE";
+    this.message = message;
+    this.ctx = ctx;
+  }
+  _WebCLException.prototype = new Object();
+
+  _WebCLException.prototype.toString = function ()
+  {
+    return "[" + this.ctx + "] " + this.name + ": " + this.message;
+  };
+
+
+
+  // == Internal functions =====================================================
+
+  function _wrapInternalObject (obj)
+  {
+    if (Array.isArray(obj))
+    {
+      var tmp = [];
+      for (var i = 0; i < obj.length; ++i)
+      {
+        tmp[i] = _wrapInternalObject (obj[i]);
+      }
+      obj = tmp;
+    }
+    else if (obj && typeof(obj) == "object")
+    {
+      try {
+        if (obj.classDescription)
+        {
+          switch (obj.classDescription)
+          {
+            case "WebCLPlatform":        return _createPlatformInstance (obj);
+            case "WebCLDevice":          return _createDeviceInstance (obj);
+            case "WebCLContext":         return _createContextInstance (obj);
+            case "WebCLProgram":         return _createProgramInstance (obj);
+            case "WebCLKernel":          return _createKernelInstance (obj);
+            case "WebCLCommandQueue":    return _createCommandQueueInstance (obj);
+            case "WebCLMemoryObject":    return _createMemoryObjectInstance (obj);
+            case "WebCLBuffer":          return _createBufferInstance (obj);
+            case "WebCLImage":           return _createImageInstance (obj);
+            case "WebCLSampler":         return _createSamplerInstance (obj);
+            case "WebCLEvent":           return _createEventInstance (obj);
+            case "WebCLUserEvent":       return _createUserEventInstance (obj);
+            case "WebCLImageDescriptor": return _createImageDescriptorInstance (obj);
+          }
+        }
+      } catch(e) { }
+    }
+    return obj;
+  };
+
+  function _wrapException (e, ctx)
+  {
+    if (e instanceof _WebCLException)
+    {
+      return e;
+    }
+
+    var name = "WEBCL_IMPLEMENTATION_FAILURE";
+    var message = "";
+
+    try {
+      var re = /WEBCLEXCEPTION\:([\w=]*).*/.exec(e);
+      if (re)
+      {
+        var exData = JSON.parse(atob(re[1]));
+        if (exData)
+        {
+          ctx += " [" + exData.fileName + ":" + exData.lineNumber + "]";
+
+          switch (exData.type)
+          {
+          case "cl":
+            name = exData.name;
+            message = exData.message;
+            break;
+
+          case "syntaxerror":
+            name = exData.name || "WEBCL_SYNTAX_ERROR";
+            message = exData.message || "Invalid number of arguments."
+            break;
+
+          case "notimplemented":
+            name = exData.name || "WEBCL_NOT_IMPLEMENTED";
+            message = exData.message || "Function or feature not implemented.";
+            break;
+
+          case "internal":
+            name = exData.name || "WEBCL_IMPLEMENTATION_FAILURE";
+            message = exData.message || "Internal error.";
+            break;
+
+          case "invalidobject":
+            name = exData.name || "WEBCL_INVALID_OBJECT";
+            message = exData.message || "Invalid/released WebCL object.";
+            break;
+
+          default:
+            name = exData.name || "WEBCL_UNKNOWN_EXCEPTION";
+            message = exData.message || "Unknown WebCL exception.";
+            break;
+          }
+        }
+      }
+    } catch (e2) { msg = "_wrapException: Failed to process exception: " + e2; }
+
+    return new _WebCLException (String(name), String(message), String(ctx));
+  };
+
+  function _unwrapInternalObject (obj)
+  {
+    if (Array.isArray(obj))
+    {
+      var tmp = [];
+      for (var i = 0; i < obj.length; ++i)
+      {
+        tmp[i] = _unwrapInternalObject (obj[i]);
+      }
+      obj = tmp;
+    }
+    else if (obj && typeof(obj) == "object")
+    {
+      if (obj instanceof _Platform) return obj._internal;
+      if (obj instanceof _Device) return obj._internal;
+      if (obj instanceof _Context) return obj._internal;
+      if (obj instanceof _Program) return obj._internal;
+      if (obj instanceof _Kernel) return obj._internal;
+      if (obj instanceof _CommandQueue) return obj._internal;
+      if (obj instanceof _MemoryObject) return obj._internal;
+      if (obj instanceof _Buffer) return obj._internal;
+      if (obj instanceof _Image) return obj._internal;
+      if (obj instanceof _Sampler) return obj._internal;
+      if (obj instanceof _Event) return obj._internal;
+      if (obj instanceof _UserEvent) return obj._internal;
+      if (obj instanceof _ImageDescriptor) return obj;  // NOTE: no unwrapping
+
+      // NOTE: We may get objects that contain _Base instances as properties,
+      //       that would need unwrapping. Simple object cloning won't do since
+      //       that would break e.g. ArrayBufferViews.
+      //       The workaround is that for now webclutils.unwrapInternalOrNull
+      //       will attempt a 2nd stage unwrap on objects with "_internal"
+      //       property.
+      /*
+      var tmp = Object.create (obj.prototype || {});
+      var keys = Object.keys(obj);
+      for (var k = 0; k < keys.length; ++k)
+      {
+        if (obj.hasOwnProperty(keys[k]))
+        {
+          tmp[keys[k]] = _unwrapInternalObject(obj[keys[k]]);
+        }
+      }
+      obj = tmp;
+      */
+    }
+    return obj;
+  };
+
+  function _validateInternal (obj)
+  {
+    if (!obj || !obj._internal)
+    {
+      var err;
+      if (obj instanceof _WebCL) err = "WEBCL_IMPLEMENTATION_FAILURE";
+      else if (obj instanceof _Context) err = "INVALID_CONTEXT";
+      else if (obj instanceof _Program) err = "INVALID_PROGRAM";
+      else if (obj instanceof _Kernel) err = "INVALID_KERNEL";
+      else if (obj instanceof _CommandQueue) err = "INVALID_COMMAND_QUEUE";
+      else if (obj instanceof _MemoryObject) err = "INVALID_MEM_OBJECT";
+      else if (obj instanceof _Buffer) err = "INVALID_MEM_OBJECT";
+      else if (obj instanceof _Image) err = "INVALID_MEM_OBJECT";
+      else if (obj instanceof _Sampler) err = "INVALID_SAMPLER";
+      else if (obj instanceof _Event) err = "INVALID_EVENT";
+      else if (obj instanceof _UserEvent) err = "INVALID_EVENT";
+      else if (obj instanceof _ImageDescriptor) err = "INVALID_IMAGE_FORMAT_DESCRIPTOR";
+      else err = "WEBCL_IMPLEMENTATION_FAILURE";
+
+      throw new _WebCLException (err, "Invalid internal object: " + obj, "_validateInternal");
+    }
+  };
+
+  function _createDefaultFunctionWrapper (fname, preProcFn, postProcFn)
+  {
+    return function ()
+    {
+      try
+      {
+        _validateInternal (this);
+
+        var args = Array.prototype.slice.call(arguments);
+
+        if (preProcFn && typeof(preProcFn) == "function")
+        {
+          args = preProcFn (args);
+        }
+
+
+        // Special handling for release & releaseAll
+        try
+        {
+          if (fname === "releaseAll")
+          {
+            var managedWrapperList = this._internal.getManagedExternalIdentityList ();
+            for (var i = 0; i < managedWrapperList.length; ++i)
+            {
+              _unregisterWrapperInstance (managedWrapperList[i]);
+            }
+
+            _unregisterWrapperInstance (this._identity);
+          }
+          else if (fname === "release")
+          {
+            _unregisterWrapperInstance (this._identity);
+          }
+        }
+        catch (e)
+        {
+          console.log ("WebCL wrapper internal error: Failed to unregister wrapper on " + fname + ": " + e);
+        }
+
+
+        var rv = this._internal[fname].apply (this._internal, _unwrapInternalObject(args));
+
+        if (postProcFn && typeof(postProcFn) == "function")
+        {
+          rv = postProcFn (rv, args);
+        }
+
+        if (rv !== undefined)
+        {
+          return _wrapInternalObject (rv);
+        }
+      }
+      catch (e)
+      {
+        throw _wrapException (e, this._name+"."+fname);
+      }
+    };
+  };
+
+  function _enumString(enumValue)
+  {
+    var names = [];
+    for (var name in WebCL) {
+      if (WebCL[name] === enumValue) {
+        names.push(name);
+      }
+    }
+    return (names.length === 1) ? names[0] : names;
+  };
 
 
 
