@@ -396,7 +396,8 @@
     }
   };
 
-  WebCL.releaseAll = function() {
+  WebCL.releaseAll = function() 
+  {
     try
     {
       if (!_ensureWebCLAvailable ()) return;
@@ -413,8 +414,18 @@
     {
       throw _wrapException (e, "webcl.releaseAll");
     }
-  }
+  };
 
+  WebCL.enumString = function(enumValue)
+  {
+    var names = [];
+    for (var name in WebCL) {
+      if (WebCL[name] === enumValue) {
+        names.push(name);
+      }
+    }
+    return (names.length === 1) ? names[0] : names;
+  };
 
 
   // == Base =====================================================================
