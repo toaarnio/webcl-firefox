@@ -18,17 +18,6 @@
 
   // == Internal functions =====================================================
 
-  var _ASSERT = function(condition, errorName, errorMsg) {
-    if (!condition) {
-      throw new WebCLException(errorName, errorMsg);
-    }
-  };
-
-  var _validateNumber = function (n)
-  {
-    return (n !== null) && (typeof(n) === 'number') && (!isNaN(+n));
-  };
-
   var _ensureWebCLAvailable = function ()
   {
     // TODO
@@ -205,8 +194,32 @@
 
       throw new _WebCLException (err, "Invalid internal object: " + obj, "_validateInternal");
     }
-  }
+  };
 
+  function _createGlobalFunctionWrapper (fname)
+  {
+    return function() 
+    {
+      try
+      {
+        if (!_ensureWebCLAvailable ()) return;
+        
+        if (fname === "releaseAll") {
+          var managedWrapperList = _handle.getManagedExternalIdentityList ();
+          for (var i = 0; i < managedWrapperList.length; ++i) {
+            _unregisterWrapperInstance (managedWrapperList[i]);
+          }
+        }
+
+        var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
+        return _wrapInternalObject (_handle[fname].apply (_handle, args));
+      }
+      catch (e)
+      {
+        throw _wrapException (e, "webcl."+fname);
+      }
+    };
+  };
 
   function _createDefaultFunctionWrapper (fname, preProcFn, postProcFn)
   {
@@ -265,18 +278,8 @@
         throw _wrapException (e, this._name+"."+fname);
       }
     };
-  }
+  };
 
-
-  var alreadyWarned = {};
-
-  var WARN = function(funcName, msg)
-  {
-    if (!alreadyWarned[funcName]) {
-      console.warn(msg);
-      alreadyWarned[funcName] = true;
-    }
-  }
 
 
   // == WebCLException ===========================================================
@@ -313,108 +316,12 @@
   window.WebCLImageDescriptor = _ImageDescriptor;
   window.WebCLException = _WebCLException;
 
-
-  WebCL.getPlatforms = function ()
-  {
-    try
-    {
-      if (!_ensureWebCLAvailable ()) return;
-      if (arguments.length > 0)
-        throw new WebCLException("INVALID_VALUE", "no arguments expected, but received "+arguments[0], "webcl.getPlatforms");
-
-      return _wrapInternalObject (_handle.getPlatforms ());
-    }
-    catch (e)
-    {
-      throw _wrapException (e, "webcl.getPlatforms");
-    }
-  };
-
-  WebCL.createContext = function()
-  {
-    try
-    {
-      if (!_ensureWebCLAvailable()) return;
-      if (arguments[0] === null) {
-        throw new WebCLException("INVALID_DEVICE_TYPE", 
-                                 "first argument must be a valid DEVICE_TYPE, WebCLPlatform, WebCLDevice, or WebCLDevice array", 
-                                 "webcl.createContext");
-      }
-      if (arguments[1] === null) {
-        throw new WebCLException("INVALID_DEVICE_TYPE", 
-                                 "second argument must be a valid DEVICE_TYPE",
-                                 "webcl.createContext");
-      }
-      var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-      return _wrapInternalObject (_handle.createContext.apply (_handle, args));
-    }
-    catch (e)
-    {
-      throw _wrapException (e, "webcl.createContext");
-    }
-  };
-
-  WebCL.getSupportedExtensions = function ()
-  {
-    try
-    {
-      if (!_ensureWebCLAvailable ()) return;
-      var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-      return _wrapInternalObject (_handle.getSupportedExtensions.apply (_handle, args));
-    }
-    catch (e)
-    {
-      throw _wrapException (e, "webcl.getSupportedExtensions");
-    }
-  }
-
-  WebCL.enableExtension = function ()
-  {
-    try
-    {
-      if (!_ensureWebCLAvailable ()) return;
-      var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-      return _wrapInternalObject (_handle.enableExtension.apply (_handle, args));
-    }
-    catch (e)
-    {
-      throw _wrapException (e, "webcl.enableExtension");
-    }
-  }
-
-  WebCL.waitForEvents = function ()
-  {
-    try
-    {
-      if (!_ensureWebCLAvailable ()) return;
-      var args = _unwrapInternalObject(Array.prototype.slice.call(arguments));
-      return _wrapInternalObject (_handle.waitForEvents.apply (_handle, args));
-    }
-    catch (e)
-    {
-      throw _wrapException (e, "webcl.waitForEvents");
-    }
-  };
-
-  WebCL.releaseAll = function() 
-  {
-    try
-    {
-      if (!_ensureWebCLAvailable ()) return;
-
-      var managedWrapperList = _handle.getManagedExternalIdentityList ();
-      for (var i = 0; i < managedWrapperList.length; ++i)
-      {
-        _unregisterWrapperInstance (managedWrapperList[i]);
-      }
-
-      _handle.releaseAll ();
-    }
-    catch (e)
-    {
-      throw _wrapException (e, "webcl.releaseAll");
-    }
-  };
+  WebCL.getPlatforms = _createGlobalFunctionWrapper ("getPlatforms");
+  WebCL.createContext = _createGlobalFunctionWrapper ("createContext");
+  WebCL.getSupportedExtensions = _createGlobalFunctionWrapper ("getSupportedExtensions");
+  WebCL.enableExtension = _createGlobalFunctionWrapper ("enableExtension");
+  WebCL.waitForEvents = _createGlobalFunctionWrapper ("waitForEvents");
+  WebCL.releaseAll = _createGlobalFunctionWrapper ("releaseAll");
 
   WebCL.enumString = function(enumValue)
   {
@@ -452,23 +359,7 @@
   }
   _Platform.prototype = Object.create (_Base.prototype);
 
-  _Platform.prototype.getDevices = function (deviceType) 
-  {
-    try {
-      _validateInternal (this);
-      if (deviceType === undefined || (_validateNumber(deviceType) && deviceType !== 0))
-      {
-        var rv = this._internal.getDevices (deviceType);
-        return _wrapInternalObject (rv);
-      }
-      else throw new WebCLException("INVALID_DEVICE_TYPE", 
-                                    "deviceType must be a valid DEVICE_TYPE",
-                                    this._name+".getDevices");
-    } catch (e) {
-      throw _wrapException (e, this._name+".getDevices");
-    }
-  };
-
+  _Platform.prototype.getDevices = _createDefaultFunctionWrapper ("getDevices");
   _Platform.prototype.getSupportedExtensions = _createDefaultFunctionWrapper ("getSupportedExtensions");
   _Platform.prototype.enableExtension = _createDefaultFunctionWrapper ("enableExtension");
 
@@ -491,7 +382,7 @@
 
   // == Context ==================================================================
   function _Context (internal) {
-    if (!(this instanceof _Context)) return; // TODO
+    if (!(this instanceof _Context)) return;
     _Base.call (this, internal);
 
     this._name = "WebCLContext";
@@ -538,8 +429,8 @@
 
   _Kernel.prototype.getWorkGroupInfo = _createDefaultFunctionWrapper ("getWorkGroupInfo");
   _Kernel.prototype.getArgInfo = _createDefaultFunctionWrapper ("getArgInfo");
-  _Kernel.prototype.release = _createDefaultFunctionWrapper ("release");
   _Kernel.prototype.setArg = _createDefaultFunctionWrapper ("setArg");
+  _Kernel.prototype.release = _createDefaultFunctionWrapper ("release");
 
 
 
@@ -668,6 +559,7 @@
     this._name = "WebCLUserEvent";
   }
   _UserEvent.prototype = Object.create (_Event.prototype);
+
   _UserEvent.prototype.setStatus = _createDefaultFunctionWrapper ("setStatus");
 
 

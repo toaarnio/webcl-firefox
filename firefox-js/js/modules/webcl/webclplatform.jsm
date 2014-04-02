@@ -111,24 +111,22 @@ WebCLPlatform.prototype.getDevices = function (deviceType)
 
   try
   {
-    if (deviceType === undefined) deviceType = 0;
+    if (arguments.length > 1)
+      throw new CLSyntaxError("Expected 0 or 1 arguments, received " + arguments.length);
 
-    if (!webclutils.validateNumber(deviceType))
-      throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE,
-                        "deviceType must be a valid DEVICE_TYPE",
-                        "WebCLPlatform.getDevices");
+    deviceType = webclutils.defaultTo(deviceType, ocl_const.CL_DEVICE_TYPE_ALL);
 
-    if (deviceType !== 0 &&
-        deviceType !== ocl_const.CL_DEVICE_TYPE_DEFAULT &&
+    if (!webclutils.validateInteger(deviceType))
+      throw new INVALID_DEVICE_TYPE("'deviceType' must be a valid DEVICE_TYPE; was ", deviceType);
+
+    if (deviceType !== ocl_const.CL_DEVICE_TYPE_DEFAULT &&
         deviceType !== ocl_const.CL_DEVICE_TYPE_CPU &&
         deviceType !== ocl_const.CL_DEVICE_TYPE_GPU &&
         deviceType !== ocl_const.CL_DEVICE_TYPE_ACCELERATOR &&
         deviceType !== ocl_const.CL_DEVICE_TYPE_ALL)
-      throw new CLError(ocl_errors.CL_INVALID_DEVICE_TYPE,
-                        "deviceType must be a valid DEVICE_TYPE",
-                        "WebCLPlatform.getDevices");
+      throw new INVALID_DEVICE_TYPE("'deviceType' must be a valid DEVICE_TYPE; was ", deviceType);
 
-    return this._wrapInternal (this._internal.getDevices (deviceType || ocl_const.CL_DEVICE_TYPE_ALL));
+    return this._wrapInternal (this._internal.getDevices (deviceType));
   }
   catch (e)
   {
