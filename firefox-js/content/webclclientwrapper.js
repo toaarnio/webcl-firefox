@@ -90,12 +90,13 @@
 
     try {
       var re = /WEBCLEXCEPTION\:([\w=]*).*/.exec(e);
-      //var re = /[\'\"]?WEBCLEXCEPTION\:([\w=]*).*/.exec(e.message);
       if (re)
       {
         var exData = JSON.parse(atob(re[1]));
         if (exData)
         {
+          ctx += " [" + exData.fileName + ":" + exData.lineNumber + "]";
+
           switch (exData.type)
           {
           case "cl":
@@ -103,29 +104,29 @@
             message = exData.message;
             break;
 
-          case "invalidargument":
-            name = "INVALID_ARGUMENT";
-            message = exData.message || "Invalid argument.";
+          case "syntaxerror":
+            name = exData.name || "WEBCL_SYNTAX_ERROR";
+            message = exData.message || "Invalid number of arguments."
             break;
 
           case "notimplemented":
-            name = "WEBCL_IMPLEMENTATION_FAILURE";
-            message = exData.message || "Not implemented.";
+            name = exData.name || "WEBCL_NOT_IMPLEMENTED";
+            message = exData.message || "Function or feature not implemented.";
             break;
 
           case "internal":
-            name = "WEBCL_IMPLEMENTATION_FAILURE";
+            name = exData.name || "WEBCL_IMPLEMENTATION_FAILURE";
             message = exData.message || "Internal error.";
             break;
 
           case "invalidobject":
-            name = "INVALID_OBJECT";
-            message = "Invalid/released object.";
+            name = exData.name || "WEBCL_INVALID_OBJECT";
+            message = exData.message || "Invalid/released WebCL object.";
             break;
 
           default:
-            name = "INVALID_EXCEPTION";
-            message = "Unknown exception.";
+            name = exData.name || "WEBCL_UNKNOWN_EXCEPTION";
+            message = exData.message || "Unknown WebCL exception.";
             break;
           }
         }

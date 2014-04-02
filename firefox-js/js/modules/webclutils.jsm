@@ -308,7 +308,9 @@ function convertCLException (e)
     try { var s = String(e); } catch (e) { var s = "<invalid exception>"; }
 
 
-    var exData = { name: "", message: "", type:null, context: null };
+    var exData = { name: "", message: "", type:null, context: null, fileName: "", lineNumber: null };
+    exData.fileName = e.fileName;
+    exData.lineNumber = e.lineNumber;
 
     if (typeof(e) == "string" && e.startsWith("WEBCLEXCEPTION:"))
     {
@@ -320,6 +322,13 @@ function convertCLException (e)
       exData.name = e.name;
       exData.message = e.msg;
       exData.type = "cl";
+      exData.context = e.context;
+    }
+    else if (e instanceof CLSyntaxError)
+    {
+      exData.name = "";
+      exData.message = e.msg;
+      exData.type = "syntaxerror";
       exData.context = e.context;
     }
     else if (e instanceof CLInternalError)

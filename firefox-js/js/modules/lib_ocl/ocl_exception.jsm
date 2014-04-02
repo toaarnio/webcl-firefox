@@ -12,7 +12,9 @@
  */
 
 
-var EXPORTED_SYMBOLS = [ "CLException", "CLInvalidated", "CLError", "CLUnsupportedInfo", "CLInternalError", "CLInvalidArgument", "CLNotImplemented" ];
+var EXPORTED_SYMBOLS = [ "CLException", "CLSyntaxError", "CLInvalidated", "CLInternalError", "CLInvalidArgument", "CLNotImplemented",
+                         "CLError", "CLUnsupportedInfo" ];
+                         
 
 const Cu = Components.utils;
 const Cr = Components.results;
@@ -24,36 +26,103 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 try {
 
 
+// Base class for all exceptions and errors thrown by WebCL. 
+//
 function CLException (msg, context)
 {
   this.msg = msg ? String(msg) : "";
   this.context = context ? String(context) : "";
+  var stack = Error().stack;
+  var sourceLocation = /.*modules\/webcl.*/.exec(stack)[0].split('/').slice(-1)[0].split(':');
+  this.fileName = sourceLocation[0];
+  this.lineNumber = sourceLocation[1];
 }
-
+CLException.prototype = Object.create(Error.prototype);
 CLException.prototype.toString = function ()
 {
-  return (this.context ? this.context + ": " : "CLException: ") + this.msg;
+  return (this.context ? (this.context + ": ") : "CLException: ") + this.msg;
 };
 
 
+// Thrown if the application passes a wrong number of arguments.
+//
+function CLSyntaxError(msg)
+{
+  CLException.apply (this);
+  this.msg = msg ? String(msg) : "";
+};
+CLSyntaxError.prototype = Object.create (CLException.prototype);
+CLSyntaxError.prototype.toString = function ()
+{
+  return "Syntax error: " + msg;
+}
 
+
+// Thrown if attempting to use an invalidated object.
+//
 function CLInvalidated (msg)
 {
   CLException.apply (this);
   this.msg = msg ? String(msg) : "";
 }
 CLInvalidated.prototype = Object.create (CLException.prototype);
-
 CLInvalidated.prototype.toString = function ()
 {
   return "Invalid object" + (msg ? ": " + msg : "") + ".";
 };
 
 
+// Thrown if attempting to use a function or feature that is not yet implemented.
+//
+function CLNotImplemented (name)
+{
+  CLException.apply (this);
+  this.name = name;
+}
+CLNotImplemented.prototype = Object.create (CLException.prototype);
 
+CLNotImplemented.prototype.toString = function ()
+{
+  return "Not implemented" + (this.name ? ": "+this.name : "");
+};
+
+
+// Thrown if there is an uncategorized internal error.
+//
+function CLInternalError (msg, context)
+{
+  CLException.call (this, msg, context);
+}
+CLInternalError.prototype = Object.create (CLException.prototype);
+CLInternalError.prototype.toString = function ()
+{
+  return "[Internal error] " + CLException.prototype.toString.apply (this);
+};
+
+
+// TODO: Remove this. Replace with CLSyntaxError and WebCL error codes.
+//
+function CLInvalidArgument (argName, msg, context)
+{
+  CLException.call (this, msg, context);
+
+  this.argName = String(argName);
+}
+CLInvalidArgument.prototype = Object.create (CLException.prototype);
+CLInvalidArgument.prototype.toString = function ()
+{
+  var s = (this.context ? this.context + ": " : "");
+  s += (this.msg ? this.msg : "Invalid argument");
+  return s + ": " + this.argName;
+};
+
+
+// Base class for all exceptions derived from OpenCL error codes.
+//
 // errCode: Number, OpenCL error code or undefined if none.
 // msg:     String, Textual description.
 // context: String, Exception context description.
+//
 function CLError (errCode, msg, context)
 {
   CLException.apply (this);
@@ -92,6 +161,7 @@ function CLError (errCode, msg, context)
   {
     this.context = String(context);
   }
+
 }
 CLError.prototype = Object.create (CLException.prototype);
 
@@ -101,10 +171,13 @@ CLError.prototype.toString = function ()
   if (this.context) s = this.context + ":";
   if (this.name) s += (s ? " " : "") + this.name;
   if (this.msg) s += (s ? " " : "") + this.msg;
+  if (this.fileName) s+= " [" + this.fileName + ":" + this.lineNumber + "]";
   return s;
 };
 
 
+// TODO: Remove this. Replace with INVALID_VALUE.
+//
 function CLUnsupportedInfo (name, msg, context)
 {
   CLException.apply (this);
@@ -135,51 +208,7 @@ CLUnsupportedInfo.prototype.toString = function ()
 };
 
 
-
-function CLInternalError (msg, context)
-{
-  CLException.call (this, msg, context);
-}
-CLInternalError.prototype = Object.create (CLException.prototype);
-
-CLInternalError.prototype.toString = function ()
-{
-  return "[Internal error] " + CLException.prototype.toString.apply (this);
-};
-
-
-
-function CLInvalidArgument (argName, msg, context)
-{
-  CLException.call (this, msg, context);
-
-  this.argName = String(argName);
-}
-CLInvalidArgument.prototype = Object.create (CLException.prototype);
-
-CLInvalidArgument.prototype.toString = function ()
-{
-  var s = (this.context ? this.context + ": " : "");
-  s += (this.msg ? this.msg : "Invalid argument");
-  return s + ": " + this.argName;
-};
-
-
-
-function CLNotImplemented (name)
-{
-  CLException.apply (this);
-  this.name = name;
-}
-CLNotImplemented.prototype = Object.create (CLException.prototype);
-
-CLNotImplemented.prototype.toString = function ()
-{
-  return "Not implemented" + (this.name ? ": "+this.name : "");
-};
-
-
-// Generate shorthand constructors for all OpenCL errors.
+// Shorthand constructors for all OpenCL errors.
 //
 // Usage examples:
 //   throw new INVALID_VALUE("'value' was invalid");
