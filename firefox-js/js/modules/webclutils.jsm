@@ -647,7 +647,18 @@ function validateBuildOptions (options, validOptions)
 
 function validateImageFormat (descriptor)
 {
-  return validateImageChannelOrder(descriptor) && validateImageChannelType(descriptor);
+  return validateImageChannelOrder(descriptor) && 
+    validateImageChannelType(descriptor) &&
+    (function() {
+      switch (descriptor.channelType) {
+      case ocl_const.CL_UNORM_SHORT_565:
+      case ocl_const.CL_UNORM_SHORT_555:
+      case ocl_const.CL_UNORM_INT_101010:
+        return descriptor.channelOrder === ocl_const.CL_RGB;
+      default:
+        return true;
+      }
+    })();
 }
 
 function validateImageChannelOrder (descriptor)

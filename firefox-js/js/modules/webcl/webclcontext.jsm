@@ -200,7 +200,7 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
     // Validate the presence and type of mandatory arguments
 
     if (arguments.length < 2 || arguments.length > 3)
-      throw new CLInvalidArgument("Expected 2 or 3 arguments, received " + arguments.length);
+      throw new CLSyntaxError("Expected 2 or 3 arguments, received " + arguments.length);
 
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
       throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
@@ -223,19 +223,23 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
     if (!webclutils.validateImageChannelType(descriptor))
       throw new INVALID_IMAGE_FORMAT_DESCRIPTOR("'descriptor.channelType' must be a valid CLenum; was ", descriptor.channelType);
 
+    if (!webclutils.validateImageFormat(descriptor))
+      throw new INVALID_IMAGE_FORMAT_DESCRIPTOR("'descriptor.channelType' ("+descriptor.channelType+") is not compatible with " +
+                                                "'descriptor.channelOrder' ("+descriptor.channelOrder+")");
+
     // Validate width, height, and rowPitch
 
-    if (!webclutils.validatePositiveInt32(descriptor.width))
+    if (!webclutils.validateNonNegativeInt32(descriptor.width))
       throw new INVALID_IMAGE_DESCRIPTOR("'descriptor.width' must be a positive integer; was ", descriptor.width);
 
-    if (!webclutils.validatePositiveInt32(descriptor.height))
+    if (!webclutils.validateNonNegativeInt32(descriptor.height))
       throw new INVALID_IMAGE_DESCRIPTOR("'descriptor.height' must be a positive integer; was ", descriptor.height);
 
-    if (descriptor.width > 8192) // TODO get real DEVICE_IMAGE2D_MAX_WIDTH
-      throw new INVALID_IMAGE_SIZE("'descriptor.width' must be <= 8192; was ", descriptor.width);
+    if (descriptor.width === 0 || descriptor.width > 8192) // TODO get real DEVICE_IMAGE2D_MAX_WIDTH
+      throw new INVALID_IMAGE_SIZE("'descriptor.width' must be greater than zero and <= 8192; was ", descriptor.width);
 
-    if (descriptor.height > 8192)  // TODO get real DEVICE_IMAGE2D_MAX_HEIGHT
-      throw new INVALID_IMAGE_SIZE("'descriptor.height' must be <= 8192; was ", descriptor.height);
+    if (descriptor.height === 0 || descriptor.height > 8192)  // TODO get real DEVICE_IMAGE2D_MAX_HEIGHT
+      throw new INVALID_IMAGE_SIZE("'descriptor.height' must be greater than zero and <= 8192; was ", descriptor.height);
 
     if (!webclutils.validateNonNegativeInt32(descriptor.rowPitch))
       throw new INVALID_IMAGE_DESCRIPTOR("'descriptor.rowPitch' must be a non-negative integer; was ", descriptor.rowPitch);
