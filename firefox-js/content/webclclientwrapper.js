@@ -24,7 +24,7 @@
   };
 
   _WebCL.prototype = new Object();
-  _WebCL.prototype.version = "YYYY-MM-DD";
+  _WebCL.prototype.version = _WebCL.version = "YYYY-MM-DD";
   _WebCL.prototype.getPlatforms = _createDefaultFunctionWrapper ("getPlatforms");
   _WebCL.prototype.createContext = _createDefaultFunctionWrapper ("createContext");
   _WebCL.prototype.getSupportedExtensions = _createDefaultFunctionWrapper ("getSupportedExtensions");
