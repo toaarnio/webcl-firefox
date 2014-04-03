@@ -29,7 +29,7 @@ Cu.import("resource://nrcwebcl/modules/webcl/webclevent.jsm");
 Cu.import("resource://nrcwebcl/modules/webcl/webclimagedescriptor.jsm");
 
 
-INFO ("WebCL Loader, Nokia Research Center, 2013");
+INFO ("WebCL Loader");
 
 
 
@@ -65,27 +65,33 @@ function handle_profileAfterChange (ctx)
 
 function handle_contentDocumentGlobalCreated (ctx, domWindow)
 {
-  // Don't load WebCL Wrapper if we are on about: or chrome page.
-  // TODO: Any other bad schemes? Should we limit to only http: and maybe file: ?
+  // Note that WebCL is made available for not only regular web pages, but all content except the
+  // browser internal "chrome:" URIs.  This allows developers to bring up the Web Console and start
+  // experimenting at any time.  It's particularly important to have WebCL enabled on "about:home"
+  // and "about:blank".
 
-  if (domWindow.document.baseURI.startsWith("about:")) return;
   if (domWindow.document.baseURI.startsWith("chrome:")) return;
 
-  // Is WebCL enabled?
-  if (ctx._allowed !== 0)
+  if (ctx._allowed)
   {
+    INFO ("WebCL Loader: Permission granted. Loading WebCL client side component. baseURI: " + domWindow.document.baseURI);
+
     domWindow.wrappedJSObject._NokiaWebCL = WebCL;
     domWindow.wrappedJSObject._NokiaWebCLEvent = WebCLEvent;
     domWindow.wrappedJSObject._NokiaWebCLImageDescriptor = WebCLImageDescriptor;
 
-
-    LOG ("Loading WebCL client side component. baseURI: " + domWindow.document.baseURI);
     var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                             .getService (Ci.mozIJSSubScriptLoader);
     loader.loadSubScript ("chrome://nrcwebcl/content/webclclientwrapper.js",
                           domWindow.wrappedJSObject);
 
+    INFO ("WebCL Loader: WebCL client side component successfully loaded.");
+
     // Another option? https://developer.mozilla.org/en-US/docs/Components.utils.createObjectIn
+  } 
+  else 
+  {
+    INFO ("WebCL Loader: Permission denied.");
   }
 }
 
@@ -103,7 +109,7 @@ function handle_prefChanged (ctx, name)
 
 WebCLLoader.prototype.observe = function (subject, topic, data)
 {
-  LOG ("WebCLLoader#observe: topic=" + topic + ", data=" + data);
+  TRACE (this, "observe", arguments);
 
   switch (topic) {
     case "profile-after-change":
