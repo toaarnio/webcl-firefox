@@ -178,8 +178,6 @@ CLEvent.prototype.release = function ()
 
   if (this.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) > 0)
   {
-    ERROR("Releasing an event with execution status > 0. This implies an error in application logic.")
-
     // OPENCL DRIVER BUG WORKAROUND: User event status must be set to -1 or CL_COMPLETE before
     // calling clReleaseEvent, or otherwise some drivers (e.g., NVIDIA on Windows) will crash.
     //
