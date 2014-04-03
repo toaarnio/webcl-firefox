@@ -130,7 +130,7 @@ WebCL.prototype.QueryInterface =   XPCOMUtils.generateQI ([ //Ci.IWebCL,
 
 WebCL.prototype.observe = function (subject, topic, data)
 {
-  DEBUG ("WebCL.observe: " + topic + " data=" + data);
+  TRACE (this, "observe", arguments);
 
   try
   {
@@ -155,6 +155,8 @@ WebCL.prototype.observe = function (subject, topic, data)
 
 WebCL.prototype.init = function (domWindow)
 {
+  TRACE (this, "init", arguments);
+
   try
   {
     this.handlePrefAllowed (webclutils.getPref_allowed (true));
