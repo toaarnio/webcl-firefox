@@ -335,43 +335,36 @@
   {
     if (Array.isArray(obj))
     {
-      var tmp = [];
-      for (var i = 0; i < obj.length; ++i)
-      {
-        tmp[i] = _wrapInternalObject (obj[i]);
-      }
-      obj = tmp;
+      obj = obj.map(_wrapInternalObject);
     }
     else if (obj && typeof(obj) == "object")
     {
-      try {
-        if (obj.classDescription)
+      if (obj.classDescription)
+      {
+        switch (obj.classDescription)
         {
-          switch (obj.classDescription)
-          {
-            case "WebCLPlatform":        return _createPlatformInstance (obj);
-            case "WebCLDevice":          return _createDeviceInstance (obj);
-            case "WebCLContext":         return _createContextInstance (obj);
-            case "WebCLProgram":         return _createProgramInstance (obj);
-            case "WebCLKernel":          return _createKernelInstance (obj);
-            case "WebCLCommandQueue":    return _createCommandQueueInstance (obj);
-            case "WebCLMemoryObject":    return _createMemoryObjectInstance (obj);
-            case "WebCLBuffer":          return _createBufferInstance (obj);
-            case "WebCLImage":           return _createImageInstance (obj);
-            case "WebCLSampler":         return _createSamplerInstance (obj);
-            case "WebCLEvent":           return _createEventInstance (obj);
-            case "WebCLUserEvent":       return _createUserEventInstance (obj);
-            case "WebCLImageDescriptor": return _createImageDescriptorInstance (obj);
-          }
+        case "WebCLPlatform":        return _createInstance (WebCLPlatform, obj);
+        case "WebCLDevice":          return _createInstance (WebCLDevice, obj);
+        case "WebCLContext":         return _createInstance (WebCLContext, obj);
+        case "WebCLProgram":         return _createInstance (WebCLProgram, obj);
+        case "WebCLKernel":          return _createInstance (WebCLKernel, obj);
+        case "WebCLCommandQueue":    return _createInstance (WebCLCommandQueue, obj);
+        case "WebCLMemoryObject":    return _createInstance (WebCLMemoryObject, obj);
+        case "WebCLBuffer":          return _createInstance (WebCLBuffer, obj);
+        case "WebCLImage":           return _createInstance (WebCLImage, obj);
+        case "WebCLSampler":         return _createInstance (WebCLSampler, obj);
+        case "WebCLEvent":           return _createInstance (WebCLEvent, obj);
+        case "WebCLUserEvent":       return _createInstance (WebCLUserEvent, obj);
+        case "WebCLImageDescriptor": return _createInstance (WebCLImageDescriptor, obj);
         }
-      } catch(e) { }
+      }
     }
     return obj;
   };
 
   function _wrapException (e, ctx)
   {
-    if (e instanceof _WebCLException)
+    if (e instanceof WebCLException)
     {
       return e;
     }
@@ -424,19 +417,14 @@
       }
     } catch (e2) { msg = "_wrapException: Failed to process exception: " + e2; }
 
-    return new _WebCLException (String(name), String(message), String(ctx));
+    return new WebCLException (String(name), String(message), String(ctx));
   };
 
   function _unwrapInternalObject (obj)
   {
     if (Array.isArray(obj))
     {
-      var tmp = [];
-      for (var i = 0; i < obj.length; ++i)
-      {
-        tmp[i] = _unwrapInternalObject (obj[i]);
-      }
-      obj = tmp;
+      obj = obj.map(_unwrapInternalObject);
     }
     else if (obj && typeof(obj) == "object")
     {
@@ -495,7 +483,7 @@
       else if (obj instanceof _ImageDescriptor) err = "INVALID_IMAGE_FORMAT_DESCRIPTOR";
       else err = "WEBCL_IMPLEMENTATION_FAILURE";
 
-      throw new _WebCLException (err, "Invalid internal object: " + obj, "_validateInternal");
+      throw new WebCLException (err, "Invalid internal object: " + obj, "_validateInternal");
     }
   };
 
@@ -521,11 +509,7 @@
           if (fname === "releaseAll")
           {
             var managedWrapperList = this._internal.getManagedExternalIdentityList ();
-            for (var i = 0; i < managedWrapperList.length; ++i)
-            {
-              _unregisterWrapperInstance (managedWrapperList[i]);
-            }
-
+            managedWrapperList.forEach(_unregisterWrapperInstance);
             _unregisterWrapperInstance (this._identity);
           }
           else if (fname === "release")
@@ -535,7 +519,7 @@
         }
         catch (e)
         {
-          console.log ("WebCL wrapper internal error: Failed to unregister wrapper on " + fname + ": " + e);
+          console.log ("WebCL client wrapper internal error: Failed to unregister wrapper on " + fname + ": " + e);
         }
 
 
@@ -575,161 +559,17 @@
   // These functions should be used when creating wrappers for WebCL internal (XPCOM) objects.
   // Existing objects will be re-used.
 
-  function _createPlatformInstance (obj)
+  function _createInstance(clazz, internal)
   {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
+    var wrapper = _lookForExistingWrapperInstance(internal);
     if (!wrapper)
     {
-      wrapper = new _Platform (obj);
+      wrapper = new clazz (internal);
       _registerWrapperInstance (wrapper);
     }
     return wrapper;
   }
 
-  function _createDeviceInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Device (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createContextInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Context (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createProgramInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Program (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createKernelInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Kernel (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createCommandQueueInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _CommandQueue (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createMemoryObjectInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _MemoryObject (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createBufferInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Buffer (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createImageInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Image (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createSamplerInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Sampler (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createEventInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _Event (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createUserEventInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _UserEvent (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
-
-  function _createImageDescriptorInstance (obj)
-  {
-    // NOTE: _lookForExistingWrapperInstance handles object validation.
-    var wrapper = _lookForExistingWrapperInstance(obj);
-    if (!wrapper)
-    {
-      wrapper = new _ImageDescriptor (obj);
-      _registerWrapperInstance (wrapper);
-    }
-    return wrapper;
-  }
 
   function _lookForExistingWrapperInstance (obj)
   {
