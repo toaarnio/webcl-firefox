@@ -111,16 +111,12 @@ WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
     this._validateNonNegativeInt32(srcOffset, "srcOffset");
     this._validateNonNegativeInt32(dstOffset, "dstOffset");
     this._validateNonNegativeInt32(numBytes, "numBytes");
+    this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-
-    var clEventWaitList = [];
-    if (eventWaitList)
-    {
-      clEventWaitList = this._convertEventWaitList (eventWaitList);
-    }
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyBuffer (clSrcBuffer, clDstBuffer,
                                                srcOffset, dstOffset, numBytes,
@@ -153,6 +149,7 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
     this._validateNonNegativeInt32(srcSlicePitch, "srcSlicePitch");
     this._validateNonNegativeInt32(dstRowPitch, "dstRowPitch");
     this._validateNonNegativeInt32(dstSlicePitch, "dstSlicePitch");
+    this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     if (!webclutils.validateArrayLength(srcOrigin, function(arr) { return arr.length === 3; }))
@@ -164,12 +161,7 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-
-    var clEventWaitList = [];
-    if (eventWaitList)
-    {
-      clEventWaitList = this._convertEventWaitList (eventWaitList);
-    }
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyBufferRect (clSrcBuffer, clDstBuffer,
                                                    srcOrigin, dstOrigin, region,
@@ -199,18 +191,12 @@ WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateImage(srcImage, "srcImage");
     this._validateImage(dstImage, "dstImage");
+    this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     var clSrcImage = this._unwrapInternalOrNull (srcImage);
     var clDstImage = this._unwrapInternalOrNull (dstImage);
-
-    // TODO: validate srcOrigin, dstOrigin, region
-
-    var clEventWaitList = [];
-    if (eventWaitList)
-    {
-      clEventWaitList = this._convertEventWaitList (eventWaitList);
-    }
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyImage (clSrcImage, clDstImage,
                                               srcOrigin, dstOrigin, region,
@@ -238,18 +224,12 @@ WebCLCommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBu
     this._validateImage(srcImage, "srcImage");
     this._validateBuffer(dstBuffer, "dstBuffer");
     this._validateNonNegativeInt32(dstOffset, "dstOffset");
+    this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     var clSrcImage = this._unwrapInternalOrNull (srcImage);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-
-    // TODO: validate srcOrigin, srcRegion, dstOffset
-
-    var clEventWaitList = [];
-    if (eventWaitList)
-    {
-      clEventWaitList = this._convertEventWaitList (eventWaitList);
-    }
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyImageToBuffer (clSrcImage, clDstBuffer,
                                                       srcOrigin, srcRegion, dstOffset,
@@ -277,18 +257,12 @@ WebCLCommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstI
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateImage(dstImage, "dstImage");
     this._validateNonNegativeInt32(srcOffset, "srcOffset");
+    this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstImage = this._unwrapInternalOrNull (dstImage);
-
-    // TODO: validate srcOffset, dstOrigin, region
-
-    var clEventWaitList = [];
-    if (eventWaitList)
-    {
-      clEventWaitList = this._convertEventWaitList (eventWaitList);
-    }
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyBufferToImage (clSrcBuffer, clDstImage,
                                                       srcOffset, dstOrigin, region,
@@ -327,6 +301,7 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     this._validateNonNegativeInt32(bufferOffset, "bufferOffset");
     this._validateNonNegativeInt32(numBytes, "numBytes");
     this._validateArrayBufferView(hostPtr, "hostPtr");
+    this._validateEventWaitList(eventWaitList, blockingRead);
     this._validateEventOut(eventOut);
 
     if (numBytes > hostPtr.byteLength)
@@ -338,12 +313,9 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     if ((range = bufferOffset + numBytes) > (bufferSize = buffer.getInfo(ocl_info.CL_MEM_SIZE)))
       throw new INVALID_VALUE("bufferOffset + numBytes = "+range+" must not be greater than buffer size = ", bufferSize);
 
-    // TODO validate eventWaitList
-
-    var clEventWaitList = [];
-    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
     var clBuffer = this._unwrapInternalOrNull (buffer);
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+
     var ev = this._internal.enqueueReadBuffer (clBuffer, blockingRead, bufferOffset, numBytes, hostPtr, clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
@@ -376,17 +348,14 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
     this._validateNonNegativeInt32(hostSlicePitch, "hostSlicePitch");
     this._validateArrayBufferView(hostPtr, "hostPtr");
+    this._validateEventWaitList(eventWaitList, blockingRead);
     this._validateEventOut(eventOut);
 
     // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
     //       hostRowPitch, hostSlicePitch, hostPtr
 
-    // TODO validate eventWaitList
-
-    var clEventWaitList = [];
-    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
     var clBuffer = this._unwrapInternalOrNull (buffer);
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueReadBufferRect (clBuffer, !!blockingRead,
                                                   bufferOrigin, hostOrigin, region,
@@ -429,6 +398,7 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     this._validateBoolean(blockingRead, "blockingRead");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
     this._validateArrayBufferView(hostPtr, "hostPtr");
+    this._validateEventWaitList(eventWaitList, blockingRead);
     this._validateEventOut(eventOut);
 
     if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
@@ -464,15 +434,12 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     if (hostRowPitch === 0 && (regionSize = region[0]*region[1]*numChannels) > hostPtr.length)
       throw new INVALID_VALUE("region[0] * region[1] * numChannels = "+regionSize+" must not be greater than hostPtr.length = ", hostPtr.length);
 
-    // TODO validate eventWaitList
-
-    var clEventWaitList = [];
-    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
     var clImage = this._unwrapInternalOrNull (image);
     var clOrigin = [ origin[0], origin[1], 0 ];
     var clRegion = [ region[0], region[1], 1 ];
     var hostSlicePitch = 0;
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+
     var ev = this._internal.enqueueReadImage (clImage, blockingRead, clOrigin, clRegion, hostRowPitch, hostSlicePitch, hostPtr, clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
@@ -511,6 +478,7 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
     this._validateNonNegativeInt32(bufferOffset, "bufferOffset");
     this._validateNonNegativeInt32(numBytes, "numBytes");
     this._validateArrayBufferView(hostPtr, "hostPtr");
+    this._validateEventWaitList(eventWaitList, blockingWrite);
     this._validateEventOut(eventOut);
 
     if (numBytes > hostPtr.byteLength)
@@ -522,12 +490,9 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
     if ((range = bufferOffset + numBytes) > (bufferSize = buffer.getInfo(ocl_info.CL_MEM_SIZE)))
       throw new INVALID_VALUE("bufferOffset + numBytes = "+range+" must not be greater than buffer size = ", bufferSize);
 
-    // TODO: validate eventWaitList
-
-    var clEventWaitList = [];
-    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
-
     var clBuffer = this._unwrapInternalOrNull (buffer);
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+
     var ev = this._internal.enqueueWriteBuffer (clBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
@@ -565,15 +530,11 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
     this._validateNonNegativeInt32(hostSlicePitch, "hostSlicePitch");
     this._validateArrayBufferView(hostPtr, "hostPtr");
+    this._validateEventWaitList(eventWaitList, blockingWrite);
     this._validateEventOut(eventOut);
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
-
-    // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
-    //       hostRowPitch, hostSlicePitch, hostPtr
-
-    var clEventWaitList = [];
-    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueWriteBufferRect (clBuffer, !!blockingWrite,
                                                     bufferOrigin, hostOrigin, region,
@@ -610,6 +571,7 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
     this._validateBoolean(blockingWrite, "blockingWrite");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
     this._validateArrayBufferView(hostPtr, "hostPtr");
+    this._validateEventWaitList(eventWaitList, blockingWrite);
     this._validateEventOut(eventOut);
 
     if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
@@ -646,11 +608,7 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
       throw new INVALID_VALUE("region[0] * region[1] * numChannels = "+regionSize+" must not be greater than hostPtr.length = ", hostPtr.length);
 
     var clImage = this._unwrapInternalOrNull (image);
-
-    // TODO: validate origin, region, hostRowPitch, hostPtr
-
-    var clEventWaitList = [];
-    if (eventWaitList) clEventWaitList = this._convertEventWaitList (eventWaitList);
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueWriteImage (clImage, !!blockingWrite,
                                                origin, region,
@@ -710,12 +668,13 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
          (width, height, pitch) are not supported by the device associated with this queue
       MEM_OBJECT_ALLOCATION_FAILURE -- if there is a failure to allocate memory for data store associated with image or buffer
          objects specified as arguments to kernel
-      INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
+    x INVALID_EVENT_WAIT_LIST -- if any event in eventWaitList is invalid
     x INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
 
     this._validateNumArgs(arguments.length, 4, 7);
     this._validateKernel(kernel, "kernel");
+    this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     if (!webclutils.validateInteger(workDim) || !(workDim === 1 || workDim === 2 || workDim === 3))
@@ -758,11 +717,7 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
     }
 
     var clKernel = this._unwrapInternalOrNull (kernel);
-    var clEventWaitList = [];
-    if (eventWaitList)
-    {
-      clEventWaitList = this._convertEventWaitList (eventWaitList);
-    }
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueNDRangeKernel (clKernel, workDim,
                                                   globalWorkOffset, globalWorkSize, localWorkSize,
@@ -825,14 +780,11 @@ WebCLCommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
   try
   {
     this._validateNumArgs(arguments.length, 1);
+    this._validateEventWaitList(eventWaitList);
 
-    if (!Array.isArray(eventWaitList))
-    {
-      throw new CLInvalidArgument ("eventWaitList.");
-    }
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
-    var clEvents = this._convertEventWaitList (eventWaitList);
-    this._internal.enqueueWaitForEvents (clEvents);
+    this._internal.enqueueWaitForEvents (clEventWaitList);
   }
   catch (e)
   {
@@ -1009,22 +961,51 @@ WebCLCommandQueue.prototype._validateArray = function(arr, length, elementValida
 };
 
 
+WebCLCommandQueue.prototype._validateEventWaitList = function (eventWaitList, isBlocking)
+{
+  if (eventWaitList !== null && eventWaitList !== undefined) 
+  {
+    if (!Array.isArray(eventWaitList))
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must be undefined, null, or an Array; was ", eventWaitList);
+  
+    eventWaitList.forEach(function(event, i) {
+
+      if (!webclutils.validateEvent(event))
+        throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was ", event);
+
+      if (!webclutils.validateEventNotReleased(event))
+        throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was already released");
+
+      if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== event.getInfo(ocl_info.CL_EVENT_CONTEXT))
+        throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as this CommandQueue");
+
+      if (isBlocking && !webclutils.validateEventPopulated(event))
+        throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
+
+      if (isBlocking && (execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) < 0))
+        throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must only contain events with non-negative execution status; " +
+                                                            "eventWaitList["+i+"] had the status "+execStatus);
+    });
+  }
+};
+
+
 WebCLCommandQueue.prototype._validateEventOut = function (eventOut)
 {
-  TRACE (this, "_validateEventOut", arguments);
-  if (eventOut === undefined) eventOut = null;
+  if (eventOut !== null && eventOut !== undefined) 
+  {
+    if (eventOut instanceof WEBCLCLASSES.WebCLUserEvent)
+      throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was a WebCLUserEvent");
 
-  if (eventOut !== null && eventOut instanceof WEBCLCLASSES.WebCLUserEvent)
-    throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was a WebCLUserEvent");
+    if (!webclutils.validateEvent(eventOut))
+      throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was " + eventOut);
 
-  if (eventOut !== null && !webclutils.validateEvent(eventOut))
-    throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was " + eventOut);
+    if (!webclutils.validateEventNotReleased(eventOut))
+      throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was already released");
 
-  if (eventOut !== null && !webclutils.validateEventNotReleased(eventOut))
-    throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was already released");
-
-  if (eventOut !== null && !webclutils.validateEventEmpty(eventOut))
-    throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was already populated");
+    if (!webclutils.validateEventEmpty(eventOut))
+      throw new INVALID_EVENT("'event' must be a newly created empty WebCLEvent; was already populated");
+  }
 };
 
 
@@ -1047,24 +1028,6 @@ WebCLCommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
   }
 };
 
-
-WebCLCommandQueue.prototype._convertEventWaitList = function (eventWaitList)
-{
-  TRACE (this, "_convertEventWaitList", arguments);
-  var clEvents = [];
-  for (var i = 0; i < eventWaitList.length; ++i)
-  {
-    var p = this._unwrapInternalOrNull (eventWaitList[i]);
-    if (!webclutils.validateEventPopulated (p))
-    {
-      // TODO: handle errors better...
-      throw new CLInvalidArgument ("eventWaitList[" + i + "].");
-    }
-    clEvents.push (p);
-  }
-
-  return clEvents;
-};
 
 
 } catch(e) { ERROR ("webclcommandqueue.jsm: "+e); }
