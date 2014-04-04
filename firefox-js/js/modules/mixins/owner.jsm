@@ -68,16 +68,14 @@ var OwnerMixin =
         obj._owner._unregisterObject (key);
       }
 
-      DEBUG (this.classDescription+"._registerObject: Registering object "+
-             obj.classDescription+", key=" + key);
-
+      TRACE_RESOURCES (this, "_registerObject", "obj="+obj.classDescription+" key="+key);
       this._objectRegistry[key] = originalObject;
 
       obj._owner = this;
     }
     catch (e)
     {
-      LOG(this.classDescription + "._registerObject FAILED: " + e + ".");
+      ERROR (this.classDescription + "._registerObject FAILED: " + e + ".");
       return false;
     }
 
@@ -127,9 +125,8 @@ var OwnerMixin =
       var target = this._objectRegistry[key];
       if (target.wrappedJSObject) target = target.wrappedJSObject;
 
-      DEBUG (this.classDescription+"._unregisterObject: Unregistering object "+
-             target.classDescription+", key=" + key);
-
+      TRACE_RESOURCES (this, "_unregisterObject", "key="+key
+                       +((typeof(objOrKey)=="object")?" (obj="+obj.classDescription+")":""));
       delete this._objectRegistry[key];
 
       target._owner = null;
@@ -137,7 +134,7 @@ var OwnerMixin =
     }
     catch (e)
     {
-      LOG(this.classDescription + "._unregisterObject FAILED: " + e + ".");
+      ERROR (this.classDescription + "._unregisterObject FAILED: " + e + ".");
       return false;
     }
 
@@ -189,11 +186,20 @@ var OwnerMixin =
   _clearRegistry: function ()
   {
     TRACE (this, "_clearRegistry", arguments);
+
+    var keys = Object.keys(this._objectRegistry);
+    if (keys.length > 0)
+    {
+      TRACE_RESOURCES (this, "_clearRegistry", "WARNING: dropping object "+key
+                       +((typeof(objOrKey)=="object")?" ("+obj.classDescription+")":""));
+    }
+
     this._objectRegistry = {};
   },
 
   _releaseAllChildren: function ()
   {
+    TRACE_RESOURCES (this, "_releaseAllChildren");
     this._forEachRegistered (function (o)
     {
       if (o.wrappedJSObject) o = o.wrappedJSObject;
@@ -207,7 +213,6 @@ var OwnerMixin =
         o.release ();
       }
     });
-
   },
 
   getManagedExternalIdentityList: function ()

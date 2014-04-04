@@ -112,6 +112,7 @@ Base.prototype._getIdentity = function ()
 Base.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
+  TRACE_RESOURCES (this, "release");
   if(!this._ensureValidObject ()) return;
 
   try

@@ -70,6 +70,9 @@ function getExistingObjectIfAny (owner, value)
 
 function createWebCLPlatform (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLPlatform",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -80,12 +83,18 @@ function createWebCLPlatform (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLPlatform", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLPlatform", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLDevice (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLDevice",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -96,12 +105,18 @@ function createWebCLDevice (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLDevice", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLDevice", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLContext (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLContext",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -112,12 +127,18 @@ function createWebCLContext (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLContext", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLContext", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLCommandQueue (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLCommandQueue",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -128,12 +149,18 @@ function createWebCLCommandQueue (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLCommandQueue", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLCommandQueue", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLEvent (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLEvent",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -144,12 +171,18 @@ function createWebCLEvent (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLEvent", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLEvent", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLUserEvent (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLUserEvent",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -160,12 +193,18 @@ function createWebCLUserEvent (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLUserEvent", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLUserEvent", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLMemoryObject (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLMemoryObject",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -176,12 +215,18 @@ function createWebCLMemoryObject (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLMemoryObject", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLMemoryObject", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLBuffer (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLBuffer",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -192,12 +237,18 @@ function createWebCLBuffer (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLBuffer", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLBuffer", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLImage (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLImage",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -208,12 +259,18 @@ function createWebCLImage (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLImage", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLImage", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLProgram (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLProgram",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -224,12 +281,18 @@ function createWebCLProgram (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLProgram", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLProgram", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLKernel (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLKernel",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -240,12 +303,18 @@ function createWebCLKernel (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLKernel", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLKernel", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 
 function createWebCLSampler (owner, value)
 {
+  TRACE_RESOURCES (null, "createWebCLSampler",
+                   "owner="+(owner?owner.classDescription:"<null>")
+                   +" key="+(value && value.getIdentity?value.getIdentity():"<null>"));
   var o = getExistingObjectIfAny (owner, value);
   if (!o)
   {
@@ -256,7 +325,10 @@ function createWebCLSampler (owner, value)
       o.wrappedJSObject._identity = value.getIdentity ();
       owner._registerObject (o);
     }
+    TRACE_RESOURCES (null, "createWebCLSampler", "new object, key="+o._getIdentity());
   }
+  else TRACE_RESOURCES (null, "createWebCLSampler", "using existing object, key="+o._getIdentity());
+
   return o;
 }
 

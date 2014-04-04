@@ -12,7 +12,7 @@
  */
 
 
-var EXPORTED_SYMBOLS = [ "INFO", "LOG", "ERROR", "DEBUG", "TRACE", "EXCEPTIONSTR", "PUTS", "ABORT", "ASSERT" ];
+var EXPORTED_SYMBOLS = [ "INFO", "LOG", "ERROR", "DEBUG", "TRACE", "TRACE_RESOURCES", "EXCEPTIONSTR", "PUTS", "ABORT", "ASSERT" ];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -32,6 +32,7 @@ var gOSConsoleSupported = false;
 try { gEnableLog =   Services.prefs.getBoolPref ("extensions.webcl.log"); } catch (e) {}
 try { gEnableDebug = Services.prefs.getBoolPref ("extensions.webcl.debug"); } catch (e) {}
 try { gEnableTrace = Services.prefs.getBoolPref ("extensions.webcl.trace"); } catch (e) {}
+try { gEnableTraceResources = Services.prefs.getBoolPref ("extensions.webcl.trace-resources"); } catch (e) {}
 try { gEnableOSConsole = Services.prefs.getBoolPref ("extensions.webcl.os-console-output"); } catch (e) {}
 
 function LogObserver ()
@@ -52,6 +53,9 @@ LogObserver.prototype.observe = function (subject, topic, data)
         break;
       case "extensions.webcl.trace":
         try { gEnableTrace = Services.prefs.getBoolPref (data); } catch (e) {}
+        break;
+      case "extensions.webcl.trace-resources":
+        try { gEnableTraceResources = Services.prefs.getBoolPref (data); } catch (e) {}
         break;
       case "extensions.webcl.os-console-output":
         try { gEnableOSConsole = Services.prefs.getBoolPref (data); } catch (e) {}
@@ -107,18 +111,14 @@ function TRACE (ctx, name, args, prefix) {
   switch (typeof(ctx))
   {
     case "object":
-      if (ctx.wrappedJSObject) ctx = ctx.wrappedJSObject;
-
-      if (ctx.classDescription)
+      let o = ctx;
+      if (o.wrappedJSObject) o = o.wrappedJSObject;
+      if (o.classDescription)
       {
-        ctx = "[object "+ctx.classDescription+"]";
+        ctx = "[object "+o.classDescription+"]";
+        break;
       }
-      else
-      {
-        ctx = String(ctx);
-      }
-      break;
-
+      // else fall through to default
     default:
       ctx = String(ctx);
       break;
@@ -191,6 +191,41 @@ function TRACE_processArgs (args)
   }
   return a;
 }
+
+
+function TRACE_RESOURCES (ctx, name, msg, prefix)
+{
+  if (!gEnableTraceResources) return;
+
+  if (ctx === null||ctx === undefined) ctx = "";
+  if (msg === null||msg === undefined) msg = "";
+
+  switch (typeof(ctx))
+  {
+    case "object":
+      let o = ctx;
+      if (o.wrappedJSObject) o = o.wrappedJSObject;
+      if (o.classDescription)
+      {
+        let key = (o._getIdentity && typeof(o._getIdentity)=="function") ? o._getIdentity () : null;
+        ctx = "[object "+o.classDescription+ (key?":"+key:"") +"]";
+        break;
+      }
+      // else fall through to default
+    default:
+      ctx = String(ctx);
+      break;
+  }
+
+  prefix = prefix || "WEBCLRESOURCE: ";
+  msg = (ctx? ctx+"." :"") + name + (msg ? ": " + msg : "");
+
+  Services.console.logStringMessage (prefix + msg);
+
+  if (gOSConsoleSupported && gEnableOSConsole)
+    PUTS(prefix + msg);
+}
+
 
 function EXCEPTIONSTR (e)
 {
