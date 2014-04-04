@@ -120,9 +120,9 @@ CommandQueue.prototype.enqueueNDRangeKernel = function (kernel, workDim,
   TRACE (this, "enqueueNDRangeKernel", arguments);
   // TODO: validate kernel
 
-  var clGlobalWorkOffset = globalWorkOffset ? T.cl_uint.array()(globalWorkOffset) : null;
-  var clGlobalWorkSize = T.cl_uint.array()(globalWorkSize);
-  var clLocalWorkSize = localWorkSize ? T.cl_uint.array()(localWorkSize) : null;
+  var clGlobalWorkOffset = globalWorkOffset ? ctypes.size_t.array()(globalWorkOffset) : null;
+  var clGlobalWorkSize = ctypes.size_t.array()(globalWorkSize);
+  var clLocalWorkSize = localWorkSize ? ctypes.size_t.array()(localWorkSize) : null;
   // TODO: checks
 
   if (clGlobalWorkOffset && clGlobalWorkOffset.length > 0 && clGlobalWorkOffset.length != workDim)
