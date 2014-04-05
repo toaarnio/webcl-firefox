@@ -610,8 +610,10 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
     var clImage = this._unwrapInternalOrNull (image);
     var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
-    var ev = this._internal.enqueueWriteImage (clImage, !!blockingWrite,
-                                               origin, region,
+    var clOrigin = [ origin[0], origin[1], 0 ];
+    var clRegion = [ region[0], region[1], 1 ];
+    var ev = this._internal.enqueueWriteImage (clImage, blockingWrite,
+                                               clOrigin, clRegion,
                                                hostRowPitch, 0,
                                                hostPtr,
                                                clEventWaitList);
