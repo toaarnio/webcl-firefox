@@ -550,7 +550,7 @@ function createContextFromDeviceType(dt)
     }
   }
 
-  throw new DEVICE_NOT_FOUND("no Devices found matching the given deviceType on any Platform");
+  throw new DEVICE_NOT_FOUND("no Devices found matching the given deviceType ("+dt+") on any Platform");
 };
 
 function createContextFromPlatform(platform, dt)
@@ -566,7 +566,7 @@ function createContextFromPlatform(platform, dt)
     return webclutils.wrapInternal (clCtx, this);
   } catch (e) {
     if (e.name !== 'DEVICE_NOT_FOUND') throw e;
-    else throw new DEVICE_NOT_FOUND("no Devices found matching the given deviceType on the given Platform");
+    else throw new DEVICE_NOT_FOUND("no Devices found matching the given deviceType ("+dt+") on the given Platform");
   }
 };
 
@@ -586,12 +586,10 @@ function createContextFromDeviceArray(devices)
     throw new INVALID_VALUE("'devices.length' must not be zero");
 
   if (!webclutils.validateArray(devices, webclutils.validateDevice))
-    throw new INVALID_DEVICE("'devices' must only contain valid instances of WebCLDevice");
+    throw new INVALID_DEVICE("'devices' must only contain valid instances of WebCLDevice; was ", devices);
 
-  devices.forEach(function(v, i) { 
-    devices[i] = webclutils.unwrapInternal(v); 
-  });
-  var clCtx = this._internal.createContext(null, devices);
+  var clDevices = devices.map(function(v) { return webclutils.unwrapInternal(v); });
+  var clCtx = this._internal.createContext(null, clDevices);
   return webclutils.wrapInternal (clCtx, this);
 };
 
