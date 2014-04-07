@@ -987,7 +987,7 @@ WebCLCommandQueue.prototype._validateEventWaitList = function (eventWaitList, is
       if (isBlocking && (execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) < 0))
         throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must only contain events with non-negative execution status; " +
                                                             "eventWaitList["+i+"] had the status "+execStatus);
-    });
+    }, this);
   }
 };
 
