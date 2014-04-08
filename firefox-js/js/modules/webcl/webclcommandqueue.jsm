@@ -195,15 +195,21 @@ WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateImage(srcImage, "srcImage");
     this._validateImage(dstImage, "dstImage");
+    this._validateArray2D (srcOrigin, "srcOrigin", INVALID_VALUE);
+    this._validateArray2D (dstOrigin, "dstOrigin", INVALID_VALUE);
+    this._validateArray2D (region, "region", INVALID_VALUE);
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     var clSrcImage = this._unwrapInternalOrNull (srcImage);
     var clDstImage = this._unwrapInternalOrNull (dstImage);
+    var clSrcOrigin = [ srcOrigin[0], srcOrigin[1], 0 ];
+    var clDstOrigin = [ dstOrigin[0], dstOrigin[1], 0 ];
+    var clRegion = [ region[0], region[1], 1 ];
     var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyImage (clSrcImage, clDstImage,
-                                              srcOrigin, dstOrigin, region,
+                                              clSrcOrigin, clDstOrigin, clRegion,
                                               clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
@@ -684,27 +690,27 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
     this._validateEventOut(eventOut);
 
     if (!webclutils.validateInteger(workDim) || !(workDim === 1 || workDim === 2 || workDim === 3))
-      throw new CLError(ocl_errors.CL_INVALID_WORK_DIMENSION, "'workDim' must be 1, 2, or 3; was " + workDim);
+      throw new INVALID_WORK_DIMENSION("'workDim' must be 1, 2, or 3; was ", workDim);
 
     this._validateArray (globalWorkSize, workDim, webclutils.validatePositiveInt32,
-                         ocl_errors.CL_INVALID_GLOBAL_WORK_SIZE, "globalWorkSize", "integers in [1, 2^32)");
+                         INVALID_GLOBAL_WORK_SIZE, "globalWorkSize", "integers in [1, 2^32)");
 
     this._validateArrayOrNull (localWorkSize, workDim, webclutils.validatePositiveInt32, 
-                               ocl_errors.CL_INVALID_WORK_GROUP_SIZE, "localWorkSize", "integers in [1, 2^32)");
+                               INVALID_WORK_GROUP_SIZE, "localWorkSize", "integers in [1, 2^32)");
 
     this._validateArrayOrNull (globalWorkOffset, workDim, webclutils.validateNonNegativeInt32, 
-                               ocl_errors.CL_INVALID_GLOBAL_OFFSET, "globalWorkOffset", "integers in [0, 2^32)");
+                               INVALID_GLOBAL_OFFSET, "globalWorkOffset", "integers in [0, 2^32)");
 
     var maxGlobalOffset = globalWorkSize.map(function(val, i) { return val + (globalWorkOffset && globalWorkOffset[i] || 0); });
 
     this._validateArrayOrNull (maxGlobalOffset, workDim, webclutils.validatePositiveInt32, 
-                               ocl_errors.CL_INVALID_GLOBAL_OFFSET, "globalWorkOffset+globalWorkSize", "integers in [1, 2^32)");
+                               INVALID_GLOBAL_OFFSET, "globalWorkOffset+globalWorkSize", "integers in [1, 2^32)");
 
     if (localWorkSize) {
       var globalModLocal = globalWorkSize.map(function(val, i) { return val % localWorkSize[i]; });
 
       this._validateArrayOrNull (globalModLocal, workDim, function(i) { return i===0; },
-                                 ocl_errors.CL_INVALID_WORK_GROUP_SIZE, "globalWorkSize % localWorkSize", "zeros");
+                                 INVALID_WORK_GROUP_SIZE, "globalWorkSize % localWorkSize", "zeros");
 
       var device = this.getInfo(ocl_info.CL_QUEUE_DEVICE);
       var maxWorkItems = device.getInfo(ocl_info.CL_DEVICE_MAX_WORK_GROUP_SIZE);
@@ -713,13 +719,13 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
 
       localWorkSize.forEach(function(val, i) {
         if (val > maxWorkItemSizes[i])
-          throw new CLError(ocl_errors.CL_INVALID_WORK_ITEM_SIZE, "localWorkSize["+i+"] must not exceed " +
-                            maxWorkItemSizes[i] + " on this WebCLDevice; was " + val);
+          throw new INVALID_WORK_ITEM_SIZE("localWorkSize["+i+"] must not exceed " +
+                                           maxWorkItemSizes[i] + " on this WebCLDevice; was ", val);
       });
 
       if (numWorkItems > maxWorkItems)
-        throw new CLError(ocl_errors.CL_INVALID_WORK_GROUP_SIZE, "the product over localWorkSize[i] can be at most " +
-                          maxWorkItems + " on this WebCLDevice; was " + numWorkItems);
+        throw new INVALID_WORK_GROUP_SIZE("the product over localWorkSize[i] can be at most " +
+                                          maxWorkItems + " on this WebCLDevice; was ", numWorkItems);
     }
 
     var clKernel = this._unwrapInternalOrNull (kernel);
@@ -946,24 +952,31 @@ WebCLCommandQueue.prototype._validateArrayBufferView = function (value, varName)
     throw new INVALID_VALUE(varName + " must be an instance of ArrayBufferView, was ", value);
 };
 
+WebCLCommandQueue.prototype._validateArray2D = function(arr, varName, clException)
+{
+  this._validateArray (arr, 2, webclutils.validateNonNegativeInt32, 
+                       INVALID_VALUE, varName, "integers in [0, 2^32)");
+};
 
-WebCLCommandQueue.prototype._validateArrayOrNull = function(arr, length, elementValidator, errCode, varName, elementRequirementMsg)
+WebCLCommandQueue.prototype._validateArrayOrNull = function(arr, length, elementValidator, clException, varName, elementRequirementMsg)
 {
   if (arr !== null && arr !== undefined)
-    this._validateArray(arr, length, elementValidator, errCode, varName, elementRequirementMsg);
+    this._validateArray(arr, length, elementValidator, clException, varName, elementRequirementMsg);
 };
 
 
-WebCLCommandQueue.prototype._validateArray = function(arr, length, elementValidator, errCode, varName, elementRequirementMsg)
+WebCLCommandQueue.prototype._validateArray = function(arr, length, elementValidator, clException, varName, elementRequirementMsg)
 {
   if (!Array.isArray(arr))
-    throw new CLError(errCode, varName + " must be an Array; was " + typeof(arr));
+    throw new clException(varName + " must be an Array; was " + typeof(arr));
 
   if (!webclutils.validateArrayLength(arr, function() { return arr.length === length; }))
-    throw new CLError(errCode, varName + " must have exactly " + length + " elements; had " + arr.length);
+    throw new clException(varName + " must have exactly " + length + " elements; had " + arr.length);
 
-  if (!webclutils.validateArray(arr, elementValidator))
-    throw new CLError(errCode, varName + " must only contain " + elementRequirementMsg);
+  arr.forEach(function(val, i) {
+    if (!elementValidator(val))
+      throw new clException(varName + " must only contain " + elementRequirementMsg + "; " + varName + "["+i+"] was ", val);
+  });
 };
 
 
