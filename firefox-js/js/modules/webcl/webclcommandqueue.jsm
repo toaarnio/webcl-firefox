@@ -145,19 +145,15 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
     this._validateNumArgs(arguments.length, 9, 11);
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateBuffer(dstBuffer, "dstBuffer");
+    this._validateArray3D(srcOrigin, "srcOrigin");
+    this._validateArray3D(dstOrigin, "dstOrigin");
+    this._validateArray3D(region, "region");
     this._validateNonNegativeInt32(srcRowPitch, "srcRowPitch");
     this._validateNonNegativeInt32(srcSlicePitch, "srcSlicePitch");
     this._validateNonNegativeInt32(dstRowPitch, "dstRowPitch");
     this._validateNonNegativeInt32(dstSlicePitch, "dstSlicePitch");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
-
-    if (!webclutils.validateArrayLength(srcOrigin, function(arr) { return arr.length === 3; }))
-      throw new CLInvalidArgument ("srcOrigin");
-    if (!webclutils.validateArrayLength(dstOrigin, function(arr) { return arr.length === 3; }))
-      throw new CLInvalidArgument ("dstOrigin");
-    if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 3; }))
-      throw new CLInvalidArgument ("region");
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
@@ -179,8 +175,7 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
 
 
 WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
-                                                         srcOrigin, dstOrigin,
-                                                         region,
+                                                         srcOrigin, dstOrigin, region,
                                                          eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyImage", arguments);
@@ -191,9 +186,9 @@ WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateImage(srcImage, "srcImage");
     this._validateImage(dstImage, "dstImage");
-    this._validateArray2D (srcOrigin, "srcOrigin", INVALID_VALUE);
-    this._validateArray2D (dstOrigin, "dstOrigin", INVALID_VALUE);
-    this._validateArray2D (region, "region", INVALID_VALUE);
+    this._validateArray2D(srcOrigin, "srcOrigin");
+    this._validateArray2D(dstOrigin, "dstOrigin");
+    this._validateArray2D(region, "region");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
@@ -229,16 +224,20 @@ WebCLCommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBu
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateImage(srcImage, "srcImage");
     this._validateBuffer(dstBuffer, "dstBuffer");
+    this._validateArray2D(srcOrigin, "srcOrigin");
+    this._validateArray2D(srcRegion, "srcRegion");
     this._validateNonNegativeInt32(dstOffset, "dstOffset");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     var clSrcImage = this._unwrapInternalOrNull (srcImage);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
+    var clSrcOrigin = [ srcOrigin[0], srcOrigin[1], 0 ];
+    var clSrcRegion = [ srcRegion[0], srcRegion[1], 1 ];
     var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyImageToBuffer (clSrcImage, clDstBuffer,
-                                                      srcOrigin, srcRegion, dstOffset,
+                                                      clSrcOrigin, clSrcRegion, dstOffset,
                                                       clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
@@ -263,15 +262,19 @@ WebCLCommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstI
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateImage(dstImage, "dstImage");
     this._validateNonNegativeInt32(srcOffset, "srcOffset");
+    this._validateArray2D(dstOrigin, "dstOrigin");
+    this._validateArray2D(dstRegion, "dstRegion");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstImage = this._unwrapInternalOrNull (dstImage);
+    var clDstOrigin = [ dstOrigin[0], dstOrigin[1], 0 ];
+    var clDstRegion = [ dstRegion[0], dstRegion[1], 1 ];
     var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyBufferToImage (clSrcBuffer, clDstImage,
-                                                      srcOffset, dstOrigin, region,
+                                                      srcOffset, clDstOrigin, clDstRegion,
                                                       clEventWaitList);
     this._handleEventOut (ev, eventOut);
   }
@@ -349,6 +352,9 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
 
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingRead, "blockingRead");
+    this._validateArray3D(bufferOrigin, "bufferOrigin");
+    this._validateArray3D(hostOrigin, "hostOrigin");
+    this._validateArray3D(region, "region");
     this._validateNonNegativeInt32(bufferRowPitch, "bufferRowPitch");
     this._validateNonNegativeInt32(bufferSlicePitch, "bufferSlicePitch");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
@@ -357,13 +363,10 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
     this._validateEventWaitList(eventWaitList, blockingRead);
     this._validateEventOut(eventOut);
 
-    // TODO: validate bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch,
-    //       hostRowPitch, hostSlicePitch, hostPtr
-
     var clBuffer = this._unwrapInternalOrNull (buffer);
     var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
-    var ev = this._internal.enqueueReadBufferRect (clBuffer, !!blockingRead,
+    var ev = this._internal.enqueueReadBufferRect (clBuffer, blockingRead,
                                                   bufferOrigin, hostOrigin, region,
                                                   bufferRowPitch, bufferSlicePitch,
                                                   hostRowPitch, hostSlicePitch,
@@ -402,22 +405,12 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     this._validateNumArgs(arguments.length, 6, 8);
     this._validateImage(image, "image");
     this._validateBoolean(blockingRead, "blockingRead");
+    this._validateArray2D(origin, "origin");
+    this._validateArray2D(region, "region");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingRead);
     this._validateEventOut(eventOut);
-
-    if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
-      throw new INVALID_VALUE("'origin' must be an Array with exactly two elements; was ", origin);
-
-    if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 2; }))
-      throw new INVALID_VALUE("'region' must be an Array with exactly two elements; was ", region);
-
-    if (!webclutils.validateArray(origin, webclutils.validateNonNegativeInt32))
-      throw new INVALID_VALUE("'origin' must be an Array of integers in [0, 2^32); was ", origin);
-
-    if (!webclutils.validateArray(region, webclutils.validateNonNegativeInt32))
-      throw new INVALID_VALUE("'region' must be an Array of integers in [0, 2^32); was ", region);
 
     if (hostRowPitch !== 0 && hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0)
       throw new INVALID_VALUE("'hostRowPitch' = "+hostRowPitch+" must be zero or a multiple of hostPtr.BYTES_PER_ELEMENT = ", hostPtr.BYTES_PER_ELEMENT);
@@ -531,6 +524,9 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
     this._validateNumArgs(arguments.length, 10, 12);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingWrite, "blockingWrite");
+    this._validateArray3D(bufferOrigin, "bufferOrigin");
+    this._validateArray3D(hostOrigin, "hostOrigin");
+    this._validateArray3D(region, "region");
     this._validateNonNegativeInt32(bufferRowPitch, "bufferRowPitch");
     this._validateNonNegativeInt32(bufferSlicePitch, "bufferSlicePitch");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
@@ -542,7 +538,7 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
     var clBuffer = this._unwrapInternalOrNull (buffer);
     var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
 
-    var ev = this._internal.enqueueWriteBufferRect (clBuffer, !!blockingWrite,
+    var ev = this._internal.enqueueWriteBufferRect (clBuffer, blockingWrite,
                                                     bufferOrigin, hostOrigin, region,
                                                     bufferRowPitch, bufferSlicePitch,
                                                     hostRowPitch, hostSlicePitch,
@@ -575,22 +571,12 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
     this._validateNumArgs(arguments.length, 6, 8);
     this._validateImage(image, "image");
     this._validateBoolean(blockingWrite, "blockingWrite");
+    this._validateArray2D(origin, "origin");
+    this._validateArray2D(region, "region");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingWrite);
     this._validateEventOut(eventOut);
-
-    if (!webclutils.validateArrayLength(origin, function(arr) { return arr.length === 2; }))
-      throw new INVALID_VALUE("'origin' must be an Array with exactly two elements; was ", origin);
-
-    if (!webclutils.validateArrayLength(region, function(arr) { return arr.length === 2; }))
-      throw new INVALID_VALUE("'region' must be an Array with exactly two elements; was ", region);
-
-    if (!webclutils.validateArray(origin, webclutils.validateNonNegativeInt32))
-      throw new INVALID_VALUE("'origin' must be an Array of integers in [0, 2^32); was ", origin);
-
-    if (!webclutils.validateArray(region, webclutils.validateNonNegativeInt32))
-      throw new INVALID_VALUE("'region' must be an Array of integers in [0, 2^32); was ", region);
 
     if (hostRowPitch !== 0 && hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0)
       throw new INVALID_VALUE("'hostRowPitch' = "+hostRowPitch+" must be zero or a multiple of hostPtr.BYTES_PER_ELEMENT = ", hostPtr.BYTES_PER_ELEMENT);
@@ -614,13 +600,14 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
       throw new INVALID_VALUE("region[0] * region[1] * numChannels = "+regionSize+" must not be greater than hostPtr.length = ", hostPtr.length);
 
     var clImage = this._unwrapInternalOrNull (image);
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
-
     var clOrigin = [ origin[0], origin[1], 0 ];
     var clRegion = [ region[0], region[1], 1 ];
+    var hostSlicePitch = 0;
+    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+
     var ev = this._internal.enqueueWriteImage (clImage, blockingWrite,
                                                clOrigin, clRegion,
-                                               hostRowPitch, 0,
+                                               hostRowPitch, hostSlicePitch,
                                                hostPtr,
                                                clEventWaitList);
     this._handleEventOut (ev, eventOut);
@@ -948,11 +935,18 @@ WebCLCommandQueue.prototype._validateArrayBufferView = function (value, varName)
     throw new INVALID_VALUE(varName + " must be an instance of ArrayBufferView, was ", value);
 };
 
-WebCLCommandQueue.prototype._validateArray2D = function(arr, varName, clException)
+
+WebCLCommandQueue.prototype._validateArray2D = function(arr, varName)
 {
-  this._validateArray (arr, 2, webclutils.validateNonNegativeInt32, 
-                       INVALID_VALUE, varName, "integers in [0, 2^32)");
+  this._validateArray (arr, 2, webclutils.validateNonNegativeInt32, INVALID_VALUE, varName, "integers in [0, 2^32)");
 };
+
+
+WebCLCommandQueue.prototype._validateArray3D = function(arr, varName)
+{
+  this._validateArray (arr, 3, webclutils.validateNonNegativeInt32, INVALID_VALUE, varName, "integers in [0, 2^32)");
+};
+
 
 WebCLCommandQueue.prototype._validateArrayOrNull = function(arr, length, elementValidator, clException, varName, elementRequirementMsg)
 {
