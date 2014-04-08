@@ -31,6 +31,7 @@ Cu.import ("resource://nrcwebcl/modules/common.jsm");
 Cu.import ("resource://nrcwebcl/modules/base.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
+Cu.import ("resource://nrcwebcl/modules/mixins/owner.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
@@ -47,6 +48,8 @@ function WebCLCommandQueue ()
     Base.apply(this);
 
     this.wrappedJSObject = this;
+
+    this._objectRegistry = {};
 
     this.__exposedProps__ =
     {
@@ -83,6 +86,7 @@ function WebCLCommandQueue ()
 
 WEBCLCLASSES.WebCLCommandQueue = WebCLCommandQueue;
 WebCLCommandQueue.prototype = Object.create (Base.prototype);
+addMixin (WebCLCommandQueue.prototype, OwnerMixin);
 WebCLCommandQueue.prototype.classDescription = "WebCLCommandQueue";
 
 
@@ -850,7 +854,7 @@ WebCLCommandQueue.prototype.getInfo = function (name)
     case ocl_info.CL_QUEUE_DEVICE:
     case ocl_info.CL_QUEUE_PROPERTIES:
       var clInfoItem = this._internal.getInfo (name);
-      return this._wrapInternal (clInfoItem);
+      return this._wrapInternal (clInfoItem, this);
     default:
       throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
@@ -1021,7 +1025,7 @@ WebCLCommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
     var unwrappedEvent = webclEvent.wrappedJSObject;
     unwrappedEvent._internal = clEvent;
     unwrappedEvent._identity = clEvent.getIdentity();
-    this._owner._registerObject (webclEvent);
+    this._registerObject (webclEvent);
   }
   else
   {
@@ -1030,6 +1034,28 @@ WebCLCommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
   }
 };
 
+
+// NOTE: NOT EXPOSED, NOT VISIBLE TO JS!
+WebCLCommandQueue.prototype.releaseAll = function ()
+{
+  TRACE (this, "releaseAll", arguments);
+  if(!this._ensureValidObject ()) return;
+
+  try
+  {
+    this._releaseAllChildren ();
+
+    this._clearRegistry ();
+
+    //this._unregister ();
+    this.release ();
+  }
+  catch (e)
+  {
+    try { ERROR(String(e)); }catch(e){}
+    throw webclutils.convertCLException (e);
+  }
+};
 
 
 } catch(e) { ERROR ("webclcommandqueue.jsm: "+e); }
