@@ -161,13 +161,27 @@ WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
     if (this.isSubBuffer === true)
       throw new INVALID_MEM_OBJECT("this WebCLBuffer must not be a sub-buffer");
 
+    var bufferSize = this.getInfo(ocl_info.CL_MEM_SIZE);
+    var context = this.getInfo(ocl_info.CL_MEM_CONTEXT);
+    var devices = context.getInfo(ocl_info.CL_CONTEXT_DEVICES);
+    var requestedSize = origin + sizeInBytes;
+
+    if (origin >= bufferSize)
+      throw new INVALID_VALUE("origin must be less than the size of this WebCLBuffer ("+bufferSize+" bytes); was " + origin);
+
+    if (sizeInBytes > bufferSize)
+      throw new INVALID_VALUE("sizeInBytes must be less than or equal to the size this WebCLBuffer ("+bufferSize+" bytes); was " + sizeInBytes);
+
+    if (requestedSize >= bufferSize)
+      throw new INVALID_VALUE("origin+sizeInBytes must be less than the size of this WebCLBuffer ("+bufferSize+" bytes); was " + requestedSize);
+
     region = {};
     region.origin = origin;
     region.size = sizeInBytes;
     var clBuffer = this._internal.createSubBuffer (memFlags, ocl_const.CL_BUFFER_CREATE_TYPE_REGION, region);
-    var wrappedBuffer = this._wrapInternal (clBuffer);
-    wrappedBuffer.isSubBuffer = true;
-    return wrappedBuffer;
+    var newBuffer = this._wrapInternal (clBuffer);
+    newBuffer.isSubBuffer = true;
+    return newBuffer;
   }
   catch (e)
   {
