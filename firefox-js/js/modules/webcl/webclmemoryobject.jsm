@@ -120,6 +120,8 @@ function WebCLBuffer ()
 
     this.wrappedJSObject = this;
 
+    this.isSubBuffer = false;
+
     this.__exposedProps__.getExternalIdentity = "r";
     this.__exposedProps__.createSubBuffer = "r";
   }
@@ -156,11 +158,16 @@ WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
     if (!webclutils.validatePositiveInt32(sizeInBytes))
       throw new INVALID_VALUE("sizeInBytes must be an integer in [1, 2^32); was ", sizeInBytes);
 
+    if (this.isSubBuffer === true)
+      throw new INVALID_MEM_OBJECT("this WebCLBuffer must not be a sub-buffer");
+
     region = {};
     region.origin = origin;
     region.size = sizeInBytes;
     var clBuffer = this._internal.createSubBuffer (memFlags, ocl_const.CL_BUFFER_CREATE_TYPE_REGION, region);
-    return this._wrapInternal (clBuffer);
+    var wrappedBuffer = this._wrapInternal (clBuffer);
+    wrappedBuffer.isSubBuffer = true;
+    return wrappedBuffer;
   }
   catch (e)
   {
