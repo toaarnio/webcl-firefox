@@ -75,6 +75,8 @@ WebCLMemoryObject.prototype.getInfo = function (name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
@@ -134,7 +136,6 @@ WebCLBuffer.prototype.classDescription = "WebCLBuffer";
 
 
 
-// TODO: Who's the owner of buffer.createSubBuffer().createSubBuffer()?
 // createSubBuffer()._owner == this._owner == [WebCLContext]
 //
 WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
@@ -144,7 +145,22 @@ WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 
   try
   {
-    return this._wrapInternal (this._internal.createSubBuffer (memFlags, origin, sizeInBytes));
+    webclutils.validateNumArgs(arguments.length, 3);
+
+    if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
+      throw new INVALID_VALUE("memFlags must be a valid CLenum; was ", memFlags);
+
+    if (!webclutils.validateNonNegativeInt32(origin))
+      throw new INVALID_VALUE("origin must be an integer in [0, 2^32); was ", origin);
+
+    if (!webclutils.validatePositiveInt32(sizeInBytes))
+      throw new INVALID_VALUE("sizeInBytes must be an integer in [1, 2^32); was ", sizeInBytes);
+
+    region = {};
+    region.origin = origin;
+    region.size = sizeInBytes;
+    var clBuffer = this._internal.createSubBuffer (memFlags, ocl_const.CL_BUFFER_CREATE_TYPE_REGION, region);
+    return this._wrapInternal (clBuffer);
   }
   catch (e)
   {
@@ -191,7 +207,9 @@ WebCLImage.prototype.getInfo = function (name)
 
   try
   {
-    if (name === undefined) {
+    webclutils.validateNumArgs(arguments.length, 0, 1);
+
+    if (arguments.length === 0) {
       var imageFormat = this._internal.getImageInfo (ocl_info.CL_IMAGE_FORMAT);
       var width = this._internal.getImageInfo (ocl_info.CL_IMAGE_WIDTH);
       var height = this._internal.getImageInfo (ocl_info.CL_IMAGE_HEIGHT);
