@@ -38,6 +38,7 @@ Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 function WebCLEvent ()
 {
   TRACE (this, "WebCLEvent", arguments);
+
   try {
     if (!(this instanceof WebCLEvent)) return new WebCLEvent ();
 
@@ -76,6 +77,8 @@ WebCLEvent.prototype.getInfo = function (name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!this._internal)
       throw new INVALID_EVENT("event must be populated before calling getInfo");
 
@@ -110,14 +113,16 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!this._internal)
-      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be populated before calling getProfilingInfo");
+      throw new PROFILING_INFO_NOT_AVAILABLE("event must be populated before calling getProfilingInfo");
 
     if (this instanceof WEBCLCLASSES.WebCLUserEvent)
-      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "profiling info is not available for user events");
+      throw new PROFILING_INFO_NOT_AVAILABLE("profiling info is not available for user events");
 
     if (this.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) !== ocl_const.CL_COMPLETE)
-      throw new CLError (ocl_errors.CL_PROFILING_INFO_NOT_AVAILABLE, "event must be COMPLETE before calling getProfilingInfo");
+      throw new PROFILING_INFO_NOT_AVAILABLE("event must be COMPLETE before calling getProfilingInfo");
 
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
@@ -151,6 +156,8 @@ WebCLEvent.prototype.setCallback = function (commandExecCallbackType, notify)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 2);
+
     if (!this._internal)
       throw new INVALID_EVENT("event must be populated before calling setCallback");
 
@@ -203,6 +210,8 @@ WebCLUserEvent.prototype.setStatus = function (executionStatus)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateInteger(executionStatus))
       throw new INVALID_VALUE("'executionStatus' must be COMPLETE or a negative integer value; was ", executionStatus);
 

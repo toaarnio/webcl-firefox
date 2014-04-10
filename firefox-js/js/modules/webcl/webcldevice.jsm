@@ -77,6 +77,8 @@ WebCLDevice.prototype.getInfo = function (name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
@@ -164,6 +166,8 @@ WebCLDevice.prototype.getSupportedExtensions = function ()
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0);
+
     // TODO!
     return [];
   }
@@ -182,6 +186,8 @@ WebCLDevice.prototype.enableExtension = function (extensionName)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     // TODO;
     return false;
   }

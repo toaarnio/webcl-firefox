@@ -195,8 +195,7 @@ WebCL.prototype.getPlatforms = function ()
     this.ensureUsePermitted ();
     this.ensureLibraryLoaded ();
 
-    if (arguments.length > 0)
-      throw new CLSyntaxError("Expected 0 arguments, received " + arguments.length);
+    webclutils.validateNumArgs(arguments.length, 0);
 
     return webclutils.wrapInternal (this._internal.getPlatforms (), this);
   }
@@ -220,8 +219,7 @@ WebCL.prototype.createContext = function (arg0, deviceType)
     this.ensureUsePermitted ();
     this.ensureLibraryLoaded ();
 
-    if (arguments.length > 2)
-      throw new CLSyntaxError("Expected 0, 1, or 2 arguments, received " + arguments.length);
+    webclutils.validateNumArgs(arguments.length, 0, 2);
 
     if (arguments.length === 0)
       return createContextFromDeviceType.call(this, ocl_const.CL_DEVICE_TYPE_DEFAULT);
@@ -268,8 +266,7 @@ WebCL.prototype.getSupportedExtensions = function ()
 
   try
   {
-    if (arguments.length > 0)
-      throw new CLSyntaxError("Expected 0 arguments, received " + arguments.length);
+    webclutils.validateNumArgs(arguments.length, 0);
 
     // TODO!
     return [];
@@ -288,8 +285,7 @@ WebCL.prototype.enableExtension = function (extensionName)
 
   try
   {
-    if (arguments.length !== 1)
-      throw new CLSyntaxError("Expected 1 argument, received " + arguments.length);
+    webclutils.validateNumArgs(arguments.length, 1);
 
     // TODO;
     return false;
@@ -312,8 +308,7 @@ WebCL.prototype.waitForEvents = function (eventList, whenFinished)
     this.ensureUsePermitted ();
     this.ensureLibraryLoaded ();
 
-    if (arguments.length === 0 || arguments.length > 2)
-      throw new CLSyntaxError("Expected 1 or 2 arguments, received " + arguments.length);
+    webclutils.validateNumArgs(arguments.length, 1, 2);
 
     var clEventWaitList = [];
     if (eventList)
@@ -339,8 +334,7 @@ WebCL.prototype.releaseAll = function ()
 
   try
   {
-    if (arguments.length !== 0)
-      throw new CLSyntaxError("Expected 0 arguments, received " + arguments.length);
+    webclutils.validateNumArgs(arguments.length, 0);
 
     if (!this._initialized)
     {

@@ -78,6 +78,8 @@ WebCLPlatform.prototype.getInfo = function (name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
@@ -111,10 +113,9 @@ WebCLPlatform.prototype.getDevices = function (deviceType)
 
   try
   {
-    if (arguments.length > 1)
-      throw new CLSyntaxError("Expected 0 or 1 arguments, received " + arguments.length);
-
-    deviceType = webclutils.defaultTo(deviceType, ocl_const.CL_DEVICE_TYPE_ALL);
+    webclutils.validateNumArgs(arguments.length, 0, 1);
+    
+    deviceType = (arguments.length === 0) ? ocl_const.CL_DEVICE_TYPE_ALL : deviceType;
 
     if (!webclutils.validateInteger(deviceType))
       throw new INVALID_DEVICE_TYPE("'deviceType' must be a valid DEVICE_TYPE; was ", deviceType);
@@ -143,6 +144,8 @@ WebCLPlatform.prototype.getSupportedExtensions = function ()
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0);
+
     // TODO WebCLPlatform.getSupportedExtensions
     return [];
   }
@@ -161,6 +164,8 @@ WebCLPlatform.prototype.enableExtension = function (extensionName)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     // TODO WebCLPlatform.enableExtension
     return false;
   }

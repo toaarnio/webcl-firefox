@@ -93,32 +93,25 @@ WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 
   try
   {
-    if (hostPtr === undefined) hostPtr = null;
+    webclutils.validateNumArgs(arguments.length, 2, 3);
 
-    // Validate 'memFlags'
-    //
+    hostPtr = webclutils.defaultTo(hostPtr, null);
 
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
-      throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
-
-    // Validate 'sizeInBytes'
-    //
+      throw new INVALID_VALUE("memFlags must be a valid CLenum; was ", memFlags);
 
     if (!webclutils.validatePositiveInt32(sizeInBytes))
-      throw new INVALID_BUFFER_SIZE("'sizeInBytes' must be a positive integer; was ", sizeInBytes);
+      throw new INVALID_VALUE("sizeInBytes must be an integer in [1, 2^32); was ", sizeInBytes);
 
     // TODO: validate sizeInBytes <= DEVICE_MAX_MEM_ALLOC_SIZE
-
-    // Validate 'hostPtr'
-    //
 
     if (hostPtr !== null) {
 
       if (!webclutils.validateArrayBufferView(hostPtr))
-        throw new INVALID_HOST_PTR("'hostPtr' must be a valid ArrayBufferView; was ", hostPtr);
+        throw new INVALID_HOST_PTR("hostPtr must be a valid ArrayBufferView; was ", hostPtr);
 
       if (hostPtr.byteLength < sizeInBytes)
-        throw new INVALID_HOST_PTR("'hostPtr.byteLength' must be >= sizeInBytes; was ", hostPtr.byteLength);
+        throw new INVALID_HOST_PTR("hostPtr.byteLength must be >= sizeInBytes; was ", hostPtr.byteLength);
 
       memFlags |= ocl_const.CL_MEM_COPY_HOST_PTR;
     }
@@ -143,6 +136,8 @@ WebCLContext.prototype.createCommandQueue = function (device, properties)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0, 2);
+
     // Validate the given device, or use default device
 
     var supportedDevices = this.getInfo(ocl_info.CL_CONTEXT_DEVICES);
@@ -197,10 +192,9 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
 
   try
   {
-    // Validate the presence and type of mandatory arguments
+    webclutils.validateNumArgs(arguments.length, 2, 3);
 
-    if (arguments.length < 2 || arguments.length > 3)
-      throw new CLSyntaxError("Expected 2 or 3 arguments, received " + arguments.length);
+    // Validate the presence and type of mandatory arguments
 
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
       throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
@@ -291,6 +285,8 @@ WebCLContext.prototype.createProgram = function (source)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateString(source))
       throw new INVALID_VALUE("'source' must be a non-empty string; was ", source);
 
@@ -314,6 +310,8 @@ WebCLContext.prototype.createSampler = function (normalizedCoords, addressingMod
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 3);
+
     if (!webclutils.validateBoolean(normalizedCoords))
       throw new INVALID_VALUE("normalizedCoords must be a boolean; was ", normalizedCoords);
 
@@ -352,6 +350,8 @@ WebCLContext.prototype.createUserEvent = function ()
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0);
+
     var clUserEvent = this._internal.createUserEvent ();
     return this._wrapInternal (clUserEvent, this);
   }
@@ -372,6 +372,8 @@ WebCLContext.prototype.getInfo = function (name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
@@ -400,6 +402,8 @@ WebCLContext.prototype.getSupportedImageFormats = function (memFlags)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0, 1);
+
     if (memFlags === undefined)
       memFlags = ocl_const.CL_MEM_READ_WRITE;
 
@@ -437,6 +441,8 @@ WebCLContext.prototype.releaseAll = function ()
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0);
+
     this._releaseAllChildren ();
 
     this._clearRegistry ();

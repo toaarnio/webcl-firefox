@@ -74,7 +74,9 @@ WebCLSampler.prototype.getInfo = function (name)
 
   try
   {
-    if (!webclutils.validateInteger(name))
+    webclutils.validateNumArgs(arguments.length, 1);
+
+    if (!webclutils.validatePositiveInt32(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
     switch (name)

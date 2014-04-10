@@ -90,6 +90,8 @@ WebCLProgram.prototype.getInfo = function (name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
@@ -122,6 +124,8 @@ WebCLProgram.prototype.getBuildInfo = function (device, name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 2);
+
     if (!webclutils.validateDevice(device))
       throw new INVALID_DEVICE("'device' must be a valid WebCLDevice; was ", device);
 
@@ -182,6 +186,8 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0, 3);
+
     if (this.kernelsAlreadyCreated === true)
       throw new INVALID_OPERATION("cannot build a WebCLProgram that has kernels already attached to it");
 
@@ -242,6 +248,8 @@ WebCLProgram.prototype.createKernel = function (kernelName)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateString(kernelName))
       throw new CLError(ocl_errors.CL_INVALID_KERNEL_NAME, "'kernelName' must be a non-empty string; was " + kernelName);
 
@@ -272,9 +280,11 @@ WebCLProgram.prototype.createKernelsInProgram = function ()
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0);
+
     // NOTE: Ensure proper memory management on certain platforms by acquiring
     //       ownership of created kernels. This ensures that on releaseAll
-    //       kernel's will be released before program.
+    //       kernels will be released before program.
 
     var clKernels = this._wrapInternal (this._internal.createKernelsInProgram(), this);
 

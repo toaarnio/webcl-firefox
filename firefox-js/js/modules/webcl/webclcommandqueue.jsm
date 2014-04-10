@@ -865,15 +865,7 @@ WebCLCommandQueue.prototype.getInfo = function (name)
 // Internal functions
 
 
-WebCLCommandQueue.prototype._validateNumArgs = function (numArgs, minArgs, maxArgs)
-{
-  if (arguments.length === 2 && numArgs !== minArgs)
-    throw new CLSyntaxError("Expected " + minArgs + " arguments, received " + numArgs);
-
-  if (arguments.length === 3 && (numArgs < minArgs || numArgs > maxArgs))
-    throw new CLSyntaxError("Expected between " + minArgs + " and " + maxArgs + " arguments, received " + numArgs);
-};
-
+WebCLCommandQueue.prototype._validateNumArgs = webclutils.validateNumArgs;
 
 WebCLCommandQueue.prototype._validateKernel = function (kernel, varName)
 {
@@ -922,14 +914,14 @@ WebCLCommandQueue.prototype._validateBoolean = function (value, varName)
 WebCLCommandQueue.prototype._validateNonNegativeInt32 = function (value, varName)
 {
   if (!webclutils.validateNonNegativeInt32(value))
-    throw new INVALID_VALUE(varName + " must be non-negative and less than 2^32; was ", value);
+    throw new INVALID_VALUE(varName + " must be an integer in [0, 2^32); was ", value);
 };
 
 
 WebCLCommandQueue.prototype._validatePositiveInt32 = function (value, varName)
 {
   if (!webclutils.validatePositiveInt32(value))
-    throw new INVALID_VALUE(varName + " must be greater than zero and less than 2^32; was ", value);
+    throw new INVALID_VALUE(varName + " must be an integer in [1, 2^32); was ", value);
 };
 
 

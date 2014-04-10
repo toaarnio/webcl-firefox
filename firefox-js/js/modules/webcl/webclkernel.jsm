@@ -77,6 +77,8 @@ WebCLKernel.prototype.getInfo = function (name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 1);
+
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
@@ -108,6 +110,8 @@ WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 2);
+
     if (!webclutils.validateDevice(device))
       throw new INVALID_DEVICE("'device' must be a valid WebCLDevice; was ", device);
 
@@ -161,6 +165,8 @@ WebCLKernel.prototype.setArg = function (index, value)
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 2);
+
     if (!webclutils.validateNonNegativeInt32(index))
       throw new INVALID_ARG_INDEX("'index' must be a non-negative integer; was ", index);
 
