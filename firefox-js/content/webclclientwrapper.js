@@ -373,7 +373,7 @@
     var message = "";
 
     try {
-      var re = /WEBCLEXCEPTION\:([\w=]*).*/.exec(e);
+      var re = /WEBCLEXCEPTION\:([\w=+]*).*/.exec(e);
       if (re)
       {
         var exData = JSON.parse(atob(re[1]));
