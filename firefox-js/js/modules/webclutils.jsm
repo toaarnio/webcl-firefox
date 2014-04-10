@@ -398,6 +398,17 @@ function convertCLException (e)
   }
 }
 
+
+function validateNumArgs (numArgs, minArgs, maxArgs)
+{
+  if (arguments.length === 2 && numArgs !== minArgs)
+    throw new CLSyntaxError("Expected " + minArgs + " arguments, received " + numArgs);
+
+  if (arguments.length === 3 && (numArgs < minArgs || numArgs > maxArgs))
+    throw new CLSyntaxError("Expected between " + minArgs + " and " + maxArgs + " arguments, received " + numArgs);
+};
+
+
 function getNumChannels(descriptor)
 {
   switch (descriptor.channelOrder)
@@ -702,6 +713,8 @@ var webclutils = {
   getBytesPerPixel:             getBytesPerPixel,
 
   defaultTo:                    defaultTo,
+
+  validateNumArgs:              validateNumArgs,
 
   validatePlatform:             validatePlatform,
   validateDevice:               validateDevice,
