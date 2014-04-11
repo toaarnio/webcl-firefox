@@ -199,8 +199,8 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
       throw new INVALID_VALUE("'memFlags' must be a valid CLenum; was ", memFlags);
 
-    if (!webclutils.validateObject(descriptor))
-      throw new INVALID_IMAGE_DESCRIPTOR("'descriptor' must be a valid WebCLImageDescriptor; was ", descriptor);
+    if (!webclutils.validateImageDescriptor(descriptor))
+      throw new INVALID_IMAGE_DESCRIPTOR("'descriptor' must be a valid WebCLImageDescriptor (or equivalent); was ", descriptor);
 
     // Fill in defaults for optional arguments (only if they're left undefined)
 

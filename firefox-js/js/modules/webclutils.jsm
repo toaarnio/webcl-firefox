@@ -527,6 +527,14 @@ function validateEventEmpty(obj)       { return obj && obj instanceof WEBCLCLASS
 function validateEventPopulated(obj)   { return obj && obj instanceof WEBCLCLASSES.WebCLEvent && !!unwrapInternalOrNull(obj); }
 function validateEventNotReleased(obj) { return validateEvent(obj) && validateNotReleased(obj); }
 
+function validateImageDescriptor(obj)
+{
+  var isObject = validateObject(obj);
+  var isRealDescriptor = isObject && (obj instanceof WEBCLCLASSES.WebCLImageDescriptor);
+  var hasRequiredFields = isObject && (obj.width !== undefined && obj.height !== undefined);
+  return isRealDescriptor || hasRequiredFields;
+}
+
 function validateWrapped (obj, type)
 {
   return validateInternal(unwrapInternalOrNull(obj), type);
@@ -730,6 +738,7 @@ var webclutils = {
   validateEventEmpty:           validateEventEmpty,
   validateEventPopulated:       validateEventPopulated,
   validateEventNotReleased:     validateEventNotReleased,
+  validateImageDescriptor:      validateImageDescriptor,
 
   validateArray:                validateArray,
   validateArrayLength:          validateArrayLength,
