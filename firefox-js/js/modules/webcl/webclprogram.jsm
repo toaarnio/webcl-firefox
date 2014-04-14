@@ -241,8 +241,8 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
       if (e.name === "BUILD_PROGRAM_FAILURE") {
         var device = this.getInfo(ocl_info.CL_PROGRAM_DEVICES)[0];
         e.msg = this.getBuildInfo(device, ocl_info.CL_PROGRAM_BUILD_LOG);
-        throw e;
       }
+      throw e;
     }
   }
   catch (e)
