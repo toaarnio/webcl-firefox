@@ -216,20 +216,34 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
     this.buildOptions = (options === null) ? "" : options;
 
-    var supportsKernelArgInfo = true;
+    var supportsCL12 = true;
+    var supportsVerboseMode = true;
     this.getInfo(ocl_info.CL_PROGRAM_DEVICES).forEach(function(device) {
       var deviceVersion = device._internal.getInfo(ocl_info.CL_DEVICE_VERSION);
-      var supportsCL12 = (deviceVersion.indexOf("OpenCL 1.2") >= 0);
-      supportsKernelArgInfo = supportsKernelArgInfo && supportsCL12;
+      var deviceExtensions = device._internal.getInfo(ocl_info.CL_DEVICE_EXTENSIONS);
+      supportsCL12 = supportsCL12 && (deviceVersion.indexOf("OpenCL 1.2") >= 0);
+      supportsVerboseMode = supportsVerboseMode && (deviceExtensions.indexOf("NV_compiler_options") >= 0);
     });
 
-    if (supportsKernelArgInfo === true) {
-      options = this.buildOptions + " -cl-kernel-arg-info";
+    if (supportsCL12 === true) {
+      options = this.buildOptions + " -cl-kernel-arg-info -cl-std=CL1.2";
     }
 
+    if (supportsVerboseMode === true) {
+      options = this.buildOptions + " -cl-nv-verbose";
+    }
+    
     // TODO: PROPER WEBCL CALLBACK!
     // TODO: THIS IS LIKELY TO BE TOTALLY UNSAFE!
-    this._internal.buildProgram (devices, options, whenFinished);
+    try {
+      this._internal.buildProgram (devices, options, whenFinished);
+    } catch (e) {
+      if (e.name === "BUILD_PROGRAM_FAILURE") {
+        var device = this.getInfo(ocl_info.CL_PROGRAM_DEVICES)[0];
+        e.msg = this.getBuildInfo(device, ocl_info.CL_PROGRAM_BUILD_LOG);
+        throw e;
+      }
+    }
   }
   catch (e)
   {
