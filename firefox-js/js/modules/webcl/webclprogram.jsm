@@ -226,7 +226,7 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     });
 
     if (supportsCL12 === true) {
-      options = this.buildOptions + " -cl-kernel-arg-info -cl-std=CL1.2";
+      options = this.buildOptions + " -cl-kernel-arg-info";
     }
 
     if (supportsVerboseMode === true) {
