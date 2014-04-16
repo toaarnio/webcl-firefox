@@ -166,6 +166,11 @@ WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
     var devices = context.getInfo(ocl_info.CL_CONTEXT_DEVICES);
     var requestedSize = origin + sizeInBytes;
 
+    var maxAlignBytes = devices.reduce(function(maxBytes, device) {
+      var alignBytes = device.getInfo(ocl_info.CL_DEVICE_MEM_BASE_ADDR_ALIGN) / 8;
+      return Math.max(maxBytes, alignBytes);
+    }, 64);
+
     if (origin >= bufferSize)
       throw new INVALID_VALUE("origin must be less than the size of this WebCLBuffer ("+bufferSize+" bytes); was " + origin);
 
@@ -174,6 +179,9 @@ WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 
     if (requestedSize >= bufferSize)
       throw new INVALID_VALUE("origin+sizeInBytes must be less than the size of this WebCLBuffer ("+bufferSize+" bytes); was " + requestedSize);
+
+    if (origin % maxAlignBytes !== 0)
+      throw new MISALIGNED_SUB_BUFFER_OFFSET("origin must be a multiple of "+maxAlignBytes+" bytes; was " + origin);
 
     region = {};
     region.origin = origin;
