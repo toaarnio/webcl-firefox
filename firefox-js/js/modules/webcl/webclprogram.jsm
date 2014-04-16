@@ -50,7 +50,9 @@ function WebCLProgram ()
 
     this.wrappedJSObject = this;
 
-    this.buildOptions = "";
+    this.buildOptions = "";  // TODO make this device-specific
+
+    this.isBuilt = false;  // TODO make this device-specific
 
     this.kernelsAlreadyCreated = false;
 
@@ -180,14 +182,14 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     "-Werror",
   ];
 
-  devices = (devices === undefined) ? null : devices;
-  options = (options === undefined) ? null : options;
-  whenFinished = (whenFinished === undefined) ? null : whenFinished;
-
   try
   {
     webclutils.validateNumArgs(arguments.length, 0, 3);
 
+    devices = webclutils.defaultTo(devices, null);
+    options = webclutils.defaultTo(options, null);
+    whenFinished = webclutils.defaultTo(whenFinished, null);
+    
     if (this.kernelsAlreadyCreated === true)
       throw new INVALID_OPERATION("cannot build a WebCLProgram that has kernels already attached to it");
 
@@ -237,6 +239,7 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     // TODO: THIS IS LIKELY TO BE TOTALLY UNSAFE!
     try {
       this._internal.buildProgram (devices, options, whenFinished);
+      this.isBuilt = true;  // TODO defer setting the flag if doing an async build
     } catch (e) {
       if (e.name === "BUILD_PROGRAM_FAILURE") {
         var device = this.getInfo(ocl_info.CL_PROGRAM_DEVICES)[0];
@@ -265,11 +268,14 @@ WebCLProgram.prototype.createKernel = function (kernelName)
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateString(kernelName))
-      throw new CLError(ocl_errors.CL_INVALID_KERNEL_NAME, "'kernelName' must be a non-empty string; was " + kernelName);
+      throw new INVALID_KERNEL_NAME("kernelName must be a non-empty string; was ", kernelName);
+
+    if (!this.isBuilt)
+      throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernel: this Program has not been successfully built yet");
 
     // NOTE: Ensure proper memory management on certain platforms by acquiring
     //       ownership of created kernels. This ensures that on releaseAll
-    //       kernel's will be released before program.
+    //       kernels will be released before program.
 
     var clKernel = this._wrapInternal (this._internal.createKernel(kernelName), this);
 
@@ -295,6 +301,9 @@ WebCLProgram.prototype.createKernelsInProgram = function ()
   try
   {
     webclutils.validateNumArgs(arguments.length, 0);
+
+    if (!this.isBuilt)
+      throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernels: this Program has not been successfully built yet");
 
     // NOTE: Ensure proper memory management on certain platforms by acquiring
     //       ownership of created kernels. This ensures that on releaseAll
