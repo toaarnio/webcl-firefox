@@ -161,6 +161,7 @@ WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
     if (this.isSubBuffer === true)
       throw new INVALID_MEM_OBJECT("this WebCLBuffer must not be a sub-buffer");
 
+    var bufferFlags = this.getInfo(ocl_info.CL_MEM_FLAGS);
     var bufferSize = this.getInfo(ocl_info.CL_MEM_SIZE);
     var context = this.getInfo(ocl_info.CL_MEM_CONTEXT);
     var devices = context.getInfo(ocl_info.CL_CONTEXT_DEVICES);
@@ -182,6 +183,9 @@ WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 
     if (origin % maxAlignBytes !== 0)
       throw new MISALIGNED_SUB_BUFFER_OFFSET("origin must be a multiple of "+maxAlignBytes+" bytes; was " + origin);
+
+    if (bufferFlags !== ocl_const.CL_MEM_READ_WRITE && memFlags !== bufferFlags)
+      throw new INVALID_VALUE("cannot create a sub-buffer with read/write permissions ("+memFlags+") incompatible with its parent ("+bufferFlags+")");
 
     region = {};
     region.origin = origin;
