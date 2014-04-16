@@ -115,7 +115,7 @@ WebCLPlatform.prototype.getDevices = function (deviceType)
   {
     webclutils.validateNumArgs(arguments.length, 0, 1);
     
-    deviceType = (arguments.length === 0) ? ocl_const.CL_DEVICE_TYPE_ALL : deviceType;
+    deviceType = webclutils.defaultTo(deviceType, ocl_const.CL_DEVICE_TYPE_ALL);
 
     if (!webclutils.validateInteger(deviceType))
       throw new INVALID_DEVICE_TYPE("'deviceType' must be a valid DEVICE_TYPE; was ", deviceType);
