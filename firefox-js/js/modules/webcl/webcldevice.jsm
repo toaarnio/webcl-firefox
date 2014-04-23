@@ -168,7 +168,7 @@ WebCLDevice.prototype.getSupportedExtensions = function ()
   {
     webclutils.validateNumArgs(arguments.length, 0);
 
-    // TODO!
+    // TODO getSupportedExtensions
     return [];
   }
   catch (e)
@@ -188,7 +188,7 @@ WebCLDevice.prototype.enableExtension = function (extensionName)
   {
     webclutils.validateNumArgs(arguments.length, 1);
 
-    // TODO;
+    // TODO enableExtension
     return false;
   }
   catch (e)

@@ -268,7 +268,7 @@ WebCL.prototype.getSupportedExtensions = function ()
   {
     webclutils.validateNumArgs(arguments.length, 0);
 
-    // TODO!
+    // TODO implement getSupportedExtensions
     return [];
   }
   catch (e)
@@ -287,7 +287,7 @@ WebCL.prototype.enableExtension = function (extensionName)
   {
     webclutils.validateNumArgs(arguments.length, 1);
 
-    // TODO;
+    // TODO implement enableExtension
     return false;
   }
   catch (e)
@@ -497,7 +497,7 @@ WebCL.prototype._convertEventWaitList = function (eventWaitList)
     var p = webclutils.unwrapInternalOrNull (eventWaitList[i], this);
     if (!webclutils.validateNonEmptyEvent (p))
     {
-      // TODO: handle errors better...
+      // TODO: import eventWaitList handling from webclcommandqueue.jsm
       throw new CLInvalidArgument ("eventWaitList[" + i + "].");
     }
     clEvents.push (p);
