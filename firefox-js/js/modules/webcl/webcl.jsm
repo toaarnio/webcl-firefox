@@ -298,7 +298,7 @@ WebCL.prototype.enableExtension = function (extensionName)
 };
 
 
-WebCL.prototype.waitForEvents = function (eventList, whenFinished)
+WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
 {
   TRACE (this, "waitForEvents", arguments);
 
@@ -310,13 +310,11 @@ WebCL.prototype.waitForEvents = function (eventList, whenFinished)
 
     webclutils.validateNumArgs(arguments.length, 1, 2);
 
-    var clEventWaitList = [];
-    if (eventList)
-    {
-      clEventWaitList = this._convertEventWaitList (eventList);
-    }
+    // TODO: validate and implement whenFinished
 
-    // TODO: whenFinished
+    this._validateEventWaitList(eventWaitList, typeof(whenFinished) !== 'function');
+
+    var clEventWaitList = webclutils.unwrapInternal (eventWaitList);
 
     this._internal.waitForEvents (clEventWaitList);
   }
@@ -489,22 +487,39 @@ WebCL.prototype.ensureLibraryLoaded = function ()
 };
 
 
-WebCL.prototype._convertEventWaitList = function (eventWaitList)
+WebCL.prototype._validateEventWaitList = function (eventWaitList, isBlocking)
 {
-  var clEvents = [];
-  for (var i = 0; i < eventWaitList.length; ++i)
-  {
-    var p = webclutils.unwrapInternalOrNull (eventWaitList[i], this);
-    if (!webclutils.validateNonEmptyEvent (p))
-    {
-      // TODO: import eventWaitList handling from webclcommandqueue.jsm
-      throw new CLInvalidArgument ("eventWaitList[" + i + "].");
-    }
-    clEvents.push (p);
-  }
+  if (eventWaitList === undefined || eventWaitList === null)
+    throw new INVALID_VALUE("eventWaitList must not be undefined or null; was ", eventWaitList);
 
-  return clEvents;
-}
+  if (!Array.isArray(eventWaitList) || eventWaitList.length === 0)
+    throw new INVALID_VALUE("eventWaitList must be a non-empty Array; was ", eventWaitList);
+
+  eventWaitList.forEach(function(event, i) {
+
+    if (!webclutils.validateEvent(event))
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was ", event);
+
+    if (!webclutils.validateEventNotReleased(event))
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was already released");
+
+    if (!webclutils.validateEventPopulated(event))    // TODO: should empty events in eventWaitList be allowed if isBlocking===false?
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
+
+    if (event instanceof WEBCLCLASSES.WebCLUserEvent)    // TODO: should user events in eventWaitList be allowed if isBlocking===false?
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was a user event");
+
+    if (execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) < 0)
+      throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must only contain events with non-negative execution status; " +
+                                                          "eventWaitList["+i+"] had the status "+execStatus);
+
+    var ctx = (i === 0) ? event.getInfo(ocl_info.CL_EVENT_CONTEXT) : ctx;
+
+    if (event.getInfo(ocl_info.CL_EVENT_CONTEXT) !== ctx)
+      throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as eventWaitList[0]");
+  });
+
+};
 
 
 function createContextFromDeviceType(dt)

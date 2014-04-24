@@ -981,15 +981,16 @@ WebCLCommandQueue.prototype._validateEventWaitList = function (eventWaitList, is
       if (!webclutils.validateEventNotReleased(event))
         throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was already released");
 
-      if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== event.getInfo(ocl_info.CL_EVENT_CONTEXT))
-        throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as this CommandQueue");
-
       if (isBlocking && !webclutils.validateEventPopulated(event))
         throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
 
       if (isBlocking && (execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) < 0))
         throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must only contain events with non-negative execution status; " +
                                                             "eventWaitList["+i+"] had the status "+execStatus);
+
+      if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== event.getInfo(ocl_info.CL_EVENT_CONTEXT))
+        throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as this CommandQueue");
+
     }, this);
   }
 };
