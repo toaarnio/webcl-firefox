@@ -120,7 +120,7 @@ WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyBuffer (clSrcBuffer, clDstBuffer,
                                                srcOffset, dstOffset, numBytes,
@@ -161,7 +161,7 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyBufferRect (clSrcBuffer, clDstBuffer,
                                                    srcOrigin, dstOrigin, region,
@@ -201,7 +201,7 @@ WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
     var clSrcOrigin = [ srcOrigin[0], srcOrigin[1], 0 ];
     var clDstOrigin = [ dstOrigin[0], dstOrigin[1], 0 ];
     var clRegion = [ region[0], region[1], 1 ];
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyImage (clSrcImage, clDstImage,
                                               clSrcOrigin, clDstOrigin, clRegion,
@@ -238,7 +238,7 @@ WebCLCommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBu
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
     var clSrcOrigin = [ srcOrigin[0], srcOrigin[1], 0 ];
     var clSrcRegion = [ srcRegion[0], srcRegion[1], 1 ];
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyImageToBuffer (clSrcImage, clDstBuffer,
                                                       clSrcOrigin, clSrcRegion, dstOffset,
@@ -275,7 +275,7 @@ WebCLCommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstI
     var clDstImage = this._unwrapInternalOrNull (dstImage);
     var clDstOrigin = [ dstOrigin[0], dstOrigin[1], 0 ];
     var clDstRegion = [ dstRegion[0], dstRegion[1], 1 ];
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueCopyBufferToImage (clSrcBuffer, clDstImage,
                                                       srcOffset, clDstOrigin, clDstRegion,
@@ -327,7 +327,7 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
       throw new INVALID_VALUE("bufferOffset + numBytes = "+range+" must not be greater than buffer size = ", bufferSize);
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueReadBuffer (clBuffer, blockingRead, bufferOffset, numBytes, hostPtr, clEventWaitList);
     this._handleEventOut (ev, eventOut);
@@ -368,7 +368,7 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
     this._validateEventOut(eventOut);
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueReadBufferRect (clBuffer, blockingRead,
                                                   bufferOrigin, hostOrigin, region,
@@ -441,7 +441,7 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     var clOrigin = [ origin[0], origin[1], 0 ];
     var clRegion = [ region[0], region[1], 1 ];
     var hostSlicePitch = 0;
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueReadImage (clImage, blockingRead, clOrigin, clRegion, hostRowPitch, hostSlicePitch, hostPtr, clEventWaitList);
     this._handleEventOut (ev, eventOut);
@@ -494,7 +494,7 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
       throw new INVALID_VALUE("bufferOffset + numBytes = "+range+" must not be greater than buffer size = ", bufferSize);
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueWriteBuffer (clBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, clEventWaitList);
     this._handleEventOut (ev, eventOut);
@@ -540,7 +540,7 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
     this._validateEventOut(eventOut);
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueWriteBufferRect (clBuffer, blockingWrite,
                                                     bufferOrigin, hostOrigin, region,
@@ -607,7 +607,7 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
     var clOrigin = [ origin[0], origin[1], 0 ];
     var clRegion = [ region[0], region[1], 1 ];
     var hostSlicePitch = 0;
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueWriteImage (clImage, blockingWrite,
                                                clOrigin, clRegion,
@@ -716,7 +716,7 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
     }
 
     var clKernel = this._unwrapInternalOrNull (kernel);
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
 
     var ev = this._internal.enqueueNDRangeKernel (clKernel, workDim,
                                                   globalWorkOffset, globalWorkSize, localWorkSize,
@@ -781,7 +781,7 @@ WebCLCommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
     this._validateNumArgs(arguments.length, 1);
     this._validateEventWaitList(eventWaitList);
 
-    var clEventWaitList = this._unwrapInternalOrNull (eventWaitList);
+    var clEventWaitList = eventWaitList.map(function(event) { return webclutils.unwrapInternal(event); });
 
     this._internal.enqueueWaitForEvents (clEventWaitList);
   }
@@ -1031,6 +1031,18 @@ WebCLCommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
   {
     // Internal event must be released if it's not going to being used.
     clEvent.release ();
+  }
+};
+
+
+WebCLCommandQueue.prototype._unwrapArrayOrNull = function (wclObjectArray)
+{
+  TRACE (this, "_unwrapArrayOrNull", arguments);
+
+  if (Array.isArray(wclObjectArray)) {
+    return wclObjectArray.map(function(v) { return webclutils.unwrapInternalOrNull(v); });
+  } else {
+    return null;
   }
 };
 

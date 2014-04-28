@@ -314,7 +314,7 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
 
     this._validateEventWaitList(eventWaitList, typeof(whenFinished) !== 'function');
 
-    var clEventWaitList = webclutils.unwrapInternal (eventWaitList);
+    var clEventWaitList = eventWaitList.map(function(v) { return webclutils.unwrapInternal(v); });
 
     this._internal.waitForEvents (clEventWaitList);
   }
