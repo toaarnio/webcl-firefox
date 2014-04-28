@@ -649,7 +649,7 @@ function validateBuildOptions (options, validOptions)
   // TODO: Modify the regexp to accept options of the form "-D x", where x is any
   // single letter.
   //
-  var regex = /-D [A-Za-z]\w*=?\w+/g;
+  var regex = /-D [A-Za-z]\w*=?\w*[\.]?\w+/g;
   options = options.replace(regex, "", "g");
 
   // Then validate the remaining options against the given list of valid options.
