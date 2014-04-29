@@ -241,6 +241,7 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
       this._internal.buildProgram (devices, options, whenFinished);
       this.isBuilt = true;  // TODO defer setting the flag if doing an async build
     } catch (e) {
+      this.isBuilt = false;
       if (e.name === "BUILD_PROGRAM_FAILURE") {
         var device = this.getInfo(ocl_info.CL_PROGRAM_DEVICES)[0];
         e.msg = this.getBuildInfo(device, ocl_info.CL_PROGRAM_BUILD_LOG);
@@ -271,7 +272,7 @@ WebCLProgram.prototype.createKernel = function (kernelName)
       throw new INVALID_KERNEL_NAME("kernelName must be a non-empty string; was ", kernelName);
 
     if (!this.isBuilt)
-      throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernel: this Program has not been successfully built yet");
+      throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernel: the most recent build of this Program was not successful");
 
     // NOTE: Ensure proper memory management on certain platforms by acquiring
     //       ownership of created kernels. This ensures that on releaseAll
@@ -303,7 +304,7 @@ WebCLProgram.prototype.createKernelsInProgram = function ()
     webclutils.validateNumArgs(arguments.length, 0);
 
     if (!this.isBuilt)
-      throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernels: this Program has not been successfully built yet");
+      throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernels: the most recent build of this Program was not successful");
 
     // NOTE: Ensure proper memory management on certain platforms by acquiring
     //       ownership of created kernels. This ensures that on releaseAll
@@ -332,10 +333,7 @@ WebCLProgram.prototype.releaseAll = function ()
   try
   {
     this._releaseAllChildren ();
-
     this._clearRegistry ();
-
-    //this._unregister ();
     this.release ();
   }
   catch (e)
