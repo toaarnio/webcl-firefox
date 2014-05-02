@@ -49,6 +49,8 @@ function WebCLCommandQueue ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_COMMAND_QUEUE;
+
     this._objectRegistry = {};
 
     this.__exposedProps__ =
@@ -97,7 +99,6 @@ WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
                                                           eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyBuffer", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -109,6 +110,7 @@ WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
       object was created is not aligned to the DEVICE_MEM_BASE_ADDR_ALIGN value for the device associated with this WebCLCommandQueue
     */
 
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateBuffer(dstBuffer, "dstBuffer");
@@ -142,10 +144,10 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
                                                               eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyBufferRect", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 9, 11);
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateBuffer(dstBuffer, "dstBuffer");
@@ -183,10 +185,10 @@ WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
                                                          eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyImage", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateImage(srcImage, "srcImage");
     this._validateImage(dstImage, "dstImage");
@@ -221,10 +223,10 @@ WebCLCommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBu
                                                                  eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyImageToBuffer", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateImage(srcImage, "srcImage");
     this._validateBuffer(dstBuffer, "dstBuffer");
@@ -258,10 +260,10 @@ WebCLCommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstI
                                                                  eventWaitList, eventOut)
 {
   TRACE (this, "enqueueCopyBufferToImage", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateImage(dstImage, "dstImage");
@@ -295,7 +297,6 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
                                                           eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadBuffer", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -308,6 +309,7 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
   x INVALID_VALUE -- if numBytes % hostPtr.BYTES_PER_ELEMENT !== 0
     */
 
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingRead, "blockingRead");
@@ -348,12 +350,11 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
                                                               eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadBufferRect", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 10, 12);
-
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingRead, "blockingRead");
     this._validateArray3D(bufferOrigin, "bufferOrigin");
@@ -391,7 +392,6 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
                                                          hostPtr, eventWaitList, eventOut)
 {
   TRACE (this, "enqueueReadImage", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -406,6 +406,7 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
   x INVALID_VALUE -- if hostRowPitch % hostPtr.BYTES_PER_ELEMENT !== 0
     */
 
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 6, 8);
     this._validateImage(image, "image");
     this._validateBoolean(blockingRead, "blockingRead");
@@ -463,7 +464,6 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
                                                            eventOut)       // optional WebCLEvent?
 {
   TRACE (this, "enqueueWriteBuffer", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -475,6 +475,7 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
   x INVALID_VALUE -- if any part of the region being read, specified by hostPtr and numBytes, is out of bounds of hostPtr
   x INVALID_VALUE -- if numBytes % hostPtr.BYTES_PER_ELEMENT !== 0
     */
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingWrite, "blockingWrite");
@@ -521,10 +522,10 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
                                                                eventOut)
 {
   TRACE (this, "enqueueWriteBufferRect", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 10, 12);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingWrite, "blockingWrite");
@@ -568,10 +569,10 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
                                                           eventOut)
 {
   TRACE (this, "enqueueWriteImage", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 6, 8);
     this._validateImage(image, "image");
     this._validateBoolean(blockingWrite, "blockingWrite");
@@ -633,7 +634,6 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
                                                              eventOut)
 {
   TRACE (this, "enqueueNDRangeKernel", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
@@ -671,6 +671,7 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
     x INVALID_EVENT -- if event is not a newly created empty WebCLEvent
     */
 
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 4, 7);
     this._validateKernel(kernel, "kernel");
     this._validateEventWaitList(eventWaitList);
@@ -734,10 +735,10 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
 WebCLCommandQueue.prototype.enqueueMarker = function (eventOut)
 {
   TRACE (this, "enqueueMarker", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 1);
     this._validateEventOut(eventOut);
 
@@ -755,10 +756,10 @@ WebCLCommandQueue.prototype.enqueueMarker = function (eventOut)
 WebCLCommandQueue.prototype.enqueueBarrier = function ()
 {
   TRACE (this, "enqueueBarrier", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 0);
 
     this._internal.enqueueBarrier ();
@@ -774,10 +775,10 @@ WebCLCommandQueue.prototype.enqueueBarrier = function ()
 WebCLCommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 {
   TRACE (this, "enqueueWaitForEvents", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 1);
     this._validateEventWaitList(eventWaitList);
 
@@ -796,10 +797,10 @@ WebCLCommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 WebCLCommandQueue.prototype.finish = function ()
 {
   TRACE (this, "finish", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 0);
 
     this._internal.finish ();
@@ -815,10 +816,10 @@ WebCLCommandQueue.prototype.finish = function ()
 WebCLCommandQueue.prototype.flush = function ()
 {
   TRACE (this, "flush", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 0);
 
     this._internal.flush ();
@@ -834,10 +835,10 @@ WebCLCommandQueue.prototype.flush = function ()
 WebCLCommandQueue.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
     this._validateNumArgs(arguments.length, 1);
     this._validatePositiveInt32(name, "name");
 
@@ -1051,7 +1052,7 @@ WebCLCommandQueue.prototype._unwrapArrayOrNull = function (wclObjectArray)
 WebCLCommandQueue.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
-  if(!this._ensureValidObject ()) return;
+  if (this._invalid) return;
 
   try
   {

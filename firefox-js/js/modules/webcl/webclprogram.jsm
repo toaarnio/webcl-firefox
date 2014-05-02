@@ -50,6 +50,8 @@ function WebCLProgram ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_PROGRAM;
+
     this.buildOptions = "";  // TODO make this device-specific
 
     this.isBuilt = false;  // TODO make this device-specific
@@ -88,10 +90,11 @@ WebCLProgram.prototype.classDescription = "WebCLProgram";
 WebCLProgram.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateInteger(name))
@@ -122,10 +125,11 @@ WebCLProgram.prototype.getInfo = function (name)
 WebCLProgram.prototype.getBuildInfo = function (device, name)
 {
   TRACE (this, "getBuildInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 2);
 
     if (!webclutils.validateDevice(device))
@@ -167,7 +171,6 @@ WebCLProgram.prototype.getBuildInfo = function (device, name)
 WebCLProgram.prototype.build = function (devices, options, whenFinished)
 {
   TRACE (this, "build", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   var validBuildOptions = [
     "-cl-opt-disable",
@@ -184,6 +187,8 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0, 3);
 
     devices = webclutils.defaultTo(devices, null);
@@ -262,10 +267,11 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 WebCLProgram.prototype.createKernel = function (kernelName)
 {
   TRACE (this, "createKernel", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateString(kernelName))
@@ -297,10 +303,11 @@ WebCLProgram.prototype.createKernel = function (kernelName)
 WebCLProgram.prototype.createKernelsInProgram = function ()
 {
   TRACE (this, "createKernelsInProgram", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0);
 
     if (!this.isBuilt)
@@ -328,7 +335,7 @@ WebCLProgram.prototype.createKernelsInProgram = function ()
 WebCLProgram.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
-  if(!this._ensureValidObject ()) return;
+  if (this._invalid) return;
 
   try
   {

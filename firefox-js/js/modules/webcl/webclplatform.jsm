@@ -45,6 +45,8 @@ function WebCLPlatform ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_PLATFORM;
+
     this.__exposedProps__ =
     {
       getExternalIdentity: "r",
@@ -74,10 +76,11 @@ WebCLPlatform.prototype.classDescription = "WebCLPlatform";
 WebCLPlatform.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateInteger(name))
@@ -109,10 +112,11 @@ WebCLPlatform.prototype.getInfo = function (name)
 WebCLPlatform.prototype.getDevices = function (deviceType)
 {
   TRACE (this, "getDevices", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0, 1);
     
     deviceType = webclutils.defaultTo(deviceType, ocl_const.CL_DEVICE_TYPE_ALL);
@@ -140,10 +144,11 @@ WebCLPlatform.prototype.getDevices = function (deviceType)
 WebCLPlatform.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0);
 
     // TODO WebCLPlatform.getSupportedExtensions
@@ -160,10 +165,11 @@ WebCLPlatform.prototype.getSupportedExtensions = function ()
 WebCLPlatform.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     // TODO WebCLPlatform.enableExtension

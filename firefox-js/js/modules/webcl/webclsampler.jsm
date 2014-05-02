@@ -45,6 +45,8 @@ function WebCLSampler ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_SAMPLER;
+
     this.__exposedProps__ =
     {
       getExternalIdentity: "r",
@@ -70,10 +72,11 @@ WebCLSampler.prototype.classDescription = "WebCLSampler";
 WebCLSampler.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validatePositiveInt32(name))

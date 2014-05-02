@@ -25,6 +25,7 @@ Cu.import("resource://nrcwebcl/modules/logger.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclutils.jsm");
 Cu.import ("resource://nrcwebcl/modules/mixin.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
 // TODO: implement better identity generation
 var gExternalIdentitySeed = 1;
@@ -56,21 +57,15 @@ function Base ()
 
 Base.prototype._ensureValidObject = function ()
 {
-  return !this._invalid;
+  if (this._invalid)
+    throw new this.exceptionType("this "+this.classDescription+" (id="+this._externalIdentity+") has been released, and cannot be used anymore")
 };
-
-
-Base.prototype._register = function (owner)
-{
-  // TODO: REMOVE COMPLETELY
-  throw "Base.prototype._register: DEPRECATED!";
-}
 
 
 Base.prototype._unregister = function ()
 {
   TRACE (this, "_unregister", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
+  if (this._invalid) return;
 
   if (this._owner && this._identity)
   {
@@ -113,7 +108,7 @@ Base.prototype.release = function ()
 {
   TRACE (this, "release", arguments);
   TRACE_RESOURCES (this, "release");
-  if(!this._ensureValidObject ()) return;
+  if (this._invalid) return;
 
   try
   {

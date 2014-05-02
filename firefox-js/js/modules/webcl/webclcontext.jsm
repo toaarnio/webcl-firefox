@@ -50,6 +50,8 @@ function WebCLContext ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_CONTEXT;
+
     this._objectRegistry = {};
 
     this.__exposedProps__ =
@@ -89,10 +91,11 @@ WebCLContext.prototype.classDescription = "WebCLContext";
 WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 {
   TRACE (this, "createBuffer", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 2, 3);
 
     hostPtr = webclutils.defaultTo(hostPtr, null);
@@ -132,10 +135,11 @@ WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 WebCLContext.prototype.createCommandQueue = function (device, properties)
 {
   TRACE (this, "createCommandQueue", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0, 2);
 
     // Validate the given device, or use default device
@@ -188,10 +192,11 @@ WebCLContext.prototype.createCommandQueue = function (device, properties)
 WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
 {
   TRACE (this, "createImage", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 2, 3);
 
     // Validate the presence and type of mandatory arguments
@@ -281,10 +286,11 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
 WebCLContext.prototype.createProgram = function (source)
 {
   TRACE (this, "createProgram", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateString(source))
@@ -306,10 +312,11 @@ WebCLContext.prototype.createProgram = function (source)
 WebCLContext.prototype.createSampler = function (normalizedCoords, addressingMode, filterMode)
 {
   TRACE (this, "createSampler", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 3);
 
     if (!webclutils.validateBoolean(normalizedCoords))
@@ -346,10 +353,11 @@ WebCLContext.prototype.createSampler = function (normalizedCoords, addressingMod
 WebCLContext.prototype.createUserEvent = function ()
 {
   TRACE (this, "createUserEvent", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0);
 
     var clUserEvent = this._internal.createUserEvent ();
@@ -368,10 +376,11 @@ WebCLContext.prototype.createUserEvent = function ()
 WebCLContext.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateInteger(name))
@@ -398,10 +407,11 @@ WebCLContext.prototype.getInfo = function (name)
 WebCLContext.prototype.getSupportedImageFormats = function (memFlags)
 {
   TRACE (this, "getSupportedImageFormats", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0, 1);
 
     if (memFlags === undefined)
@@ -437,7 +447,7 @@ WebCLContext.prototype.getSupportedImageFormats = function (memFlags)
 WebCLContext.prototype.releaseAll = function ()
 {
   TRACE (this, "releaseAll", arguments);
-  if(!this._ensureValidObject ()) return;
+  if (this._invalid) return;
 
   try
   {

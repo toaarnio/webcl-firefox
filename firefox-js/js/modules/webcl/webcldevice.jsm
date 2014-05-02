@@ -45,6 +45,8 @@ function WebCLDevice ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_DEVICE;
+
     this.__exposedProps__ =
     {
       getExternalIdentity: "r",
@@ -73,10 +75,11 @@ WebCLDevice.prototype.classDescription = "WebCLDevice";
 WebCLDevice.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateInteger(name))
@@ -162,10 +165,11 @@ WebCLDevice.prototype.getInfo = function (name)
 WebCLDevice.prototype.getSupportedExtensions = function ()
 {
   TRACE (this, "getSupportedExtensions", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0);
 
     // TODO getSupportedExtensions
@@ -182,10 +186,11 @@ WebCLDevice.prototype.getSupportedExtensions = function ()
 WebCLDevice.prototype.enableExtension = function (extensionName)
 {
   TRACE (this, "enableExtension", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     // TODO enableExtension

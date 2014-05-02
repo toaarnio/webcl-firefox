@@ -71,10 +71,11 @@ WebCLMemoryObject.prototype.classDescription = "WebCLMemoryObject";
 WebCLMemoryObject.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateInteger(name))
@@ -143,10 +144,11 @@ WebCLBuffer.prototype.classDescription = "WebCLBuffer";
 WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
 {
   TRACE (this, "createSubBuffer", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 3);
 
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
@@ -216,6 +218,8 @@ function WebCLImage ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_MEM_OBJECT;
+
     this.__exposedProps__.getExternalIdentity = "r";
     this.__exposedProps__.getInfo = "r";
     this.__exposedProps__.release = "r";
@@ -236,10 +240,11 @@ WebCLImage.prototype.classDescription = "WebCLImage";
 WebCLImage.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0, 1);
 
     if (arguments.length === 0) {

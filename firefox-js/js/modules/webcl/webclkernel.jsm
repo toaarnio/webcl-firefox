@@ -45,6 +45,8 @@ function WebCLKernel ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_KERNEL;
+
     this.__exposedProps__ =
     {
       getExternalIdentity: "r",
@@ -73,10 +75,11 @@ WebCLKernel.prototype.classDescription = "WebCLKernel";
 WebCLKernel.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateInteger(name))
@@ -106,10 +109,11 @@ WebCLKernel.prototype.getInfo = function (name)
 WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
 {
   TRACE (this, "getWorkGroupInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 2);
 
     if (!webclutils.validateDevice(device))
@@ -144,10 +148,11 @@ WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
 WebCLKernel.prototype.getArgInfo = function ()
 {
   TRACE (this, "getArgInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     throw new Exception ("NOT IMPLEMENTED");
   }
   catch (e)
@@ -161,10 +166,11 @@ WebCLKernel.prototype.getArgInfo = function ()
 WebCLKernel.prototype.setArg = function (index, value)
 {
   TRACE (this, "setArg", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 2);
 
     if (!webclutils.validateNonNegativeInt32(index))

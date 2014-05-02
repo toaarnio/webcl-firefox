@@ -73,10 +73,11 @@ WebCLEvent.prototype.classDescription = "WebCLEvent";
 WebCLEvent.prototype.getInfo = function (name)
 {
   TRACE (this, "getInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!this._internal)
@@ -109,10 +110,11 @@ WebCLEvent.prototype.getInfo = function (name)
 WebCLEvent.prototype.getProfilingInfo = function (name)
 {
   TRACE (this, "getProfilingInfo", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!this._internal)
@@ -152,10 +154,11 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
 WebCLEvent.prototype.setCallback = function (commandExecCallbackType, notify)
 {
   TRACE (this, "setCallback", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 2);
 
     if (!this._internal)
@@ -184,6 +187,8 @@ function WebCLUserEvent ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_EVENT;
+
     this.alreadySet = false;
 
     this.__exposedProps__.setStatus = "r";
@@ -206,10 +211,11 @@ WebCLUserEvent.prototype.classDescription = "WebCLUserEvent";
 WebCLUserEvent.prototype.setStatus = function (executionStatus)
 {
   TRACE (this, "setStatus", arguments);
-  if(!this._ensureValidObject ()) throw new CLInvalidated();
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateInteger(executionStatus))
