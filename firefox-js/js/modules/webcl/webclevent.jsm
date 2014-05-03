@@ -46,6 +46,8 @@ function WebCLEvent ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_EVENT;
+
     this.__exposedProps__ =
     {
       getExternalIdentity: "r",
