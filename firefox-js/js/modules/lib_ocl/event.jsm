@@ -74,7 +74,7 @@ CLEvent.prototype.getInfo = function (name)
       // cl_command_queue
       case ocl_info.CL_EVENT_COMMAND_QUEUE:
         var p = getInfo_plain (this._lib.clGetEventInfo, this._internal, name, T.cl_command_queue);
-        rv = new CommandQueue (p, this._lib);
+        rv = p.isNull() ? null : new CommandQueue (p, this._lib);
         break;
 
       // cl_context
