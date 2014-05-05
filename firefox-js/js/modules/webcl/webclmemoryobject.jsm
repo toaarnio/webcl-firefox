@@ -121,6 +121,8 @@ function WebCLBuffer ()
 
     this.wrappedJSObject = this;
 
+    this.exceptionType = INVALID_MEM_OBJECT;
+
     this.isSubBuffer = false;
 
     this.__exposedProps__.getExternalIdentity = "r";
