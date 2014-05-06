@@ -120,7 +120,7 @@ WebCLEvent.prototype.getProfilingInfo = function (name)
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!this._internal)
-      throw new PROFILING_INFO_NOT_AVAILABLE("event must be populated before calling getProfilingInfo");
+      throw new INVALID_EVENT("event must be populated before calling getProfilingInfo");
 
     if (this instanceof WEBCLCLASSES.WebCLUserEvent)
       throw new PROFILING_INFO_NOT_AVAILABLE("profiling info is not available for user events");
