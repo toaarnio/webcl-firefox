@@ -103,10 +103,18 @@ WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
       throw new INVALID_VALUE("memFlags must be a valid CLenum; was ", memFlags);
 
-    if (!webclutils.validatePositiveInt32(sizeInBytes))
+    if (!webclutils.validateNonNegativeInt32(sizeInBytes))
       throw new INVALID_VALUE("sizeInBytes must be an integer in [1, 2^32); was ", sizeInBytes);
 
-    // TODO: validate sizeInBytes <= DEVICE_MAX_MEM_ALLOC_SIZE
+    if (sizeInBytes === 0) 
+      throw new INVALID_BUFFER_SIZE("sizeInBytes must be an integer in [1, 2^32); was zero");
+
+    for (var i=0; i < this.getInfo(ocl_info.CL_CONTEXT_NUM_DEVICES); i++) {
+      var device = this.getInfo(ocl_info.CL_CONTEXT_DEVICES)[i];
+      var maxBufferSize = device.getInfo(ocl_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE);
+      if (sizeInBytes > maxBufferSize)
+        throw new INVALID_BUFFER_SIZE("sizeInBytes must not be larger than DEVICE_MAX_MEM_ALLOC_SIZE ("+maxBufferSize+"); was " + sizeInBytes);
+    }
 
     if (hostPtr !== null) {
 
@@ -226,6 +234,16 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
       throw new INVALID_IMAGE_FORMAT_DESCRIPTOR("'descriptor.channelType' ("+descriptor.channelType+") is not compatible with " +
                                                 "'descriptor.channelOrder' ("+descriptor.channelOrder+")");
 
+    // Fetch maximum supported image dimensions
+
+    var maxSupportedWidth = 32768;
+    var maxSupportedHeight = 32768;
+    for (var i=0; i < this.getInfo(ocl_info.CL_CONTEXT_NUM_DEVICES); i++) {
+      var device = this.getInfo(ocl_info.CL_CONTEXT_DEVICES)[i];
+      maxSupportedWidth = Math.min(maxSupportedWidth, device.getInfo(ocl_info.CL_DEVICE_IMAGE2D_MAX_WIDTH));
+      maxSupportedHeight = Math.min(maxSupportedHeight, device.getInfo(ocl_info.CL_DEVICE_IMAGE2D_MAX_HEIGHT));
+    }
+
     // Validate width, height, and rowPitch
 
     if (!webclutils.validateNonNegativeInt32(descriptor.width))
@@ -234,11 +252,11 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
     if (!webclutils.validateNonNegativeInt32(descriptor.height))
       throw new INVALID_IMAGE_DESCRIPTOR("'descriptor.height' must be a positive integer; was ", descriptor.height);
 
-    if (descriptor.width === 0 || descriptor.width > 8192) // TODO get real DEVICE_IMAGE2D_MAX_WIDTH
-      throw new INVALID_IMAGE_SIZE("'descriptor.width' must be greater than zero and <= 8192; was ", descriptor.width);
+    if (descriptor.width === 0 || descriptor.width > maxSupportedWidth)
+      throw new INVALID_IMAGE_SIZE("'descriptor.width' must be greater than zero and <= "+maxSupportedWidth+"; was ", descriptor.width);
 
-    if (descriptor.height === 0 || descriptor.height > 8192)  // TODO get real DEVICE_IMAGE2D_MAX_HEIGHT
-      throw new INVALID_IMAGE_SIZE("'descriptor.height' must be greater than zero and <= 8192; was ", descriptor.height);
+    if (descriptor.height === 0 || descriptor.height > maxSupportedHeight)
+      throw new INVALID_IMAGE_SIZE("'descriptor.height' must be greater than zero and <= "+maxSupportedHeight+"; was ", descriptor.height);
 
     if (!webclutils.validateNonNegativeInt32(descriptor.rowPitch))
       throw new INVALID_IMAGE_DESCRIPTOR("'descriptor.rowPitch' must be a non-negative integer; was ", descriptor.rowPitch);
