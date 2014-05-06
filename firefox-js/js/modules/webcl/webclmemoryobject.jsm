@@ -177,13 +177,13 @@ WebCLBuffer.prototype.createSubBuffer = function (memFlags, origin, sizeInBytes)
     }, 64);
 
     if (origin >= bufferSize)
-      throw new INVALID_VALUE("origin must be less than the size of this WebCLBuffer ("+bufferSize+" bytes); was " + origin);
+      throw new INVALID_VALUE("origin must be < "+bufferSize+" (the size this WebCLBuffer); was " + origin);
 
     if (sizeInBytes > bufferSize)
-      throw new INVALID_VALUE("sizeInBytes must be less than or equal to the size this WebCLBuffer ("+bufferSize+" bytes); was " + sizeInBytes);
+      throw new INVALID_VALUE("sizeInBytes must be <= "+bufferSize+" (the size this WebCLBuffer); was " + sizeInBytes);
 
-    if (requestedSize >= bufferSize)
-      throw new INVALID_VALUE("origin+sizeInBytes must be less than the size of this WebCLBuffer ("+bufferSize+" bytes); was " + requestedSize);
+    if (requestedSize > bufferSize)
+      throw new INVALID_VALUE("origin+sizeInBytes must be <= "+bufferSize+" (the size this WebCLBuffer); was " + requestedSize);
 
     if (origin % maxAlignBytes !== 0)
       throw new MISALIGNED_SUB_BUFFER_OFFSET("origin must be a multiple of "+maxAlignBytes+" bytes; was " + origin);
