@@ -38,6 +38,8 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/webclasyncworkerapi.jsm");
+
 
 function WebCLCommandQueue ()
 {
@@ -794,16 +796,26 @@ WebCLCommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
 };
 
 
-WebCLCommandQueue.prototype.finish = function ()
+WebCLCommandQueue.prototype.finish = function (whenFinished)
 {
   TRACE (this, "finish", arguments);
 
   try
   {
     this._ensureValidObject();
-    this._validateNumArgs(arguments.length, 0);
+    this._validateNumArgs(arguments.length, 0, 1);
 
-    this._internal.finish ();
+    if (whenFinished && typeof(whenFinished) == "function")
+    {
+      let clInternal = this._internal._internal;
+      //NOTE: It would be better to use more persistent async workers, and maybe a pool.
+      let asyncWorker = new WebCLAsyncWorker ();
+      asyncWorker.finish (function (rv) { asyncWorker.close(); whenFinished(); }, clInternal);
+    }
+    else
+    {
+      this._internal.finish ();
+    }
   }
   catch (e)
   {

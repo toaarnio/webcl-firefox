@@ -18,7 +18,7 @@ all: dist dist-src
 COMPONENTS = webclloader.js
 
 MODULES = logger.jsm common.jsm webclutils.jsm base.jsm webclconstructors.jsm \
-  mixin.jsm webclclasses.jsm
+  mixin.jsm webclclasses.jsm webclasyncworkerapi.jsm
 MODULES_WEBCL = webcl.jsm webclplatform.jsm webcldevice.jsm webclcontext.jsm \
   webclcommandqueue.jsm webclevent.jsm webclmemoryobject.jsm webclprogram.jsm \
   webclkernel.jsm webclsampler.jsm webclimagedescriptor.jsm
@@ -29,7 +29,9 @@ MODULES_OCL = ocl_constants.jsm ocl_symbols.jsm ocl_types.jsm ocl_getinfo.jsm \
 
 MIXINS = owner.jsm
 
-SOURCE_FILES = $(COMPONENTS:%=js/%) $(MODULES:%=js/modules/%) $(MODULES_WEBCL:%=js/modules/webcl/%) $(MODULES_OCL:%=js/modules/lib_ocl/%) $(MIXINS:%=js/modules/mixins/%)
+WORKERS = webclasyncworker.js
+
+SOURCE_FILES = $(COMPONENTS:%=js/%) $(MODULES:%=js/modules/%) $(MODULES_WEBCL:%=js/modules/webcl/%) $(MODULES_OCL:%=js/modules/lib_ocl/%) $(MIXINS:%=js/modules/mixins/%) $(WORKERS:%=js/workers/%)
 
 dist: xpi
 
@@ -49,6 +51,8 @@ $(PACKAGE): install.rdf chrome.manifest $(SOURCE_FILES) COPYING $(wildcard defau
 	@cp $(MODULES_OCL:%=js/modules/lib_ocl/%) dist/resources/modules/lib_ocl/
 	@mkdir -p dist/resources/modules/mixins
 	@cp $(MIXINS:%=js/modules/mixins/%) dist/resources/modules/mixins/
+	@mkdir -p dist/resources/workers
+	@cp $(WORKERS:%=js/workers/%) dist/resources/workers
 	@mkdir -p dist/defaults/preferences
 	@cp defaults/preferences/*.js dist/defaults/preferences/
 	@cp -r content dist/
