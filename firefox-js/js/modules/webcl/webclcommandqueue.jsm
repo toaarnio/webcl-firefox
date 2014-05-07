@@ -153,13 +153,25 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
     this._validateBuffer(dstBuffer, "dstBuffer");
     this._validateArray3D(srcOrigin, "srcOrigin");
     this._validateArray3D(dstOrigin, "dstOrigin");
-    this._validateArray3D(region, "region");
+    this._validatePositiveIntArray3D(region, "region");
     this._validateNonNegativeInt32(srcRowPitch, "srcRowPitch");
     this._validateNonNegativeInt32(srcSlicePitch, "srcSlicePitch");
     this._validateNonNegativeInt32(dstRowPitch, "dstRowPitch");
     this._validateNonNegativeInt32(dstSlicePitch, "dstSlicePitch");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
+
+    var srcRowPitch = srcRowPitch || region[0];
+    var srcSlicePitch = srcSlicePitch || (region[1] * srcRowPitch);
+    var srcByteLength = srcBuffer.getInfo(ocl_info.CL_MEM_SIZE);
+
+    this._validateRegionBounds(srcOrigin, region, srcRowPitch, srcSlicePitch, srcByteLength, "srcBuffer");
+
+    var dstRowPitch = dstRowPitch || region[0];
+    var dstSlicePitch = dstSlicePitch || (region[1] * dstRowPitch);
+    var dstByteLength = dstBuffer.getInfo(ocl_info.CL_MEM_SIZE);
+
+    this._validateRegionBounds(dstOrigin, region, dstRowPitch, dstSlicePitch, dstByteLength, "dstBuffer");
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
@@ -194,7 +206,7 @@ WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
     this._validateImage(dstImage, "dstImage");
     this._validateArray2D(srcOrigin, "srcOrigin");
     this._validateArray2D(dstOrigin, "dstOrigin");
-    this._validateArray2D(region, "region");
+    this._validatePositiveIntArray2D(region, "region");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
@@ -231,7 +243,7 @@ WebCLCommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBu
     this._validateImage(srcImage, "srcImage");
     this._validateBuffer(dstBuffer, "dstBuffer");
     this._validateArray2D(srcOrigin, "srcOrigin");
-    this._validateArray2D(srcRegion, "srcRegion");
+    this._validatePositiveIntArray2D(srcRegion, "srcRegion");
     this._validateNonNegativeInt32(dstOffset, "dstOffset");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
@@ -269,7 +281,7 @@ WebCLCommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstI
     this._validateImage(dstImage, "dstImage");
     this._validateNonNegativeInt32(srcOffset, "srcOffset");
     this._validateArray2D(dstOrigin, "dstOrigin");
-    this._validateArray2D(dstRegion, "dstRegion");
+    this._validatePositiveIntArray2D(dstRegion, "dstRegion");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
@@ -292,6 +304,8 @@ WebCLCommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstI
 };
 
 
+// TODO investigate crashes on Intel CPU driver with certain (invalid?) arguments!
+//
 WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
                                                           bufferOffset, numBytes, hostPtr,
                                                           eventWaitList, eventOut)
@@ -342,6 +356,8 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
 };
 
 
+// TODO investigate crashes on Intel CPU driver with certain (invalid?) arguments!
+//
 WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRead,
                                                               bufferOrigin, hostOrigin, region,
                                                               bufferRowPitch, bufferSlicePitch,
@@ -359,7 +375,7 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
     this._validateBoolean(blockingRead, "blockingRead");
     this._validateArray3D(bufferOrigin, "bufferOrigin");
     this._validateArray3D(hostOrigin, "hostOrigin");
-    this._validateArray3D(region, "region");
+    this._validatePositiveIntArray3D(region, "region");
     this._validateNonNegativeInt32(bufferRowPitch, "bufferRowPitch");
     this._validateNonNegativeInt32(bufferSlicePitch, "bufferSlicePitch");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
@@ -367,6 +383,20 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingRead);
     this._validateEventOut(eventOut);
+
+    var hostRowPitch = hostRowPitch || region[0];
+    var hostSlicePitch = hostSlicePitch || (region[1] * hostRowPitch);
+    var hostByteLength = hostPtr.byteLength;
+
+    this._validateAlignment(hostRowPitch, hostPtr.BYTES_PER_ELEMENT, "hostRowPitch");
+    this._validateAlignment(hostSlicePitch, hostPtr.BYTES_PER_ELEMENT, "hostSlicePitch");
+    this._validateRegionBounds(hostOrigin, region, hostRowPitch, hostSlicePitch, hostByteLength, "hostPtr");
+
+    var bufferRowPitch = bufferRowPitch || region[0];
+    var bufferSlicePitch = bufferSlicePitch || (region[1] * bufferRowPitch);
+    var bufferByteLength = buffer.getInfo(ocl_info.CL_MEM_SIZE);
+
+    this._validateRegionBounds(bufferOrigin, region, bufferRowPitch, bufferSlicePitch, bufferByteLength, "buffer");
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
     var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
@@ -411,7 +441,7 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     this._validateImage(image, "image");
     this._validateBoolean(blockingRead, "blockingRead");
     this._validateArray2D(origin, "origin");
-    this._validateArray2D(region, "region");
+    this._validatePositiveIntArray2D(region, "region");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingRead);
@@ -531,7 +561,7 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
     this._validateBoolean(blockingWrite, "blockingWrite");
     this._validateArray3D(bufferOrigin, "bufferOrigin");
     this._validateArray3D(hostOrigin, "hostOrigin");
-    this._validateArray3D(region, "region");
+    this._validatePositiveIntArray3D(region, "region");
     this._validateNonNegativeInt32(bufferRowPitch, "bufferRowPitch");
     this._validateNonNegativeInt32(bufferSlicePitch, "bufferSlicePitch");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
@@ -539,6 +569,20 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingWrite);
     this._validateEventOut(eventOut);
+
+    var hostRowPitch = hostRowPitch || region[0];
+    var hostSlicePitch = hostSlicePitch || (region[1] * hostRowPitch);
+    var hostByteLength = hostPtr.byteLength;
+
+    this._validateAlignment(hostRowPitch, hostPtr.BYTES_PER_ELEMENT, "hostRowPitch");
+    this._validateAlignment(hostSlicePitch, hostPtr.BYTES_PER_ELEMENT, "hostSlicePitch");
+    this._validateRegionBounds(hostOrigin, region, hostRowPitch, hostSlicePitch, hostByteLength, "hostPtr");
+
+    var bufferRowPitch = bufferRowPitch || region[0];
+    var bufferSlicePitch = bufferSlicePitch || (region[1] * bufferRowPitch);
+    var bufferByteLength = buffer.getInfo(ocl_info.CL_MEM_SIZE);
+
+    this._validateRegionBounds(bufferOrigin, region, bufferRowPitch, bufferSlicePitch, bufferByteLength, "buffer");
 
     var clBuffer = this._unwrapInternalOrNull (buffer);
     var clEventWaitList = this._unwrapArrayOrNull (eventWaitList);
@@ -577,7 +621,7 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
     this._validateImage(image, "image");
     this._validateBoolean(blockingWrite, "blockingWrite");
     this._validateArray2D(origin, "origin");
-    this._validateArray2D(region, "region");
+    this._validatePositiveIntArray2D(region, "region");
     this._validateNonNegativeInt32(hostRowPitch, "hostRowPitch");
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingWrite);
@@ -945,6 +989,18 @@ WebCLCommandQueue.prototype._validateArray3D = function(arr, varName)
 };
 
 
+WebCLCommandQueue.prototype._validatePositiveIntArray2D = function(arr, varName)
+{
+  this._validateArray (arr, 2, webclutils.validatePositiveInt32, INVALID_VALUE, varName, "integers in [1, 2^32)");
+};
+
+
+WebCLCommandQueue.prototype._validatePositiveIntArray3D = function(arr, varName)
+{
+  this._validateArray (arr, 3, webclutils.validatePositiveInt32, INVALID_VALUE, varName, "integers in [1, 2^32)");
+};
+
+
 WebCLCommandQueue.prototype._validateArrayOrNull = function(arr, length, elementValidator, clException, varName, elementRequirementMsg)
 {
   if (arr !== null && arr !== undefined)
@@ -964,6 +1020,35 @@ WebCLCommandQueue.prototype._validateArray = function(arr, length, elementValida
     if (!elementValidator(val))
       throw new clException(varName + " must only contain " + elementRequirementMsg + "; " + varName + "["+i+"] was ", val);
   });
+};
+
+
+WebCLCommandQueue.prototype._validateRegionBounds = function(origin, region, rowPitch, slicePitch, bufferByteLength, bufferName)
+{
+  var rowPitch = rowPitch || region[0];
+  var slicePitch = slicePitch || (rowPitch * region[1])
+  var originOffset = origin[2] * slicePitch + origin[1] * rowPitch + origin[0];
+  var bytesInRegion = (region[2] - 1) * slicePitch + (region[1] - 1) * rowPitch + region[0];
+  var requiredSize = originOffset + bytesInRegion;
+
+  if (bytesInRegion > bufferByteLength)
+    throw new INVALID_VALUE("the size of the given region is "+bytesInRegion+" bytes, which is greater than the byteLength of the " +
+                            "given "+bufferName+" ("+bufferByteLength+")");
+
+  if (originOffset >= bufferByteLength)
+    throw new INVALID_VALUE("the origin of the given region is at "+originOffset+" bytes, which is out of bounds of the given " +
+                            bufferName + " (size="+bufferByteLength+" bytes)");
+
+  if (requiredSize > bufferByteLength)
+    throw new INVALID_VALUE("the given "+bufferName+" has "+bufferByteLength+" bytes, but the given origin, region, and pitch " +
+                            "would require a buffer of at least "+requiredSize+" bytes");
+};
+
+
+WebCLCommandQueue.prototype._validateAlignment = function (value, alignment, varName)
+{
+  if (value % alignment !== 0)
+    throw new INVALID_VALUE(varName+" must be zero or a multiple of "+alignment+"; was "+value);
 };
 
 
