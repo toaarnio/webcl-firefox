@@ -1067,13 +1067,19 @@ WebCLCommandQueue.prototype._validateEventWaitList = function (eventWaitList, is
       if (!webclutils.validateEventNotReleased(event))
         throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was already released");
 
-      if (isBlocking && !webclutils.validateEventPopulated(event))
-        throw new INVALID_EVENT_WAIT_LIST("on a blocking call, eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
+      if (!webclutils.validateEventPopulated(event))
+        throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
+
+      var execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS);
+
+      if (event instanceof WEBCLCLASSES.WebCLUserEvent && execStatus < 0)
+        throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must not contain user events with negative execution status; " +
+                                                            "eventWaitList["+i+"] had the status "+execStatus);
 
       if (isBlocking && event instanceof WEBCLCLASSES.WebCLUserEvent)
         throw new INVALID_EVENT_WAIT_LIST("on a blocking call, eventWaitList must not contain user events; eventWaitList["+i+"] was a user event");
 
-      if (isBlocking && (execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) < 0))
+      if (isBlocking && execStatus < 0)
         throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("on a blocking call, all events in eventWaitList must have non-negative " +
                                                             "execution status; eventWaitList["+i+"] had the status "+execStatus);
 
