@@ -102,21 +102,13 @@ WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
 
   try
   {
-    /*
-    INVALID_VALUE -- if srcOffset, dstOffset, numBytes, srcOffset+numBytes, or dstOffset+numBytes require 
-      accessing elements outside the srcBuffer and dstBuffer buffer objects respectively
-    MEM_COPY_OVERLAP -- if srcBuffer and dstBuffer are the same WebCLBuffer object and the source and destination regions overlap
-    MISALIGNED_SUB_BUFFER_OFFSET -- if srcBuffer or dstBuffer is a sub-buffer object and the offset specified when the sub-buffer
-      object was created is not aligned to the DEVICE_MEM_BASE_ADDR_ALIGN value for the device associated with this WebCLCommandQueue
-    */
-
     this._ensureValidObject();
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateBuffer(dstBuffer, "dstBuffer");
     this._validateNonNegativeInt32(srcOffset, "srcOffset");
     this._validateNonNegativeInt32(dstOffset, "dstOffset");
-    this._validateNonNegativeInt32(numBytes, "numBytes");
+    this._validatePositiveInt32(numBytes, "numBytes");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
@@ -328,7 +320,7 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingRead, "blockingRead");
     this._validateNonNegativeInt32(bufferOffset, "bufferOffset");
-    this._validateNonNegativeInt32(numBytes, "numBytes");
+    this._validatePositiveInt32(numBytes, "numBytes");
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingRead);
     this._validateEventOut(eventOut);
@@ -510,7 +502,7 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingWrite, "blockingWrite");
     this._validateNonNegativeInt32(bufferOffset, "bufferOffset");
-    this._validateNonNegativeInt32(numBytes, "numBytes");
+    this._validatePositiveInt32(numBytes, "numBytes");
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingWrite);
     this._validateEventOut(eventOut);
