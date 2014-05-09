@@ -807,10 +807,28 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
 
     if (whenFinished && typeof(whenFinished) == "function")
     {
-      let clInternal = this._internal._internal;
-      //NOTE: It would be better to use more persistent async workers, and maybe a pool.
-      let asyncWorker = new WebCLAsyncWorker ();
-      asyncWorker.finish (function (rv) { asyncWorker.close(); whenFinished(); }, clInternal);
+      // NOTE: It would be better to use more persistent async workers, and maybe a pool.
+      // TODO: get OpenCL lib name
+      var instance = this;
+      let asyncWorker = new WebCLAsyncWorker (null, function (err)
+      {
+        if (err) {
+          ERROR ("WebCLCommandQueue.finish: " + err);
+          whenFinished ();
+          return;
+        }
+
+        asyncWorker.finish (instance._internal,
+                            function (err)
+                            {
+                              if (err) {
+                                ERROR ("WebCLCommandQueue.finish: " + err);
+                              }
+
+                              whenFinished ();
+                              asyncWorker.close ();
+                            });
+      });
     }
     else
     {

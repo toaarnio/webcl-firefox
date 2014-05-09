@@ -39,6 +39,9 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/webclasyncworkerapi.jsm");
+Cu.import ("resource://gre/modules/ctypes.jsm");
+
 
 function WebCLProgram ()
 {
@@ -239,12 +242,42 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     if (supportsVerboseMode === true) {
       options = this.buildOptions + " -cl-nv-verbose";
     }
-    
-    // TODO: PROPER WEBCL CALLBACK!
-    // TODO: THIS IS LIKELY TO BE TOTALLY UNSAFE!
+
     try {
-      this._internal.buildProgram (devices, options, whenFinished);
-      this.isBuilt = true;  // TODO defer setting the flag if doing an async build
+      if (whenFinished)
+      {
+        // Asynchronous mode
+
+        let instance = this;
+        let asyncWorker = new WebCLAsyncWorker (null, function (err)
+        {
+          if (err) {
+            ERROR ("WebCLProgram.build: " + err);
+            whenFinished ();
+            return;
+          }
+          asyncWorker.buildProgram (instance._internal, devices, options, function (err)
+          {
+            if (err) {
+              ERROR ("WebCLProgram.build: " + err);
+            }
+
+            // TODO: Should we set isBuild only if !err?
+            instance.isBuilt = true;
+            whenFinished ();
+
+            asyncWorker.close ();
+          });
+        });
+
+      }
+      else
+      {
+        // Synchronous mode
+
+        this._internal.buildProgram (devices, options);
+        this.isBuilt = true;
+      }
     } catch (e) {
       this.isBuilt = false;
       if (e.name === "BUILD_PROGRAM_FAILURE") {

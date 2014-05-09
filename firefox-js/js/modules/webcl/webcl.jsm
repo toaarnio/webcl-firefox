@@ -61,6 +61,9 @@ try {
   Cu.import ("resource://nrcwebcl/modules/webcl/webclsampler.jsm");
   Cu.import ("resource://nrcwebcl/modules/webcl/webclimagedescriptor.jsm");
 
+  Cu.import ("resource://nrcwebcl/modules/webclasyncworkerapi.jsm");
+  Cu.import ("resource://gre/modules/ctypes.jsm");
+
 
 } catch (e) { ERROR ("webcl.jsm: Failed to load modules: " + EXCEPTIONSTR(e) + "."); throw e; }
 
@@ -310,13 +313,40 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
 
     webclutils.validateNumArgs(arguments.length, 1, 2);
 
-    // TODO: validate and implement whenFinished
+    if (whenFinished !== null && typeof(whenFinished) !== "function")
+      throw new INVALID_VALUE("'whenFinished' must be null or a WebCLCallback function; was ", whenFinished);
 
     this._validateEventWaitList(eventWaitList, typeof(whenFinished) !== 'function');
 
     var clEventWaitList = eventWaitList.map(function(v) { return webclutils.unwrapInternal(v); });
 
-    this._internal.waitForEvents (clEventWaitList);
+    if (whenFinished)
+    {
+      let asyncWorker = new WebCLAsyncWorker (null, function (err)
+      {
+        if (err) {
+          ERROR ("WebCL.waitForEvents: " + err);
+          whenFinished ();
+          return;
+        }
+
+        asyncWorker.waitForEvents (clEventWaitList,
+                                   function (err)
+                                   {
+                                     if (err) {
+                                       ERROR ("WebCL.waitForEvents: " + err);
+                                     }
+
+                                     whenFinished ();
+                                     asyncWorker.close ();
+                                   });
+      });
+
+    }
+    else
+    {
+      this._internal.waitForEvents (clEventWaitList);
+    }
   }
   catch (e)
   {

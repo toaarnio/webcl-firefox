@@ -38,7 +38,6 @@ function DEBUG(msg) {
 
 
 
-
 var gLibHandle = null;
 
 
@@ -103,8 +102,7 @@ function importArgs (args)
                 break;
 
               case "charptr":
-                return ;
-                return ctypes.cast(ctypes.intptr_t(cur.value), ctypes.char.ptr);
+                return cur.value;
                 break;
 
               default:
@@ -117,7 +115,7 @@ function importArgs (args)
 
 function callSymbol (data)
 {
-  if (!gLibHandle) throw new Error ("Invalid library handle.");
+  if (!gLibHandle) throw new Error ("Invalid library handle. cmd="+data.cmd+", symbol="+data.symbol);
   if (!data || typeof(data) != "object") throw new Error ("Invalid data!");
 
   // data.symbol: Symbol name, String
@@ -171,6 +169,7 @@ function callSymbol (data)
 
 onmessage = function (event)
 {
+  DEBUG ("onmessage  cmd='"+event.data.cmd+"'");
   try
   {
     if (!event.isTrusted) {
@@ -184,6 +183,8 @@ onmessage = function (event)
       event.data.err = null;
       event.data.rv = 0;
 
+      let doClose = false;
+
       switch (cmd)
       {
         case "load":
@@ -194,10 +195,28 @@ onmessage = function (event)
         case "unload":
           if (gLibHandle)
           {
-            DEBUG ("Closing library.");
-            closeCLLibrary (gLibHandle);
+            if (gLibHandle)
+            {
+              DEBUG ("Closing library.");
+              closeCLLibrary (gLibHandle);
+            }
             gLibHandle = null;
           }
+          break;
+
+        case "close":
+          if (gLibHandle)
+          {
+            if (gLibHandle)
+            {
+              DEBUG ("Closing library.");
+              closeCLLibrary (gLibHandle);
+            }
+            gLibHandle = null;
+          }
+
+          // Request this worker to close
+          doClose = true;
           break;
 
         case "call":
@@ -213,6 +232,11 @@ onmessage = function (event)
 
       postMessage(event.data);
 
+      if (doClose)
+      {
+        DEBUG ("Closing worker.");
+        self.close ();
+      }
     }
   }
   catch (e)
