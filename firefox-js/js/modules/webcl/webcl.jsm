@@ -88,6 +88,8 @@ function WebCL ()
     this._internal = null;
     this._objectRegistry = {};
 
+    this._webclState = { inCallback: false };
+
     this.__exposedProps__ =
     {
       init: "r",

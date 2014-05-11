@@ -1060,6 +1060,8 @@ WebCLCommandQueue.prototype._handleEventOut = function (clEvent, webclEvent)
     unwrappedEvent._internal = clEvent;
     unwrappedEvent._identity = clEvent.getIdentity();
     this._registerObject (webclEvent);
+
+    unwrappedEvent._webclState = this._webclState;
   }
   else
   {

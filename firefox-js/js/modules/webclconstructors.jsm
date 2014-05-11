@@ -84,6 +84,11 @@ function createWebCLPlatform (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLPlatform", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLPlatform", "using existing object, key="+o._getIdentity());
 
@@ -106,6 +111,11 @@ function createWebCLDevice (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLDevice", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLDevice", "using existing object, key="+o._getIdentity());
 
@@ -128,6 +138,11 @@ function createWebCLContext (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLContext", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLContext", "using existing object, key="+o._getIdentity());
 
@@ -150,6 +165,11 @@ function createWebCLCommandQueue (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLCommandQueue", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLCommandQueue", "using existing object, key="+o._getIdentity());
 
@@ -172,6 +192,11 @@ function createWebCLEvent (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLEvent", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLEvent", "using existing object, key="+o._getIdentity());
 
@@ -194,6 +219,11 @@ function createWebCLUserEvent (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLUserEvent", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLUserEvent", "using existing object, key="+o._getIdentity());
 
@@ -216,6 +246,11 @@ function createWebCLMemoryObject (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLMemoryObject", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLMemoryObject", "using existing object, key="+o._getIdentity());
 
@@ -238,6 +273,11 @@ function createWebCLBuffer (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLBuffer", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLBuffer", "using existing object, key="+o._getIdentity());
 
@@ -260,6 +300,11 @@ function createWebCLImage (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLImage", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLImage", "using existing object, key="+o._getIdentity());
 
@@ -282,6 +327,11 @@ function createWebCLProgram (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLProgram", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLProgram", "using existing object, key="+o._getIdentity());
 
@@ -304,6 +354,11 @@ function createWebCLKernel (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLKernel", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLKernel", "using existing object, key="+o._getIdentity());
 
@@ -326,6 +381,11 @@ function createWebCLSampler (owner, value)
       owner._registerObject (o);
     }
     TRACE_RESOURCES (null, "createWebCLSampler", "new object, key="+o._getIdentity());
+    if (owner)
+    {
+      if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+      o.wrappedJSObject._webclState = owner._webclState;
+    }
   }
   else TRACE_RESOURCES (null, "createWebCLSampler", "using existing object, key="+o._getIdentity());
 

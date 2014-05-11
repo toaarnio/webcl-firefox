@@ -52,6 +52,8 @@ function Base ()
   //                     not be allowed. Object becomes invalidated after being released. This
   //                     mechanism is designed to guard against use through dangling references.
   this._invalid = false;
+
+  this._webclState = null;
 }
 
 
