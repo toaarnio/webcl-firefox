@@ -150,6 +150,8 @@ WebCLContext.prototype.createCommandQueue = function (device, properties)
 
     webclutils.validateNumArgs(arguments.length, 0, 2);
 
+    if (this._webclState.inCallback) throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
     // Validate the given device, or use default device
 
     var supportedDevices = this.getInfo(ocl_info.CL_CONTEXT_DEVICES);

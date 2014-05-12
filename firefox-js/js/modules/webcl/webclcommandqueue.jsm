@@ -316,7 +316,7 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
   try
   {
     /*
-    INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
+  x INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
   x INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as buffer
   x INVALID_MEM_OBJECT -- if buffer is not a valid buffer object
   x INVALID_VALUE -- if any part of the region being read, specified by bufferOffset and numBytes, is out of bounds of buffer
@@ -325,6 +325,10 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     */
 
     this._ensureValidObject();
+
+    if (blockingRead && this._webclState.inCallback)
+      throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingRead, "blockingRead");
@@ -371,6 +375,10 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
   try
   {
     this._ensureValidObject();
+
+    if (blockingRead && this._webclState.inCallback)
+      throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
     this._validateNumArgs(arguments.length, 10, 12);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingRead, "blockingRead");
@@ -427,7 +435,7 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
   try
   {
     /*
-    INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
+  x INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
   x INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as image
   x INVALID_MEM_OBJECT -- if image is not a valid WebCLImage object
     INVALID_IMAGE_SIZE -- if the image dimensions of image are not supported by this WebCLCommandQueue
@@ -438,6 +446,10 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
     */
 
     this._ensureValidObject();
+
+    if (blockingRead && this._webclState.inCallback)
+      throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
     this._validateNumArgs(arguments.length, 6, 8);
     this._validateImage(image, "image");
     this._validateBoolean(blockingRead, "blockingRead");
@@ -499,7 +511,7 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
   try
   {
     /*
-    INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
+  x INVALID_OPERATION -- if the blocking form of this function is called from a WebCLCallback
   x INVALID_CONTEXT -- if this WebCLCommandQueue is not associated with the same WebCLContext as buffer
   x INVALID_MEM_OBJECT -- if buffer is not a valid buffer object
   x INVALID_VALUE -- if any part of the region being written, specified by bufferOffset and numBytes, is out of bounds of buffer
@@ -507,6 +519,10 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
   x INVALID_VALUE -- if numBytes % hostPtr.BYTES_PER_ELEMENT !== 0
     */
     this._ensureValidObject();
+
+    if (blockingWrite && this._webclState.inCallback)
+      throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingWrite, "blockingWrite");
@@ -557,6 +573,10 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
   try
   {
     this._ensureValidObject();
+
+    if (blockingWrite && this._webclState.inCallback)
+      throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
     this._validateNumArgs(arguments.length, 10, 12);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingWrite, "blockingWrite");
@@ -618,6 +638,10 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
   try
   {
     this._ensureValidObject();
+
+    if (blockingWrite && this._webclState.inCallback)
+      throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
     this._validateNumArgs(arguments.length, 6, 8);
     this._validateImage(image, "image");
     this._validateBoolean(blockingWrite, "blockingWrite");
@@ -857,7 +881,16 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
       {
         if (err) {
           ERROR ("WebCLCommandQueue.finish: " + err);
-          whenFinished ();
+
+          instance._webclState.inCallback = true;
+          try {
+            whenFinished ();
+          }
+          finally {
+            instance._webclState.inCallback = false;
+            asyncWorker.close ();
+          }
+
           return;
         }
 
@@ -868,13 +901,21 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
                                 ERROR ("WebCLCommandQueue.finish: " + err);
                               }
 
-                              whenFinished ();
-                              asyncWorker.close ();
+                              instance._webclState.inCallback = true;
+                              try {
+                                whenFinished ();
+                              }
+                              finally {
+                                instance._webclState.inCallback = false;
+                                asyncWorker.close ();
+                              }
                             });
       });
     }
     else
     {
+      if (this._webclState.inCallback) throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
       this._internal.finish ();
     }
   }

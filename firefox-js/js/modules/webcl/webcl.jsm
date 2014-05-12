@@ -226,6 +226,8 @@ WebCL.prototype.createContext = function (arg0, deviceType)
 
     webclutils.validateNumArgs(arguments.length, 0, 2);
 
+    if (this._webclState.inCallback) throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
     if (arguments.length === 0)
       return createContextFromDeviceType.call(this, ocl_const.CL_DEVICE_TYPE_DEFAULT);
 
@@ -324,11 +326,21 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
 
     if (whenFinished)
     {
+      var instance = this;
       let asyncWorker = new WebCLAsyncWorker (null, function (err)
       {
         if (err) {
           ERROR ("WebCL.waitForEvents: " + err);
-          whenFinished ();
+
+          instance._webclState.inCallback = true;
+          try {
+            whenFinished ();
+          }
+          finally {
+            instance._webclState.inCallback = false;
+            asyncWorker.close ();
+          }
+
           return;
         }
 
@@ -339,14 +351,22 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
                                        ERROR ("WebCL.waitForEvents: " + err);
                                      }
 
-                                     whenFinished ();
-                                     asyncWorker.close ();
+                                     instance._webclState.inCallback = true;
+                                     try {
+                                       whenFinished ();
+                                     }
+                                     finally {
+                                       instance._webclState.inCallback = false;
+                                       asyncWorker.close ();
+                                     }
                                    });
       });
 
     }
     else
     {
+      if (this._webclState.inCallback) throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
       this._internal.waitForEvents (clEventWaitList);
     }
   }

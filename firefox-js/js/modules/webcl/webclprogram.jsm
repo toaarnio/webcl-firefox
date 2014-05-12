@@ -253,7 +253,16 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
         {
           if (err) {
             ERROR ("WebCLProgram.build: " + err);
-            whenFinished ();
+
+            instance._webclState.inCallback = true;
+            try {
+              whenFinished ();
+            }
+            finally {
+              instance._webclState.inCallback = false;
+              asyncWorker.close ();
+            }
+
             return;
           }
           asyncWorker.buildProgram (instance._internal, devices, options, function (err)
@@ -264,9 +273,15 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
             // TODO: Should we set isBuild only if !err?
             instance.isBuilt = true;
-            whenFinished ();
 
-            asyncWorker.close ();
+            instance._webclState.inCallback = true;
+            try {
+              whenFinished ();
+            }
+            finally {
+              instance._webclState.inCallback = false;
+              asyncWorker.close ();
+            }
           });
         });
 
@@ -274,6 +289,7 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
       else
       {
         // Synchronous mode
+        if (this._webclState.inCallback) throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
 
         this._internal.buildProgram (devices, options);
         this.isBuilt = true;
