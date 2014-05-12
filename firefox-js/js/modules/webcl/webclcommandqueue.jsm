@@ -872,7 +872,12 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
     this._ensureValidObject();
     this._validateNumArgs(arguments.length, 0, 1);
 
-    if (whenFinished && typeof(whenFinished) == "function")
+    whenFinished = webclutils.defaultTo(whenFinished, null);
+
+    if (whenFinished !== null && typeof(whenFinished) !== "function")
+      throw new TypeError("'whenFinished' must be null or a WebCLCallback function; was " + whenFinished);
+
+    if (whenFinished)
     {
       // NOTE: It would be better to use more persistent async workers, and maybe a pool.
       // TODO: get OpenCL lib name
@@ -914,7 +919,8 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
     }
     else
     {
-      if (this._webclState.inCallback) throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+      if (this._webclState.inCallback)
+        throw new INVALID_OPERATION ("the blocking form of this function cannot be called from a WebCLCallback");
 
       this._internal.finish ();
     }
