@@ -110,6 +110,7 @@ WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
     this._validateBuffer(dstBuffer, "dstBuffer");
     this._validateNonNegativeInt32(srcOffset, "srcOffset");
     this._validateNonNegativeInt32(dstOffset, "dstOffset");
+    this._validateNonNegativeInt32(numBytes, "numBytes");
     this._validatePositiveInt32(numBytes, "numBytes");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
@@ -743,10 +744,11 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
     this._ensureValidObject();
     this._validateNumArgs(arguments.length, 4, 7);
     this._validateKernel(kernel, "kernel");
+    this._validateNonNegativeInt32(workDim, "workDim");
     this._validateEventWaitList(eventWaitList);
     this._validateEventOut(eventOut);
 
-    if (!webclutils.validateInteger(workDim) || !(workDim === 1 || workDim === 2 || workDim === 3))
+    if (!(workDim === 1 || workDim === 2 || workDim === 3))
       throw new INVALID_WORK_DIMENSION("'workDim' must be 1, 2, or 3; was ", workDim);
 
     this._validateArray (globalWorkSize, workDim, webclutils.validatePositiveInt32,
@@ -1028,28 +1030,30 @@ WebCLCommandQueue.prototype._validateImage = function (image, varName)
 WebCLCommandQueue.prototype._validateBoolean = function (value, varName)
 {
   if (!webclutils.validateBoolean(value))
-    throw new INVALID_VALUE(varName + " must be a boolean; was ", value);
+    throw new TypeError(varName + " must be a boolean; was " + value + " [typeof " + typeof(value) + "]");
 };
 
 
 WebCLCommandQueue.prototype._validateNonNegativeInt32 = function (value, varName)
 {
   if (!webclutils.validateNonNegativeInt32(value))
-    throw new INVALID_VALUE(varName + " must be an integer in [0, 2^32); was ", value);
+    throw new TypeError(varName + " must be an integer in [0, 2^32); was " + value + " [typeof " + typeof(value) + "]");
 };
 
 
 WebCLCommandQueue.prototype._validatePositiveInt32 = function (value, varName)
 {
+  this._validateNonNegativeInt32(value, varName);
+
   if (!webclutils.validatePositiveInt32(value))
-    throw new INVALID_VALUE(varName + " must be an integer in [1, 2^32); was ", value);
+    throw new INVALID_VALUE(varName + " must be an integer in [1, 2^32); was " + value);
 };
 
 
 WebCLCommandQueue.prototype._validateArrayBufferView = function (value, varName)
 {
   if (!webclutils.validateArrayBufferView(value))
-    throw new INVALID_VALUE(varName + " must be an instance of ArrayBufferView, was ", value);
+    throw new TypeError(varName + " must be an instance of ArrayBufferView, was " + value + " [typeof " + typeof(value) + "]");
 };
 
 
@@ -1087,7 +1091,7 @@ WebCLCommandQueue.prototype._validateArrayOrNull = function(arr, length, element
 WebCLCommandQueue.prototype._validateArray = function(arr, length, elementValidator, clException, varName, elementRequirementMsg)
 {
   if (!Array.isArray(arr))
-    throw new clException(varName + " must be an Array; was " + typeof(arr));
+    throw new TypeError(varName + " must be an Array; was " + typeof(arr));
 
   if (!webclutils.validateArrayLength(arr, function() { return arr.length === length; }))
     throw new clException(varName + " must have exactly " + length + " elements; had " + arr.length);
