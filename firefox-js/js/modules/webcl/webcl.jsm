@@ -317,8 +317,10 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
 
     webclutils.validateNumArgs(arguments.length, 1, 2);
 
+    whenFinished = webclutils.defaultTo(whenFinished, null);
+
     if (whenFinished !== null && typeof(whenFinished) !== "function")
-      throw new INVALID_VALUE("'whenFinished' must be null or a WebCLCallback function; was ", whenFinished);
+      throw new TypeError("'whenFinished' must be null or a WebCLCallback function; was " + whenFinished);
 
     this._validateEventWaitList(eventWaitList, typeof(whenFinished) !== 'function');
 
@@ -365,7 +367,8 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
     }
     else
     {
-      if (this._webclState.inCallback) throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+      if (this._webclState.inCallback)
+        throw new INVALID_OPERATION ("the blocking form of this function cannot be called from a WebCLCallback");
 
       this._internal.waitForEvents (clEventWaitList);
     }
