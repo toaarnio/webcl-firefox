@@ -59,6 +59,8 @@ function WebCLProgram ()
 
     this.isBuilt = false;  // TODO make this device-specific
 
+    this.buildInProgress = false;  // TODO make this device-specific
+
     this.kernelsAlreadyCreated = false;
 
     this._objectRegistry = {};
@@ -201,6 +203,9 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     if (this.kernelsAlreadyCreated === true)
       throw new INVALID_OPERATION("cannot build a WebCLProgram that has kernels already attached to it");
 
+    if (this.buildInProgress === true)
+      throw new INVALID_OPERATION("cannot build a WebCLProgram that is already being built in another thread");
+
     if (devices !== null && (!Array.isArray(devices) || devices.length === 0))
       throw new INVALID_VALUE("'devices' must be null or an Array with at least one element; was ", devices);
 
@@ -213,34 +218,38 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     if (whenFinished !== null && typeof(whenFinished) !== "function")
       throw new INVALID_VALUE("'whenFinished' must be null or a WebCLCallback function; was ", whenFinished);
 
-    for (var i=0; devices !== null && i < devices.length; i++) {
+    var programDevices = this.getInfo(ocl_info.CL_PROGRAM_DEVICES);
+
+    for (let i=0; devices !== null && i < devices.length; i++) {
       
       if (!webclutils.validateDevice(devices[i]))
         throw new INVALID_DEVICE("'devices' must only contain instances of WebCLDevice; devices["+i+"] = ", devices[i]);
 
-      if (this.getInfo(ocl_info.CL_PROGRAM_DEVICES).indexOf(devices[i]) === -1)
-        throw new INVALID_DEVICE("'devices' must all be associated with this WebCLProgram; devices["+i+"] = ", devices[i]);
-
-      devices[i] = this._unwrapInternalOrNull(devices[i]);
+      if (programDevices.indexOf(devices[i]) === -1)
+        throw new INVALID_DEVICE("'devices' must all be associated with this WebCLProgram; devices["+i+"] was not");
     }
 
-    this.buildOptions = (options === null) ? "" : options;
+    var clDevices = (devices || programDevices).map(this._unwrapInternal);
+
+    options = (options === null) ? "" : options;
+
+    this.buildOptions = options;
 
     var supportsCL12 = true;
     var supportsVerboseMode = true;
-    this.getInfo(ocl_info.CL_PROGRAM_DEVICES).forEach(function(device) {
-      var deviceVersion = device._internal.getInfo(ocl_info.CL_DEVICE_VERSION);
-      var deviceExtensions = device._internal.getInfo(ocl_info.CL_DEVICE_EXTENSIONS);
+    clDevices.forEach(function(device) {    // must use internal getters to get unmasked values
+      var deviceVersion = device.getInfo(ocl_info.CL_DEVICE_VERSION);
+      var deviceExtensions = device.getInfo(ocl_info.CL_DEVICE_EXTENSIONS);
       supportsCL12 = supportsCL12 && (deviceVersion.indexOf("OpenCL 1.2") >= 0);
       supportsVerboseMode = supportsVerboseMode && (deviceExtensions.indexOf("NV_compiler_options") >= 0);
     });
 
     if (supportsCL12 === true) {
-      options = this.buildOptions + " -cl-kernel-arg-info";
+      options += " -cl-kernel-arg-info";
     }
 
     if (supportsVerboseMode === true) {
-      options = this.buildOptions + " -cl-nv-verbose";
+      options += " -cl-nv-verbose";
     }
 
     try {
@@ -249,10 +258,16 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
         // Asynchronous mode
 
         let instance = this;
-        let asyncWorker = new WebCLAsyncWorker (null, function (err)
-        {
+
+        instance.buildInProgress = true;
+
+        let asyncWorker = new WebCLAsyncWorker (null, function (err) {
+
           if (err) {
-            ERROR ("WebCLProgram.build: " + err);
+
+            instance.buildInProgress = false;
+
+            ERROR ("WebCLProgram.build, asyncWorker setup failed: " + err);
 
             instance._webclState.inCallback = true;
             try {
@@ -265,14 +280,17 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
             return;
           }
-          asyncWorker.buildProgram (instance._internal, devices, options, function (err)
-          {
-            if (err) {
-              ERROR ("WebCLProgram.build: " + err);
-            }
 
-            // TODO: Should we set isBuild only if !err?
-            instance.isBuilt = true;
+          asyncWorker.buildProgram (instance._internal, clDevices, options, function (err) {
+            
+            instance.buildInProgress = false;
+
+            if (err) {
+              ERROR ("WebCLProgram.build, asyncWorker.buildProgram() failed: " + err);
+              instance.isBuilt = false;
+            } else {
+              instance.isBuilt = true;
+            }
 
             instance._webclState.inCallback = true;
             try {
@@ -283,19 +301,23 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
               asyncWorker.close ();
             }
           });
+
         });
 
       }
       else
       {
         // Synchronous mode
-        if (this._webclState.inCallback) throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
 
-        this._internal.buildProgram (devices, options);
+        if (this._webclState.inCallback)
+          throw new INVALID_OPERATION ("the blocking form of this function cannot be called from a WebCLCallback");
+
+        this._internal.buildProgram (clDevices, options);
         this.isBuilt = true;
       }
     } catch (e) {
       this.isBuilt = false;
+      this.buildInProgress = false;
       if (e.name === "BUILD_PROGRAM_FAILURE") {
         var device = this.getInfo(ocl_info.CL_PROGRAM_DEVICES)[0];
         e.msg = this.getBuildInfo(device, ocl_info.CL_PROGRAM_BUILD_LOG);
