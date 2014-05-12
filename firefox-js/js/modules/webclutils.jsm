@@ -367,7 +367,13 @@ function convertCLException (e)
       exData.type = "notimplemented";
       exData.context = e.context;
     }
-    else if (e instanceof Error)
+    else if (e.name === "TypeError")  // "instanceof TypeError" does not work in this context
+    {
+      exData.name = "TypeError";
+      exData.type = "typeerror";
+      exData.message = e.message;
+    }
+    else if (e.name === "Error")  // "instanceof Error" does not work in this context
     {
       // input is a generic exception, probably internal error.
       LOG ("convertCLException: Error ("+s+")");

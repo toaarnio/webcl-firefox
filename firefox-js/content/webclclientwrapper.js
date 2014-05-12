@@ -390,7 +390,12 @@
 
           case "syntaxerror":
             name = exData.name || "WEBCL_SYNTAX_ERROR";
-            message = exData.message || "Invalid number of arguments."
+            message = exData.message || "Invalid number of arguments.";
+            break;
+
+          case "typeerror":
+            message = exData.message || "Invalid argument type";
+            return new TypeError(message, exData.fileName, exData.lineNumber);
             break;
 
           case "notimplemented":
