@@ -216,7 +216,7 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
       throw new INVALID_BUILD_OPTIONS("'options' must be a string of valid build options or null; was ", options);
 
     if (whenFinished !== null && typeof(whenFinished) !== "function")
-      throw new INVALID_VALUE("'whenFinished' must be null or a WebCLCallback function; was ", whenFinished);
+      throw new TypeError("'whenFinished' must be null or a WebCLCallback function; was " + whenFinished);
 
     var programDevices = this.getInfo(ocl_info.CL_PROGRAM_DEVICES);
 
