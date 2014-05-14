@@ -116,11 +116,26 @@ WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
 
     webclutils.validateNumArgs(arguments.length, 2);
 
+    device = webclutils.defaultTo(device, null);
+
     if (device !== null && !webclutils.validateDevice(device))
       throw new INVALID_DEVICE("'device' must be a valid WebCLDevice or null; was ", device);
 
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
+
+    var ctx = this.getInfo(ocl_info.CL_KERNEL_CONTEXT);
+    var devices = ctx.getInfo(ocl_info.CL_CONTEXT_DEVICES);
+    var program = this.getInfo(ocl_info.CL_KERNEL_PROGRAM);
+
+    if (device === null && devices.length > 1)
+      throw new INVALID_DEVICE("'device' must not be null: there is more than one device associated with the Context of this Kernel");
+
+    if (device !== null && devices.indexOf(device) < 0)
+      throw new INVALID_DEVICE("'device' is not associated with the Context of this Kernel");
+
+    if (device !== null && program.getBuildInfo(device, ocl_info.CL_PROGRAM_BUILD_STATUS) !== ocl_const.CL_BUILD_SUCCESS)
+      throw new INVALID_DEVICE("the Program containing this Kernel has not yet been successfully built for the given 'device'");
 
     switch (name)
     {

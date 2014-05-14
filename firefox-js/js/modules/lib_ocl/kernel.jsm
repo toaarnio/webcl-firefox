@@ -116,7 +116,7 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
 {
   TRACE (this, "getWorkGroupInfo", arguments);
 
-  // TODO: Kernel.getWorkGroupInfo: validate device
+  var clDevice = (device === null)? null : device._internal;
   var rv;
 
   try
@@ -128,7 +128,7 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
       case ocl_info.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE:
         rv = getInfo_plain (this._lib.clGetKernelWorkGroupInfo, this._internal,
                             name, T.size_t,
-                            device._internal).value;
+                            clDevice).value;
         rv = ctypes.UInt64.lo (rv);
         break;
 
@@ -136,7 +136,7 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
       case ocl_info.CL_KERNEL_COMPILE_WORK_GROUP_SIZE: // size_t[3]
         rv = getInfo_array (this._lib.clGetKernelWorkGroupInfo, this._internal,
                             name, T.size_t,
-                            device._internal);
+                            clDevice);
         for (var i in rv) rv[i] = ctypes.UInt64.lo (rv[i]);
         break;
 
@@ -145,7 +145,7 @@ Kernel.prototype.getWorkGroupInfo = function (device, name)
       case ocl_info.CL_KERNEL_PRIVATE_MEM_SIZE:
         rv = getInfo_plain (this._lib.clGetKernelWorkGroupInfo, this._internal,
                             name, T.cl_ulong,
-                            device._internal).value;
+                            clDevice).value;
         rv = ctypes.UInt64.lo (rv);
         break;
 
