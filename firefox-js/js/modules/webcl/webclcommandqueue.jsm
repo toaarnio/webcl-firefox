@@ -1195,7 +1195,7 @@ WebCLCommandQueue.prototype._validateEventWaitList = function (eventWaitList, is
   if (eventWaitList !== null && eventWaitList !== undefined) 
   {
     if (!Array.isArray(eventWaitList))
-      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must be undefined, null, or an Array; was ", eventWaitList);
+      throw new TypeError("eventWaitList must be undefined, null, or an Array; was typeof " + typeof(eventWaitList));
   
     eventWaitList.forEach(function(event, i) {
 

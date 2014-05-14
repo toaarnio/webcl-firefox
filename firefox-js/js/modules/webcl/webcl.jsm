@@ -544,11 +544,11 @@ WebCL.prototype.ensureLibraryLoaded = function ()
 
 WebCL.prototype._validateEventWaitList = function (eventWaitList, isBlocking)
 {
-  if (eventWaitList === undefined || eventWaitList === null)
-    throw new INVALID_VALUE("eventWaitList must not be undefined or null; was ", eventWaitList);
+  if (!Array.isArray(eventWaitList))
+    throw new TypeError("eventWaitList must be a non-empty Array; was typeof " + typeof(eventWaitList));
 
-  if (!Array.isArray(eventWaitList) || eventWaitList.length === 0)
-    throw new INVALID_VALUE("eventWaitList must be a non-empty Array; was ", eventWaitList);
+  if (eventWaitList.length === 0)
+    throw new INVALID_VALUE("eventWaitList must not be empty");
 
   eventWaitList.forEach(function(event, i) {
 
