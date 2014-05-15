@@ -56,9 +56,9 @@ $(PACKAGE): install.rdf chrome.manifest $(SOURCE_FILES) COPYING $(wildcard defau
 	@mkdir -p dist/defaults/preferences
 	@cp defaults/preferences/*.js dist/defaults/preferences/
 	@cp -r content dist/
-	@(cd dist/content; sed --in-place 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' webclclientwrapper.js)
+	@(cd dist/content; sed -i'.bak' 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' webclclientwrapper.js; rm webclclientwrapper.js.bak)
 	@cp install.rdf chrome.manifest COPYING dist/
-	@(cd dist; sed --in-place 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' install.rdf)
+	@(cd dist; sed -i'.bak' 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' install.rdf; rm install.rdf.bak)
 	@cd dist && zip -r ../$@ install.rdf chrome.manifest \
 	    components content resources defaults COPYING -x@../zipexclude.lst
 
