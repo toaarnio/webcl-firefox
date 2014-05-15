@@ -345,8 +345,11 @@ WebCLProgram.prototype.createKernel = function (kernelName)
 
     webclutils.validateNumArgs(arguments.length, 1);
 
-    if (!webclutils.validateString(kernelName))
-      throw new INVALID_KERNEL_NAME("kernelName must be a non-empty string; was ", kernelName);
+    if (typeof(kernelName) !== 'string')
+      throw new TypeError("'kernelName' must be a non-empty string; was " + kernelName);
+
+    if (kernelName.length === 0)
+      throw new INVALID_KERNEL_NAME("kernelName must not be empty");
 
     if (!this.isBuilt)
       throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernel: the most recent build of this Program was not successful");

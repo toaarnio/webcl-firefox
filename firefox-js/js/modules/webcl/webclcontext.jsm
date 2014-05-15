@@ -313,8 +313,11 @@ WebCLContext.prototype.createProgram = function (source)
 
     webclutils.validateNumArgs(arguments.length, 1);
 
-    if (!webclutils.validateString(source))
-      throw new INVALID_VALUE("'source' must be a non-empty string; was ", source);
+    if (typeof(source) !== 'string')
+      throw new TypeError("'source' must be a non-empty string; was " + source);
+
+    if (source.length === 0)
+      throw new INVALID_VALUE("'source' must not be empty");
 
     var clProgram = this._internal.createProgramWithSource (source);
     return this._wrapInternal (clProgram, this);
