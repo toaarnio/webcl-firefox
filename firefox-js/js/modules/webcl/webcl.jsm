@@ -544,36 +544,8 @@ WebCL.prototype.ensureLibraryLoaded = function ()
 
 WebCL.prototype._validateEventWaitList = function (eventWaitList, isBlocking)
 {
-  if (!Array.isArray(eventWaitList))
-    throw new TypeError("eventWaitList must be a non-empty Array; was typeof " + typeof(eventWaitList));
-
-  if (eventWaitList.length === 0)
-    throw new INVALID_VALUE("eventWaitList must not be empty");
-
-  eventWaitList.forEach(function(event, i) {
-
-    if (!webclutils.validateEvent(event))
-      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was ", event);
-
-    if (!webclutils.validateEventNotReleased(event))
-      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was already released");
-
-    if (!webclutils.validateEventPopulated(event))    // TODO: should empty events in eventWaitList be allowed if isBlocking===false?
-      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
-
-    if (event instanceof WEBCLCLASSES.WebCLUserEvent)    // TODO: should user events in eventWaitList be allowed if isBlocking===false?
-      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was a user event");
-
-    if (execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS) < 0)
-      throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must only contain events with non-negative execution status; " +
-                                                          "eventWaitList["+i+"] had the status "+execStatus);
-
-    var ctx = (i === 0) ? event.getInfo(ocl_info.CL_EVENT_CONTEXT) : ctx;
-
-    if (event.getInfo(ocl_info.CL_EVENT_CONTEXT) !== ctx)
-      throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as eventWaitList[0]");
-  });
-
+  var eventWaitList = webclutils.defaultTo(eventWaitList, null);
+  webclutils.validateEventWaitList(eventWaitList, isBlocking, false, false, null);
 };
 
 

@@ -851,7 +851,7 @@ WebCLCommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
   {
     this._ensureValidObject();
     this._validateNumArgs(arguments.length, 1);
-    this._validateEventWaitList(eventWaitList);
+    this._validateEventWaitList(eventWaitList, false, false, false);
 
     var clEventWaitList = eventWaitList.map(function(event) { return webclutils.unwrapInternal(event); });
 
@@ -1190,42 +1190,14 @@ WebCLCommandQueue.prototype._validateAlignment = function (value, alignment, var
 };
 
 
-WebCLCommandQueue.prototype._validateEventWaitList = function (eventWaitList, isBlocking)
+WebCLCommandQueue.prototype._validateEventWaitList = function (eventWaitList, isBlocking, allowNullArray, allowEmptyArray)
 {
-  if (eventWaitList !== null && eventWaitList !== undefined) 
-  {
-    if (!Array.isArray(eventWaitList))
-      throw new TypeError("eventWaitList must be undefined, null, or an Array; was typeof " + typeof(eventWaitList));
-  
-    eventWaitList.forEach(function(event, i) {
-
-      if (!webclutils.validateEvent(event))
-        throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was ", event);
-
-      if (!webclutils.validateEventNotReleased(event))
-        throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was already released");
-
-      if (!webclutils.validateEventPopulated(event))
-        throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
-
-      var execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS);
-
-      if (event instanceof WEBCLCLASSES.WebCLUserEvent && execStatus < 0)
-        throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must not contain user events with negative execution status; " +
-                                                            "eventWaitList["+i+"] had the status "+execStatus);
-
-      if (isBlocking && event instanceof WEBCLCLASSES.WebCLUserEvent)
-        throw new INVALID_EVENT_WAIT_LIST("on a blocking call, eventWaitList must not contain user events; eventWaitList["+i+"] was a user event");
-
-      if (isBlocking && execStatus < 0)
-        throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("on a blocking call, all events in eventWaitList must have non-negative " +
-                                                            "execution status; eventWaitList["+i+"] had the status "+execStatus);
-
-      if (this.getInfo(ocl_info.CL_QUEUE_CONTEXT) !== event.getInfo(ocl_info.CL_EVENT_CONTEXT))
-        throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as this CommandQueue");
-
-    }, this);
-  }
+  var eventWaitList = webclutils.defaultTo(eventWaitList, null);
+  var isBlocking = webclutils.defaultTo(isBlocking, false);
+  var allowNullArray = webclutils.defaultTo(allowNullArray, true);
+  var allowEmptyArray = webclutils.defaultTo(allowEmptyArray, true);
+  var queueContext = this.getInfo(ocl_info.CL_QUEUE_CONTEXT);
+  webclutils.validateEventWaitList(eventWaitList, isBlocking, allowNullArray, allowEmptyArray, queueContext);
 };
 
 

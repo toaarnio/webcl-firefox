@@ -701,6 +701,57 @@ function defaultTo (value, defaultIfUndefined)
   return (value !== undefined) ? value : defaultIfUndefined;
 }
 
+function validateEventWaitList (eventWaitList, isBlocking, allowNullArray, allowEmptyArray, queueContext)
+{
+  if (eventWaitList === null && allowNullArray === true)
+    return;
+
+  if (eventWaitList === null && allowNullArray === false)
+    throw new TypeError("eventWaitList must be an Array; was null");
+
+  if (!Array.isArray(eventWaitList))
+    throw new TypeError("eventWaitList must be an Array; was typeof " + typeof(eventWaitList));
+
+  if (eventWaitList.length === 0 && allowEmptyArray === false)
+    throw new INVALID_VALUE("eventWaitList must be a non-empty Array; was empty");
+
+  eventWaitList.forEach(function(event, i) {
+
+    if (!webclutils.validateEvent(event))
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was ", event);
+
+    if (!webclutils.validateEventNotReleased(event))
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was already released");
+
+    if (!webclutils.validateEventPopulated(event))
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
+    
+    if (isBlocking && event instanceof WEBCLCLASSES.WebCLUserEvent)
+      throw new INVALID_EVENT_WAIT_LIST("on a blocking call, eventWaitList must not contain user events; eventWaitList["+i+"] was a user event");
+
+    var execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS);
+    
+    if (isBlocking && execStatus < 0)
+      throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("on a blocking call, all events in eventWaitList must have non-negative " +
+                                                          "execution status; eventWaitList["+i+"] had the status "+execStatus);
+
+    if (event instanceof WEBCLCLASSES.WebCLUserEvent && execStatus < 0)
+      throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must not contain user events with negative execution status; " +
+                                                          "eventWaitList["+i+"] had the status "+execStatus);
+
+    if (queueContext && event.getInfo(ocl_info.CL_EVENT_CONTEXT) !== queueContext)
+      throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as this WebCLCommandQueue");
+
+    var ctx = (i===0) ? event.getInfo(ocl_info.CL_EVENT_CONTEXT) : ctx;
+
+    if (!queueContext && event.getInfo(ocl_info.CL_EVENT_CONTEXT) !== ctx)
+      throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as eventWaitList[0]");
+
+  });
+
+}
+
+
 
 var webclutils = {
   getPref_allowed:              getPref_allowed,
@@ -762,6 +813,7 @@ var webclutils = {
   validateImageFormat:          validateImageFormat,
   validateImageChannelOrder:    validateImageChannelOrder,
   validateImageChannelType:     validateImageChannelType,
+  validateEventWaitList:        validateEventWaitList,
 };
 
 
