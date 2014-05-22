@@ -55,6 +55,8 @@ function WebCLProgram ()
 
     this.exceptionType = INVALID_PROGRAM;
 
+    this.validatorAvailable = false;
+
     this.buildOptions = "";  // TODO make this device-specific
 
     this.isBuilt = false;  // TODO make this device-specific
@@ -160,13 +162,6 @@ WebCLProgram.prototype.getBuildInfo = function (device, name)
   }
   catch (e)
   {
-    /*
-    let d = "device";
-    try { d = device.getInfo(ocl_info.CL_DEVICE_NAME); } catch(e2){}
-    try { let se = String(e); }catch(e2){}
-    DEBUG("WebCLProgram.getBuildInfo("+d+","+oclInfoToString(name)+"): "+se);
-    */
-
     try { ERROR(String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
@@ -250,6 +245,18 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
     if (supportsVerboseMode === true) {
       options += " -cl-nv-verbose";
+    }
+
+    if (this.validatorAvailable === false) {
+      options += " -D extern=the_extern_keyword_is_not_allowed_in_webcl";
+      options += " -D goto=the_goto_keyword_is_not_allowed_in_webcl";
+      options += " -D printf=the_printf_function_is_not_allowed_in_webcl";
+    }
+
+    if (this.validatorAvailable === false) {
+      var source = this.getInfo(ocl_info.CL_PROGRAM_SOURCE);
+      if (source.indexOf("CLK_ADDRESS_NONE") >= 0)
+        throw new BUILD_PROGRAM_FAILURE("CLK_ADDRESS_NONE is not a valid sampler addressing mode in WebCL");
     }
 
     try {
