@@ -144,7 +144,12 @@ WebCLKernel.prototype.getWorkGroupInfo = function (device, name)
     case ocl_info.CL_KERNEL_LOCAL_MEM_SIZE:
     case ocl_info.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE:
     case ocl_info.CL_KERNEL_PRIVATE_MEM_SIZE:
-      var clDevice = this._unwrapInternalOrNull (device);
+
+      // OPENCL DRIVER BUG WORKAROUND: Passing 'null' for a device does not work on the AMD APP SDK,
+      // so we have to pass the real Device object instead (not a big issue because we've already
+      // obtained it for argument validation purposes).
+      //
+      var clDevice = this._unwrapInternalOrNull (device || devices[0]);
       var clInfoItem = this._internal.getWorkGroupInfo (clDevice, name);
       return this._wrapInternal (clInfoItem);
 
