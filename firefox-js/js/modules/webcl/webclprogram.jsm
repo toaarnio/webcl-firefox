@@ -260,8 +260,6 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
       if (source.match("CLK_ADDRESS_NONE") !== null)
         throw new BUILD_PROGRAM_FAILURE("CLK_ADDRESS_NONE is not a valid sampler addressing mode in WebCL");
-      
-      options += " -D printf=the_printf_function_is_not_allowed_in_webcl";
     }
 
     try {
