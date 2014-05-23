@@ -268,26 +268,23 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
         // Asynchronous mode
 
         let instance = this;
-
         instance.buildInProgress = true;
+        instance._webclState.numWorkersRunning++;
 
         let asyncWorker = new WebCLAsyncWorker (null, function (err) {
 
           if (err) {
-
-            instance.buildInProgress = false;
-
             ERROR ("WebCLProgram.build, asyncWorker setup failed: " + err);
-
+            instance.buildInProgress = false;
             instance._webclState.inCallback = true;
             try {
               whenFinished ();
             }
             finally {
               instance._webclState.inCallback = false;
+              instance._webclState.numWorkersRunning--;
               asyncWorker.close ();
             }
-
             return;
           }
 
@@ -308,6 +305,7 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
             }
             finally {
               instance._webclState.inCallback = false;
+              instance._webclState.numWorkersRunning--;
               asyncWorker.close ();
             }
           });
@@ -423,6 +421,9 @@ WebCLProgram.prototype.releaseAll = function ()
 
   try
   {
+    if (this._webclState.numWorkersRunning > 0)
+      throw new INVALID_OPERATION ("unable to release resources while a background Worker thread is running; please try again later");
+
     this._releaseAllChildren ();
     this._clearRegistry ();
     this.release ();

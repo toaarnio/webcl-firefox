@@ -88,7 +88,7 @@ function WebCL ()
     this._internal = null;
     this._objectRegistry = {};
 
-    this._webclState = { inCallback: false };
+    this._webclState = { inCallback: false, numWorkersRunning: 0 };
 
     this.__exposedProps__ =
     {
@@ -329,10 +329,26 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
     if (whenFinished)
     {
       var instance = this;
-      let asyncWorker = new WebCLAsyncWorker (null, function (err)
-      {
+      instance._webclState.numWorkersRunning++;
+      let asyncWorker = new WebCLAsyncWorker (null, function (err) {
+
         if (err) {
           ERROR ("WebCL.waitForEvents: " + err);
+          instance._webclState.inCallback = true;
+          try {
+            whenFinished ();
+          }
+          finally {
+            instance._webclState.inCallback = false;
+            instance._webclState.numWorkersRunning--;
+            asyncWorker.close ();
+          }
+          return;
+        }
+
+        asyncWorker.waitForEvents (clEventWaitList, function (err) {
+          if (err)
+            ERROR ("WebCL.waitForEvents: " + err);
 
           instance._webclState.inCallback = true;
           try {
@@ -340,28 +356,10 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
           }
           finally {
             instance._webclState.inCallback = false;
+            instance._webclState.numWorkersRunning--;
             asyncWorker.close ();
           }
-
-          return;
-        }
-
-        asyncWorker.waitForEvents (clEventWaitList,
-                                   function (err)
-                                   {
-                                     if (err) {
-                                       ERROR ("WebCL.waitForEvents: " + err);
-                                     }
-
-                                     instance._webclState.inCallback = true;
-                                     try {
-                                       whenFinished ();
-                                     }
-                                     finally {
-                                       instance._webclState.inCallback = false;
-                                       asyncWorker.close ();
-                                     }
-                                   });
+        });
       });
 
     }
@@ -397,6 +395,9 @@ WebCL.prototype.releaseAll = function ()
 
     // NOTE: No need to ensure use permitted, in fact it should NOT be done or
     //       we'll have unwanted permission prompts on page unload.
+
+    if (this._webclState.numWorkersRunning > 0)
+      throw new INVALID_OPERATION ("unable to release resources while a background Worker thread is running; please try again later");
 
     this._releaseAllChildren ();
 

@@ -884,10 +884,26 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
       // NOTE: It would be better to use more persistent async workers, and maybe a pool.
       // TODO: get OpenCL lib name
       var instance = this;
-      let asyncWorker = new WebCLAsyncWorker (null, function (err)
-      {
+      instance._webclState.numWorkersRunning++;
+      let asyncWorker = new WebCLAsyncWorker (null, function (err) {
+
         if (err) {
           ERROR ("WebCLCommandQueue.finish: " + err);
+          instance._webclState.inCallback = true;
+          try {
+            whenFinished ();
+          }
+          finally {
+            instance._webclState.inCallback = false;
+            instance._webclState.numWorkersRunning--;
+            asyncWorker.close ();
+          }
+          return;
+        }
+
+        asyncWorker.finish (instance._internal, function (err) {
+          if (err)
+            ERROR ("WebCLCommandQueue.finish: " + err);
 
           instance._webclState.inCallback = true;
           try {
@@ -895,29 +911,12 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
           }
           finally {
             instance._webclState.inCallback = false;
+            instance._webclState.numWorkersRunning--;
             asyncWorker.close ();
           }
-
-          return;
-        }
-
-        asyncWorker.finish (instance._internal,
-                            function (err)
-                            {
-                              if (err) {
-                                ERROR ("WebCLCommandQueue.finish: " + err);
-                              }
-
-                              instance._webclState.inCallback = true;
-                              try {
-                                whenFinished ();
-                              }
-                              finally {
-                                instance._webclState.inCallback = false;
-                                asyncWorker.close ();
-                              }
-                            });
+        });
       });
+
     }
     else
     {
@@ -1262,6 +1261,9 @@ WebCLCommandQueue.prototype.releaseAll = function ()
 
   try
   {
+    if (this._webclState.numWorkersRunning > 0)
+      throw new INVALID_OPERATION ("unable to release resources while a background Worker thread is running; please try again later");
+
     this._releaseAllChildren ();
 
     this._clearRegistry ();
