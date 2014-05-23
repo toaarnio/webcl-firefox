@@ -202,11 +202,10 @@ WebCLKernel.prototype.setArg = function (index, value)
     if (webclutils.validateMemObject(value))
       if (this.getInfo(ocl_info.CL_KERNEL_CONTEXT) !== value.getInfo(ocl_info.CL_MEM_CONTEXT))
         throw new INVALID_CONTEXT("the given WebCLMemoryObject and this WebCLKernel must have the same WebCLContext");
-
-    if (webclutils.validateArrayBufferView(value) &&
-        !(value.length === 1 || value.length === 2 || value.length === 4 ||
-          value.length === 8 || value.length === 16 || value.length === 32))
-      throw new INVALID_ARG_SIZE("the given ArrayBufferView must have a length of 1, 2, 4, 8, 16, or 32; was ", value.length);
+    
+    if (webclutils.validateArrayBufferView(value) && 
+        (value.length === 0 || (value.length > 4 && value.length !== 6 && value.length !== 8 && value.length !== 16 && value.length !== 32)))
+      throw new INVALID_ARG_SIZE("the given ArrayBufferView must have a length of 1, 2, 3, 4, 6, 8, 16, or 32; was ", value.length);
 
     if (!webclutils.validateMemObject(value) &&
         !webclutils.validateSampler(value) &&
