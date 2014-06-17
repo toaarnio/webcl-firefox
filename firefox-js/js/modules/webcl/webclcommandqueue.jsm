@@ -167,12 +167,16 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
     var srcSlicePitch = srcSlicePitch || (region[1] * srcRowPitch);
     var srcByteLength = srcBuffer.getInfo(ocl_info.CL_MEM_SIZE);
 
+    this._validatePitch(srcRowPitch, region[0], "srcRowPitch");
+    this._validatePitch(srcSlicePitch, region[1] * srcRowPitch, "srcSlicePitch");
     this._validateRegionBounds3D(srcOrigin, region, srcRowPitch, srcSlicePitch, srcByteLength, "srcBuffer");
 
     var dstRowPitch = dstRowPitch || region[0];
     var dstSlicePitch = dstSlicePitch || (region[1] * dstRowPitch);
     var dstByteLength = dstBuffer.getInfo(ocl_info.CL_MEM_SIZE);
 
+    this._validatePitch(dstRowPitch, region[0], "dstRowPitch");
+    this._validatePitch(dstSlicePitch, region[1] * dstRowPitch, "dstSlicePitch");
     this._validateRegionBounds3D(dstOrigin, region, dstRowPitch, dstSlicePitch, dstByteLength, "dstBuffer");
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
@@ -1099,6 +1103,16 @@ WebCLCommandQueue.prototype._validateArray = function(arr, length, elementValida
     if (!elementValidator(val))
       throw new clException(varName + " must only contain " + elementRequirementMsg + "; " + varName + "["+i+"] was ", val);
   });
+};
+
+
+WebCLCommandQueue.prototype._validatePitch = function (pitch, defaultPitch, name)
+{
+  if (pitch !== 0 && pitch < defaultPitch)
+    throw new INVALID_VALUE(name + " must be zero or greater than or equal to " + defaultPitch + "; was " + pitch);
+
+  if (pitch % defaultPitch !== 0)
+    throw new INVALID_VALUE(name + " must be zero or a multiple of " + defaultPitch + "; was " + pitch);
 };
 
 
