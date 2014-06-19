@@ -45,7 +45,7 @@ function LibOCLWrapper (libName)
   this.classDescription = "OpenCLWrapper";
 
   this._libName = libName;
-  this._lib = loadLibrary (this._libName);
+  this._lib = OCLLibraryInstance.loadLibrary (this._libName);
 }
 
 

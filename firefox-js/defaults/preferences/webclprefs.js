@@ -4,6 +4,9 @@
 //   1: Enabled, no prompt.
 pref("extensions.webcl.allowed", -1);
 
+// Enable / disable WebCL validator. true=enabled, false=disabled.
+pref("extensions.webcl.enable-validator", true);
+
 // Set explicit OpenCL library file with path. Default is "": autodetect.
 pref("extensions.webcl.opencllib", "");
 

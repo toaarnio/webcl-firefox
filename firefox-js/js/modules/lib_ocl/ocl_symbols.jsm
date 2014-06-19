@@ -12,7 +12,7 @@
  */
 
 
-var EXPORTED_SYMBOLS = [ "symbolDetails" ];
+var EXPORTED_SYMBOLS = [ "OCLSymbolDetails" ];
 
 const Cu = Components.utils;
 
@@ -23,7 +23,7 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_types.jsm");
 
 try {
 
-var symbolDetails = [
+var OCLSymbolDetails = [
   { name: "clGetPlatformIDs",
     rv:   T.cl_int,
     args: [ T.cl_uint, T.cl_platform_id.ptr, T.cl_uint.ptr ]
@@ -318,4 +318,4 @@ var symbolDetails = [
   }
 ];
 
-} catch(e) { ERROR ("lib_ocl_symbols failed: " + e); throw e; }
+} catch(e) { ERROR ("ocl_symbols.jsm:\n" + String(e) + ":\n" + e.stack); throw e; }

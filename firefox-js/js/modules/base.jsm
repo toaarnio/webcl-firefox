@@ -33,6 +33,9 @@ var gExternalIdentitySeed = 1;
 
 function Base ()
 {
+  // _internal: (ilb_ocl Object) Internal resource object.
+  this._internal = null;
+
   // _owner: (Object) Resource manager object controlling this object's life cycle
   // Note: Set by owner in _registerObject.
   this._owner = null;

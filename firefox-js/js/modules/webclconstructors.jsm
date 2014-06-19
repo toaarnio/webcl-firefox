@@ -23,6 +23,7 @@ var EXPORTED_SYMBOLS = [
                          "createWebCLBuffer",
                          "createWebCLImage",
                          "createWebCLProgram",
+                         "createWebCLValidatedProgram",
                          "createWebCLKernel",
                          "createWebCLSampler",
                          "createWebCLImageDescriptor"
@@ -334,6 +335,33 @@ function createWebCLProgram (owner, value)
     }
   }
   else TRACE_RESOURCES (null, "createWebCLProgram", "using existing object, key="+o._getIdentity());
+
+  return o;
+}
+
+function createWebCLValidatedProgram (owner)
+{
+  if (arguments.length > 1) throw new Error ("createWebCLValidatedProgram: INTERNAL ERROR: Too many arguments!");
+
+  TRACE_RESOURCES (null, "createWebCLValidatedProgram",
+                   "owner="+(owner?owner.classDescription:"<null>"));
+  var o = new WEBCLCLASSES.WebCLValidatedProgram ();
+  o.wrappedJSObject._interimOwner = owner;
+
+  if (owner)
+  {
+    if (!owner._webclState) INFO ("WARNING: Owner missing _webclState when creating " + o.classDescription);
+    o.wrappedJSObject._webclState = owner._webclState;
+  }
+
+  // Store the original wrapped instance for use in promoteToWebCLProgram.
+  // NOTE: wrappedJSObject might have become unnecessary a while ago: investigate.
+  o.wrappedJSObject._wrapperInstance = o;
+
+  TRACE_RESOURCES (null, "createWebCLValidatedProgram", "new object");
+
+  // NOTE: the object is not registered to owner at this point since it doesn't
+  //       have a unique identity in form of internal resource.
 
   return o;
 }

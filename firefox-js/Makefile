@@ -18,20 +18,22 @@ all: dist dist-src
 COMPONENTS = webclloader.js
 
 MODULES = logger.jsm common.jsm webclutils.jsm base.jsm webclconstructors.jsm \
-  mixin.jsm webclclasses.jsm webclasyncworkerapi.jsm
+  mixin.jsm webclclasses.jsm webclasyncworkerapi.jsm validatorasyncworkerapi.jsm \
+  libloader.jsm
 MODULES_WEBCL = webcl.jsm webclplatform.jsm webcldevice.jsm webclcontext.jsm \
   webclcommandqueue.jsm webclevent.jsm webclmemoryobject.jsm webclprogram.jsm \
-  webclkernel.jsm webclsampler.jsm webclimagedescriptor.jsm
+  webclvalidatedprogram.jsm webclkernel.jsm webclsampler.jsm webclimagedescriptor.jsm
 MODULES_OCL = ocl_constants.jsm ocl_symbols.jsm ocl_types.jsm ocl_getinfo.jsm \
   ocl_exception.jsm ocl_libloader.jsm ocl_common.jsm \
   wrapper.jsm platform.jsm device.jsm commandqueue.jsm context.jsm event.jsm \
   kernel.jsm memoryobject.jsm program.jsm sampler.jsm
+MODULES_CLV = clv_symbols.jsm clv_libloader.jsm clv_wrapper.jsm clv_program.jsm
 
 MIXINS = owner.jsm
 
-WORKERS = webclasyncworker.js
+WORKERS = webclasyncworker.js validatorasyncworker.js
 
-SOURCE_FILES = $(COMPONENTS:%=js/%) $(MODULES:%=js/modules/%) $(MODULES_WEBCL:%=js/modules/webcl/%) $(MODULES_OCL:%=js/modules/lib_ocl/%) $(MIXINS:%=js/modules/mixins/%) $(WORKERS:%=js/workers/%)
+SOURCE_FILES = $(COMPONENTS:%=js/%) $(MODULES:%=js/modules/%) $(MODULES_WEBCL:%=js/modules/webcl/%) $(MODULES_OCL:%=js/modules/lib_ocl/%) $(MODULES_CLV:%=js/modules/lib_clv/%) $(MIXINS:%=js/modules/mixins/%) $(WORKERS:%=js/workers/%)
 
 dist: xpi
 
@@ -49,18 +51,21 @@ $(PACKAGE): install.rdf chrome.manifest $(SOURCE_FILES) COPYING $(wildcard defau
 	@cp $(MODULES_WEBCL:%=js/modules/webcl/%) dist/resources/modules/webcl/
 	@mkdir -p dist/resources/modules/lib_ocl
 	@cp $(MODULES_OCL:%=js/modules/lib_ocl/%) dist/resources/modules/lib_ocl/
+	@mkdir -p dist/resources/modules/lib_clv
+	@cp $(MODULES_CLV:%=js/modules/lib_clv/%) dist/resources/modules/lib_clv/
 	@mkdir -p dist/resources/modules/mixins
 	@cp $(MIXINS:%=js/modules/mixins/%) dist/resources/modules/mixins/
 	@mkdir -p dist/resources/workers
 	@cp $(WORKERS:%=js/workers/%) dist/resources/workers
 	@mkdir -p dist/defaults/preferences
 	@cp defaults/preferences/*.js dist/defaults/preferences/
+	@cp -r lib dist/
 	@cp -r content dist/
 	@(cd dist/content; sed -i'.bak' 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' webclclientwrapper.js; rm webclclientwrapper.js.bak)
 	@cp install.rdf chrome.manifest COPYING dist/
 	@(cd dist; sed -i'.bak' 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' install.rdf; rm install.rdf.bak)
 	@cd dist && zip -r ../$@ install.rdf chrome.manifest \
-	    components content resources defaults COPYING -x@../zipexclude.lst
+	    components content resources defaults lib COPYING -x@../zipexclude.lst
 
 
 dist-src: $(SRC_PACKAGE)

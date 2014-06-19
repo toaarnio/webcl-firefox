@@ -346,6 +346,7 @@
         case "WebCLPlatform":        return _createInstance (WebCLPlatform, obj);
         case "WebCLDevice":          return _createInstance (WebCLDevice, obj);
         case "WebCLContext":         return _createInstance (WebCLContext, obj);
+        case "WebCLValidatedProgram":
         case "WebCLProgram":         return _createInstance (WebCLProgram, obj);
         case "WebCLKernel":          return _createInstance (WebCLKernel, obj);
         case "WebCLCommandQueue":    return _createInstance (WebCLCommandQueue, obj);

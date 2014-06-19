@@ -311,5 +311,5 @@ WebCLAsyncWorker.prototype._unloadLibrary = function (notify)
 
 
 
-} catch (e) { ERROR ("webclasyncworkerapi.jsm: " + e + "."); throw e; }
+} catch (e) { ERROR ("webclasyncworkerapi.jsm:\n" + e + "\n" + e.stack); throw e; }
 

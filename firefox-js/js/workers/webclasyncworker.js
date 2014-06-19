@@ -188,7 +188,7 @@ onmessage = function (event)
       switch (cmd)
       {
         case "load":
-          DEBUG ("Loading library " + event.data.libname);
+          DEBUG ("Loading OpenCL library " + event.data.libname);
           gLibHandle = loadCLLibrary (event.data.libname);
           break;
 
@@ -197,7 +197,7 @@ onmessage = function (event)
           {
             if (gLibHandle)
             {
-              DEBUG ("Closing library.");
+              DEBUG ("Closing OpenCL library.");
               closeCLLibrary (gLibHandle);
             }
             gLibHandle = null;
@@ -209,7 +209,7 @@ onmessage = function (event)
           {
             if (gLibHandle)
             {
-              DEBUG ("Closing library.");
+              DEBUG ("Closing OpenCL library.");
               closeCLLibrary (gLibHandle);
             }
             gLibHandle = null;
@@ -249,6 +249,6 @@ onmessage = function (event)
 
 
 
-} catch(e) { ERROR ("webclasyncworker.js: "+e); }
+} catch(e) { ERROR ("webclasyncworker.js: "+e+"\n"+e.stack); }
 
 

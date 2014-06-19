@@ -82,7 +82,7 @@ function WebCLProgram ()
   }
   catch (e)
   {
-    ERROR ("webclprogram.jsm:WebCLProgram failed: " + e);
+    ERROR ("webclprogram.jsm:WebCLProgram: " + e + "\n" + e.stack);
     throw webclutils.convertCLException (e);
   }
 }
@@ -168,9 +168,9 @@ WebCLProgram.prototype.getBuildInfo = function (device, name)
 };
 
 
-WebCLProgram.prototype.build = function (devices, options, whenFinished)
+WebCLProgram.prototype.build_prepare = function (devices, options, whenFinished)
 {
-  TRACE (this, "build", arguments);
+  TRACE (this, "build_prepare", arguments);
 
   var validBuildOptions = [
     "-cl-opt-disable",
@@ -185,8 +185,6 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     "-Werror",
   ];
 
-  try
-  {
     this._ensureValidObject();
 
     webclutils.validateNumArgs(arguments.length, 0, 3);
@@ -216,7 +214,6 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
     var programDevices = this.getInfo(ocl_info.CL_PROGRAM_DEVICES);
 
     for (let i=0; devices !== null && i < devices.length; i++) {
-      
       if (!webclutils.validateDevice(devices[i]))
         throw new INVALID_DEVICE("'devices' must only contain instances of WebCLDevice; devices["+i+"] = ", devices[i]);
 
@@ -262,7 +259,17 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
         throw new BUILD_PROGRAM_FAILURE("CLK_ADDRESS_NONE is not a valid sampler addressing mode in WebCL");
     }
 
+    return [clDevices, options, whenFinished];
+};
+
+
+WebCLProgram.prototype.build_execute = function (devices, options, whenFinished)
+{
+  TRACE (this, "build_execute", arguments);
+
     try {
+      var clDevices = devices;
+
       if (whenFinished)
       {
         // Asynchronous mode
@@ -332,6 +339,18 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
       }
       throw e;
     }
+};
+
+
+WebCLProgram.prototype.build = function (devices, options, whenFinished)
+{
+  TRACE (this, "build", arguments);
+
+  try
+  {
+    var args = [ devices, options, whenFinished ];
+    args = this.build_prepare.apply (this, args);
+    this.build_execute.apply (this, args);
   }
   catch (e)
   {
@@ -437,4 +456,4 @@ WebCLProgram.prototype.releaseAll = function ()
 
 
 
-} catch(e) { ERROR ("webclprogram.jsm: "+e); }
+} catch(e) { ERROR ("webclprogram.jsm: "+e+"\n"+e.stack); }

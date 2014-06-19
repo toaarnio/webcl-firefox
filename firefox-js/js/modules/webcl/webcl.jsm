@@ -43,6 +43,9 @@ try {
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_constants.jsm");
   Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 
+  Cu.import ("resource://nrcwebcl/modules/lib_clv/clv_wrapper.jsm");
+  Cu.import ("resource://gre/modules/AddonManager.jsm");
+
   Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
   DEBUG ("webcl.jsm: modules loaded");
@@ -56,6 +59,7 @@ try {
   Cu.import ("resource://nrcwebcl/modules/webcl/webclcommandqueue.jsm");
   Cu.import ("resource://nrcwebcl/modules/webcl/webclevent.jsm");
   Cu.import ("resource://nrcwebcl/modules/webcl/webclprogram.jsm");
+  Cu.import ("resource://nrcwebcl/modules/webcl/webclvalidatedprogram.jsm");
   Cu.import ("resource://nrcwebcl/modules/webcl/webclkernel.jsm");
   Cu.import ("resource://nrcwebcl/modules/webcl/webclmemoryobject.jsm");
   Cu.import ("resource://nrcwebcl/modules/webcl/webclsampler.jsm");
@@ -64,10 +68,21 @@ try {
   Cu.import ("resource://nrcwebcl/modules/webclasyncworkerapi.jsm");
   Cu.import ("resource://gre/modules/ctypes.jsm");
 
-
 } catch (e) { ERROR ("webcl.jsm: Failed to load modules: " + EXCEPTIONSTR(e) + "."); throw e; }
 
 try {
+
+
+
+var gAddonLocation = null;
+AddonManager.getAddonByID("webcl@webcl.nokiaresearch.com", function(addon)
+{
+  gAddonLocation = addon.getResourceURI("")
+                        .QueryInterface(Components.interfaces.nsIFileURL).file.path;
+  INFO ("WebCL addon location: " + gAddonLocation);
+});
+
+
 
 function WebCL ()
 {
@@ -88,7 +103,10 @@ function WebCL ()
     this._internal = null;
     this._objectRegistry = {};
 
-    this._webclState = { inCallback: false, numWorkersRunning: 0 };
+    this._webclState = { inCallback: false,
+                         numWorkersRunning: 0,
+                         validator: null
+                       };
 
     this.__exposedProps__ =
     {
@@ -105,6 +123,7 @@ function WebCL ()
 
       classDescription: "r"
     };
+
   }
   catch (e)
   {
@@ -176,6 +195,14 @@ WebCL.prototype.init = function (domWindow)
     {
       LOG ("Unload event");
       instance.releaseAll ();
+
+      /* TODO
+      // Release OpenCL library handle
+      this._internal.release ();
+
+      // Release Validator library handle
+      this._webclState.validator.release ();
+      */
     });
 
     this._initialized = true;
@@ -535,9 +562,30 @@ WebCL.prototype.ensureLibraryLoaded = function ()
     }
     catch (e)
     {
-      throw new Exception ("Failed to load OpenCL library" +
+      throw new Exception ("Failed to load OpenCL library " +
                           (this._oclLibPath ? " \""+this._oclLibPath+"\"" : "") +
                           ": " + e + ".");
+    }
+  }
+
+  if (!this._webclState.validator)
+  {
+    try
+    {
+      if (gAddonLocation)
+      {
+        this._webclState.validator = new LibCLVWrapper (gAddonLocation);
+      }
+      else
+      {
+        // TODO: do we need this?
+        ERROR ("Addon location has not been updated yet.");
+      }
+    }
+    catch (e)
+    {
+      ERROR ("Failed to create validator wrapper\n" + String(e) + ":\n" + e.stack);
+      // TODO:
     }
   }
 };
@@ -631,4 +679,4 @@ function createContextFromDeviceArray(devices)
 };
 
 
-} catch(e) { ERROR ("webcl.jsm: "+EXCEPTIONSTR(e)); throw e; }
+} catch(e) { ERROR ("webcl.jsm:\n"+e+"\n"+e.stack); throw e; }

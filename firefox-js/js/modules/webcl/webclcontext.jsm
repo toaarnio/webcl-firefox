@@ -319,8 +319,17 @@ WebCLContext.prototype.createProgram = function (source)
     if (source.length === 0)
       throw new INVALID_VALUE("'source' must not be empty");
 
-    var clProgram = this._internal.createProgramWithSource (source);
-    return this._wrapInternal (clProgram, this);
+    if (this._webclState.validator)
+    {
+      var program = createWebCLValidatedProgram (this);
+      program.setOriginalSource (source);
+      return program;
+    }
+    else
+    {
+      var clProgram = this._internal.createProgramWithSource (source);
+      return this._wrapInternal (clProgram, this);
+    }
   }
   catch (e)
   {

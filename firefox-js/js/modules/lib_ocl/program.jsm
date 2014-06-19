@@ -43,7 +43,7 @@ try {
 
 function Program (internal, lib)
 {
-  if (!(this instanceof Program)) return new Program (internal);
+  if (!(this instanceof Program)) return new Program (internal, lib);
   loadLazyModules ();
 
   this.classDescription = "Program";
