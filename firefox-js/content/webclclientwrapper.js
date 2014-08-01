@@ -151,7 +151,15 @@
   _Kernel.prototype = Object.create (_Base.prototype);
 
   _Kernel.prototype.getWorkGroupInfo = _createDefaultFunctionWrapper ("getWorkGroupInfo");
-  _Kernel.prototype.getArgInfo = _createDefaultFunctionWrapper ("getArgInfo");
+  _Kernel.prototype.getArgInfo = _createDefaultFunctionWrapper ("getArgInfo", null, function (rv)
+  {
+    // postProcFn
+    return { name: rv.name,
+             typeName: rv.typeName,
+             addressQualifier: rv.addressQualifier,
+             accessQualifier: rv.accessQualifier
+    };
+  });
   _Kernel.prototype.setArg = _createDefaultFunctionWrapper ("setArg");
   _Kernel.prototype.release = _createDefaultFunctionWrapper ("release");
 

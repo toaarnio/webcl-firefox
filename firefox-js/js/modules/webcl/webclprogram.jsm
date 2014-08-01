@@ -384,7 +384,6 @@ WebCLProgram.prototype.createKernel = function (kernelName)
     // NOTE: Ensure proper memory management on certain platforms by acquiring
     //       ownership of created kernels. This ensures that on releaseAll
     //       kernels will be released before program.
-
     var clKernel = this._wrapInternal (this._internal.createKernel(kernelName), this);
 
     this.kernelsAlreadyCreated = true;

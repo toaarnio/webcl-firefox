@@ -22,27 +22,7 @@ Cu.import ("resource://nrcwebcl/modules/common.jsm");
 Cu.import ("resource://nrcwebcl/modules/libloader.jsm");
 Cu.import ("resource://nrcwebcl/modules/lib_clv/clv_symbols.jsm");
 
-
-function getLibraryNameForPlatform (addonLocation)
-{
-  var rv = null;
-
-  switch (getRuntimeOS ())
-  {
-    default:
-    case "Linux":
-      rv = addonLocation + "/lib/linux_x86_64/libclv_standalone.so";
-      break;
-    case "WINNT":
-      rv = addonLocation + "\lib\libclv_standalone.dll";
-      break;
-    case "Darwin":
-      rv = addonLocation + "/lib/libclv_standalone.dylib";
-      break;
-  }
-
-  return rv;
-}
+Cu.import ("resource://gre/modules/ctypes.jsm");
 
 
 function CLVLibraryInstance (addonLocation)
@@ -56,6 +36,38 @@ function CLVLibraryInstance (addonLocation)
                                 CLVSymbolDetails);
 }
 CLVLibraryInstance.prototype = Object.create (LibraryInstance.prototype);
+
+
+function getLibraryNameForPlatform (addonLocation)
+{
+  var rv = null;
+
+  switch (getRuntimeOS ())
+  {
+    default:
+    case "Linux": {
+      if (ctypes.intptr_t.size == 8)
+        rv = addonLocation + "/lib/linux_x86_64/libclv_standalone.so";
+      else if (ctypes.intptr_t.size == 4)
+        rv = addonLocation + "/lib/linux_x86_32/libclv_standalone.so";
+      break;
+    }
+    case "WINNT": {
+      if (ctypes.intptr_t.size == 8)
+        rv = addonLocation + "\lib\win_64\clv_standalone.dll";
+      else if (ctypes.intptr_t.size == 4)
+        rv = addonLocation + "\lib\win_32\clv_standalone.dll";
+      break;
+    }
+    case "Darwin": {
+      rv = addonLocation + "/lib/libclv_standalone.dylib";
+      break;
+    }
+  }
+
+  return rv;
+}
+CLVLibraryInstance.getLibraryNameForPlatform = getLibraryNameForPlatform;
 
 
 function loadLibrary (addonLocation)

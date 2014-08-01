@@ -82,13 +82,50 @@ function CLVProgram (internal, lib)
 
   this._internal = internal || null;
   this._lib = lib || null;
+
+  this._refCnt = 1;
 }
+
+
+CLVProgram.prototype._addref = function ()
+{
+  if (this._refCnt > 0)
+  {
+    ++this._refCnt;
+
+    return this;
+  }
+
+  return null;
+};
+
+
+CLVProgram.prototype._unref = function ()
+{
+  if (this._refCnt > 0)
+  {
+    if (this._refCnt > 1)
+    {
+      --this._refCnt;
+    }
+    else
+    {
+      this.releaseProgram ();
+      this._refCnt = 0;
+    }
+  }
+  return (this._refCnt > 0 ? this : null);
+};
 
 
 // RETURNS: Number
 CLVProgram.prototype.getProgramStatus = function ()
 {
   TRACE (this, "getProgramStatus", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   var rv = this._lib.clvGetProgramStatus (this._internal);
   // TODO: Do we need to handle rv as 64-bit value on 64-bit systems
   return rv;
@@ -114,6 +151,10 @@ CLVProgram.prototype.programStatusToString = function (programStatus)
 CLVProgram.prototype.getProgramLogMessageCount = function ()
 {
   TRACE (this, "getProgramLogMessageCount", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   return this._lib.clvGetProgramLogMessageCount (this._internal);
 };
 
@@ -122,6 +163,10 @@ CLVProgram.prototype.getProgramLogMessageCount = function ()
 CLVProgram.prototype.getProgramLogMessageLevel = function (n)
 {
   TRACE (this, "getProgramLogMessageLevel", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   var rv = this._lib.clvGetProgramLogMessageLevel (this._internal, +n);
   // TODO: Do we need to handle rv as 64-bit value on 64-bit systems
   return rv;
@@ -147,6 +192,9 @@ CLVProgram.prototype.logMessageLevelToString = function (logMessageLevel)
 CLVProgram.prototype.getProgramLogMessageText = function (n)
 {
   TRACE (this, "getProgramLogMessageText", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
 
   try
   {
@@ -171,6 +219,10 @@ CLVProgram.prototype.getProgramLogMessageText = function (n)
 CLVProgram.prototype.programLogMessageHasSource = function (n)
 {
   TRACE (this, "programLogMessageHasSource", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   return !! this._lib.clvProgramLogMessageHasSource (this._internal, +n);
 };
 
@@ -180,6 +232,10 @@ CLVProgram.prototype.programLogMessageHasSource = function (n)
 CLVProgram.prototype.getProgramLogMessageSourceOffset = function (n)
 {
   TRACE (this, "getProgramLogMessageSourceOffset", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   var rv = this._lib.clvGetProgramLogMessageSourceOffset (this._internal, +n);
   // TODO: Clipping 64-bit value
   return ctypes.UInt64.lo (rv);
@@ -191,6 +247,10 @@ CLVProgram.prototype.getProgramLogMessageSourceOffset = function (n)
 CLVProgram.prototype.getProgramLogMessageSourceLen = function (n)
 {
   TRACE (this, "getProgramLogMessageSourceLen", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   var rv = this._lib.clvGetProgramLogMessageSourceLen (this._internal, +n);
   // TODO: Clipping 64-bit value
   return ctypes.UInt64.lo (rv);
@@ -204,6 +264,9 @@ CLVProgram.prototype.getProgramLogMessageSourceLen = function (n)
 CLVProgram.prototype.getProgramLogMessageSourceText = function (n, offset, len)
 {
   TRACE (this, "getProgramLogMessageSourceText", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
 
   try
   {
@@ -227,6 +290,10 @@ CLVProgram.prototype.getProgramLogMessageSourceText = function (n, offset, len)
 CLVProgram.prototype.getProgramKernelCount = function ()
 {
   TRACE (this, "getProgramKernelCount", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   return this._lib.clvGetProgramKernelCount (this._internal);
 };
 
@@ -236,6 +303,9 @@ CLVProgram.prototype.getProgramKernelCount = function ()
 CLVProgram.prototype.getProgramKernelName = function (n)
 {
   TRACE (this, "getProgramKernelName", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
 
   try
   {
@@ -260,6 +330,10 @@ CLVProgram.prototype.getProgramKernelName = function (n)
 CLVProgram.prototype.getKernelArgCount = function (n)
 {
   TRACE (this, "getKernelArgCount", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   return this._lib.clvGetKernelArgCount (this._internal, +n);
 };
 
@@ -270,6 +344,9 @@ CLVProgram.prototype.getKernelArgCount = function (n)
 CLVProgram.prototype.getKernelArgName = function (kernelIdx, argIdx)
 {
   TRACE (this, "getKernelArgName", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
 
   try
   {
@@ -295,6 +372,9 @@ CLVProgram.prototype.getKernelArgName = function (kernelIdx, argIdx)
 CLVProgram.prototype.getKernelArgType = function (kernelIdx, argIdx)
 {
   TRACE (this, "getKernelArgType", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
 
   try
   {
@@ -320,6 +400,10 @@ CLVProgram.prototype.getKernelArgType = function (kernelIdx, argIdx)
 CLVProgram.prototype.kernelArgIsPointer = function (kernelIdx, argIdx)
 {
   TRACE (this, "kernelArgIsPointer", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   return !! this._lib.clvKernelArgIsPointer (this._internal, +kernelIdx, +argIdx);
 };
 
@@ -330,6 +414,10 @@ CLVProgram.prototype.kernelArgIsPointer = function (kernelIdx, argIdx)
 CLVProgram.prototype.getKernelArgAddressQual = function (kernelIdx, argIdx)
 {
   TRACE (this, "getKernelArgAddressQual", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   return this._lib.clvGetKernelArgAddressQual (this._internal, +kernelIdx, +argIdx);
 };
 
@@ -340,6 +428,10 @@ CLVProgram.prototype.getKernelArgAddressQual = function (kernelIdx, argIdx)
 CLVProgram.prototype.kernelArgIsImage = function (kernelIdx, argIdx)
 {
   TRACE (this, "kernelArgIsImage", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
   return this._lib.clvKernelArgIsImage (this._internal, +kernelIdx, +argIdx);
 };
 
@@ -349,8 +441,12 @@ CLVProgram.prototype.kernelArgIsImage = function (kernelIdx, argIdx)
 // RETURNS: Number
 CLVProgram.prototype.getKernelArgAccessQual = function (kernelIdx, argIdx)
 {
-  TRACE (this, "kernelArgIsImage", arguments);
-  return this._lib.clvKernelArgIsImage (this._internal, +kernelIdx, +argIdx);
+  TRACE (this, "getKernelArgAccessQual", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
+  return this._lib.clvGetKernelArgAccessQual (this._internal, +kernelIdx, +argIdx);
 };
 
 
@@ -358,6 +454,9 @@ CLVProgram.prototype.getKernelArgAccessQual = function (kernelIdx, argIdx)
 CLVProgram.prototype.getProgramValidatedSource = function ()
 {
   TRACE (this, "getProgramValidatedSource", arguments);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
 
   try
   {
@@ -380,7 +479,13 @@ CLVProgram.prototype.getProgramValidatedSource = function ()
 CLVProgram.prototype.releaseProgram = function ()
 {
   TRACE (this, "releaseProgram", arguments);
-  return this._lib.clvReleaseProgram (this._internal);
+  DEBUG ("  refcnt="+this._refCnt);
+
+  if (this._refCnt <= 0) return;
+
+  var rv = this._lib.clvReleaseProgram (this._internal);
+  this._refCnt = 0;
+  return rv;
 };
 
 

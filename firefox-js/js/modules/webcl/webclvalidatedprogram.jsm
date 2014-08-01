@@ -40,6 +40,10 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/program.jsm");
 
 Cu.import ("resource://nrcwebcl/modules/lib_clv/clv_wrapper.jsm");
 
+Cu.import ("resource://nrcwebcl/modules/validatorasyncworkerapi.jsm");
+Cu.import ("resource://nrcwebcl/modules/lib_clv/clv_program.jsm");
+Cu.import ("resource://gre/modules/ctypes.jsm");
+
 
 function WebCLValidatedProgram ()
 {
@@ -89,7 +93,7 @@ WebCLValidatedProgram.prototype.setOriginalSource = function (source)
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -105,7 +109,7 @@ WebCLValidatedProgram.prototype.getOriginalSource = function ()
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -124,7 +128,7 @@ WebCLValidatedProgram.prototype.getValidatedSource = function ()
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -143,10 +147,21 @@ WebCLValidatedProgram.prototype.promoteToWebCLProgram = function (internal, // l
                        String(internal) + ".");
     }
 
+    if (this._internal)
+    {
+      ERROR ("WARNING: WebCLValidatedProgram.promoteToWebCLProgram: Trying to promote an object that already has internal.");
+    }
+
     this._internal = internal;
     this._identity = internal.getIdentity ();
 
-    if (owner) this._interimOwner = owner;
+    if (owner)
+    {
+      // If optional owner was given, replace _interimOwner
+      this._interimOwner = owner;
+    }
+
+    // Set the real owner now that we have true internal and identity
     this._interimOwner._registerObject (this._wrapperInstance);
 
     // Clear unneeded propreties
@@ -155,7 +170,7 @@ WebCLValidatedProgram.prototype.promoteToWebCLProgram = function (internal, // l
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -208,7 +223,7 @@ WebCLValidatedProgram.prototype.getInfo = function (name)
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -253,7 +268,7 @@ WebCLValidatedProgram.prototype.getBuildInfo = function (device, name)
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -270,12 +285,100 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
 
     if (whenFinished)
     {
-      WebCLProgram.prototype.build.apply (this, args);
-      ERROR ("NOTE: TODO: ASYNC VALIDATOR!");
-      throw new Error ("TODO: ASYNC VALIDATOR!");
+      // ASYNC BUILD
+
+      let instance = this;
+      instance.buildInProgress = true;
+      instance._webclState.numWorkersRunning++;
+
+      try
+      {
+        let platformLibName = this._webclState.validator.getLibraryName (this._webclState.addonLocation);
+
+        let validatorAsyncWorker = new ValidatorAsyncWorker (platformLibName,
+                                                            function (err)
+        {
+          if (err)
+          {
+            instance.buildInProgress = false;
+            instance._webclState.inCallback = true;
+            try {
+              whenFinished ();
+            }
+            finally {
+              instance._webclState.inCallback = false;
+              instance._webclState.numWorkersRunning--;
+
+              validatorAsyncWorker.close ();
+            }
+
+            throw err;
+          }
+
+          validatorAsyncWorker.validate (instance._originalSource,
+                                         null, // extensions
+                                         null, // userDefines
+                                         function (data)
+          {
+            if (data.err)
+            {
+              instance.buildInProgress = false;
+              instance._webclState.inCallback = true;
+              try {
+                whenFinished ();
+              }
+              finally {
+                instance._webclState.inCallback = false;
+                instance._webclState.numWorkersRunning--;
+
+                validatorAsyncWorker.close ();
+              }
+
+              throw data.err;
+              // TODO: proper error handling!
+            }
+
+            instance._validatorProgram = new CLVProgram (data.program,
+                                                         instance._webclState.validator._lib);
+
+            instance.buildInProgress = false;
+
+            if (instance._interimOwner)
+            {
+              // TODO: ensure _interimOwner is Context?
+              let source = instance._validatorProgram.getProgramValidatedSource();
+              let clProgram = instance._interimOwner._internal.createProgramWithSource (source);
+              instance.promoteToWebCLProgram (clProgram);
+            }
+
+            try
+            {
+              WebCLProgram.prototype.build_execute.apply (instance, args);
+            }
+            finally
+            {
+              instance._webclState.numWorkersRunning--;
+              validatorAsyncWorker.close ();
+            }
+          });
+        });
+      }
+      catch (e)
+      {
+        instance.buildInProgress = false;
+        instance._webclState.numWorkersRunning--;
+
+        // TODO: We could fall back to sync mode here if we fail to create
+        //       validator async worker:
+        // this.build (devices, options, null);
+        throw e;
+      }
+
     }
     else
     {
+      // SYNC BUILD
+
       var source = this._originalSource;
 
       if (this._webclState.validator)
@@ -293,19 +396,23 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
       else
       {
         // TODO: VALIDATOR NOT AVAILABLE, WHAT NOW?
-        ERROR ("WebCLValidatedProgram: NEEDED VALIDATOR BUT IT'S NOT AVAILABLE!");
+        throw new Error ("WebCLValidatedProgram: NEEDED VALIDATOR BUT IT'S NOT AVAILABLE!");
       }
 
-      var clProgram = this._interimOwner._internal.createProgramWithSource (source);
+      if (this._interimOwner)
+      {
+        // TODO: ensure _interimOwner is Context?
 
-      this.promoteToWebCLProgram (clProgram);
+        let clProgram = this._interimOwner._internal.createProgramWithSource (source);
+        this.promoteToWebCLProgram (clProgram);
+      }
 
       WebCLProgram.prototype.build_execute.apply (this, args);
     }
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -317,18 +424,45 @@ WebCLValidatedProgram.prototype.createKernel = function (kernelName)
 
   try
   {
-    if (this._internal)
-    {
-      return WebCLProgram.prototype.createKernel.call (this, kernelName);
-    }
-    else
-    {
+    if (!this.isBuilt || (!this._internal && this._interimOwner))
       throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernel: the most recent build of this Program was not successful");
+
+    this._ensureValidObject();
+
+    webclutils.validateNumArgs(arguments.length, 1);
+
+    if (typeof(kernelName) !== 'string')
+      throw new TypeError("'kernelName' must be a non-empty string; was " + kernelName);
+
+    if (kernelName.length === 0)
+      throw new INVALID_KERNEL_NAME("kernelName must not be empty");
+
+    let kernel = WebCLProgram.prototype.createKernel.call (this, kernelName);
+    kernel.wrappedJSObject._validatorProgram = this._validatorProgram._addref ();
+
+    // By default kernel index is 0 (see WebCLProgram.createKernel), it needs to
+    // be fixed to reflect the real kernel index in program
+    let count = this._validatorProgram.getProgramKernelCount ();
+    for (var i = 0; i < count; ++i)
+    {
+      if (kernelName == this._validatorProgram.getProgramKernelName(i))
+      {
+        kernel.wrappedJSObject._kernelIndex = i;
+        break;
+      }
     }
+    if (i == count)
+    {
+      ERROR ("WARNING: Failed to get real kernel index. Using 0.");
+      kernel.wrappedJSObject._kernelIndex = 0;
+    }
+
+    kernel.wrappedJSObject.updateArgIndexMapping ();
+    return kernel;
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -342,7 +476,18 @@ WebCLValidatedProgram.prototype.createKernelsInProgram = function ()
   {
     if (this._internal)
     {
-      return WebCLProgram.prototype.createKernelsInProgram.call (this);
+      let kernels = WebCLProgram.prototype.createKernelsInProgram.call (this);
+
+      // NOTE: We assume that kernels are returned in indexed order.
+      for (var i = 0; i < kernels.length; ++i)
+      {
+        kernels[i].wrappedJSObject._kernelIndex = i;
+
+        kernels[i].wrappedJSObject._validatorProgram = this._validatorProgram._addref ();
+        kernels[i].wrappedJSObject.updateArgIndexMapping ();
+      }
+
+      return kernels;
     }
     else
     {
@@ -351,7 +496,7 @@ WebCLValidatedProgram.prototype.createKernelsInProgram = function ()
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -381,7 +526,7 @@ WebCLValidatedProgram.prototype.releaseAll = function ()
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };
@@ -392,8 +537,7 @@ WebCLValidatedProgram.prototype.release = function ()
 {
   if (this._validatorProgram)
   {
-    // TODO: We shouldn't release the validatorProgram if it's still being used by a kernel!
-    this._validatorProgram.releaseProgram ();
+    this._validatorProgram._unref ();
     this._validatorProgram = null;
   }
 

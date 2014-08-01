@@ -64,10 +64,18 @@ LibCLVWrapper.prototype.validate = function (sSource,
                                              null, // notify_data
                                              clErr.address());
 
-  if (clErr.value) throw new CLError (clErr.value, null, "createContextFromType");
+  if (clErr.value) throw new CLError (clErr.value, null, "validate");
 
   return new CLVProgram (clv_program, this._lib);
 };
+
+
+function getLibraryName (addonLocation)
+{
+  return CLVLibraryInstance.getLibraryNameForPlatform (addonLocation);
+}
+LibCLVWrapper.prototype.getLibraryName = getLibraryName;
+
 
 
 } catch(e) { ERROR ("clv_wrapper.jsm:\n" + String(e) + ":\n" + e.stack); throw e; }

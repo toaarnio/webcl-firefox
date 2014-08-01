@@ -15,6 +15,7 @@
 try {
 
 
+/*
 var ENABLE_DEBUG = false;
 var ENABLE_CONSOLE = false;
 
@@ -35,12 +36,14 @@ function DEBUG(msg) {
     if (puts) puts("WebCLAsyncWorker  DEBUG: " + msg);
   }
 }
+*/
 
 
 
 var gLibHandle = null;
 var gAddonLocation = null;
 
+/*
 function loadLibrary (addonLocation)
 {
   if (!addonLocation)
@@ -72,7 +75,16 @@ function loadLibrary (addonLocation)
   let lib = ctypes.open (libName);
   return lib;
 }
-
+*/
+function loadLibrary (libName)
+{
+  if (!libName)
+  {
+    throw new Error ("WebCL addon location not available.");
+  }
+  let lib = ctypes.open (libName);
+  return lib;
+}
 
 
 function closeLibrary (handle)
@@ -83,6 +95,11 @@ function closeLibrary (handle)
 
 function callValidate (source, extensions, userDefines)
 {
+  let T_clv_program = ctypes.voidptr_t;
+  let T_callback_clv_validate = ctypes.FunctionType(ctypes.default_abi,
+                                                    ctypes.void_t,
+                                                    [ T_clv_program, ctypes.voidptr_t ]);
+
   let fn = gLibHandle.declare ("clvValidate",
                                ctypes.default_abi,
                                // RV
@@ -93,8 +110,9 @@ function callValidate (source, extensions, userDefines)
                                ctypes.char.ptr.ptr,        // user_defines
                                T_callback_clv_validate.ptr,// pfn_notify
                                ctypes.voidptr_t,           // notify_data
-                               T.cl_int.ptr);              // errcode_ret
+                               ctypes.int32_t.ptr);        // errcode_ret
 
+  /*
   var notify = function (clv_program, notifyData)
   {
     // notifyData is always null
@@ -103,8 +121,9 @@ function callValidate (source, extensions, userDefines)
     });
   };
   // NOTE: notify is not used at the moment.
+  */
 
-  var clErr = new T.cl_int (0);
+  var clErr = new ctypes.int32_t (0);
   var rv_program = fn.call (null, source, extensions, userDefines,
                             null,  // notify
                             null,  // user data
@@ -136,8 +155,8 @@ onmessage = function (event)
       switch (cmd)
       {
         case "load":
-          DEBUG ("Loading validator library, addon location=" + event.data.addonLocation);
-          gLibHandle = loadLibrary (event.data.addonLocation);
+          DEBUG ("Loading validator library, libname=" + event.data.libname);
+          gLibHandle = loadLibrary (event.data.libname);
           break;
 
         case "unload":
@@ -198,6 +217,26 @@ onmessage = function (event)
   }
 }
 
+
+function INFO(msg)
+{
+  postMessage({ cmd: "text", type: "info", detail: String(msg) });
+}
+
+function LOG(msg)
+{
+  postMessage({ cmd: "text", type: "log", detail: String(msg) });
+}
+
+function ERROR(msg)
+{
+  postMessage({ cmd: "text", type: "error", detail: String(msg) });
+}
+
+function DEBUG(msg)
+{
+  postMessage({ cmd: "text", type: "debug", detail: String(msg) });
+}
 
 
 } catch(e) { ERROR ("validatorasyncworker.js: "+e+"\n"+e.stack); }

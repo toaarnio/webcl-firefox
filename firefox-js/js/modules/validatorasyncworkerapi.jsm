@@ -90,13 +90,32 @@ function ValidatorAsyncWorker (libName, notify)
         break;
 
       case "validate":
+        let programdata = undefined;
         if (event.data.err)
         {
           ERROR ("ValidatorAsyncWorker command 'validate' failed. error: '" + event.data.err + "'.");
           // TODO: generate RV?
         }
+        else
+        {
+          programdata = ctypes.cast(ctypes.intptr_t(event.data.program), ctypes.voidptr_t);
+        }
         notifyReplyData = { err: event.data.err,
-                            program: ctypes.cast(ctypes.intptr_t(event.data.program), ctypes.voidptr_t) }
+                            program: programdata };
+        break;
+
+      case "text":
+        {
+          switch (event.data.type)
+          {
+            case "info":  INFO(event.data.detail); break;
+            case "log":   LOG(event.data.detail); break;
+            case "error": ERROR(event.data.detail); break;
+            case "debug": DEBUG(event.data.detail); break;
+          }
+        }
+        // Ensure text messages don't tamper worker state!
+        return;
         break;
 
       default:

@@ -105,7 +105,8 @@ function WebCL ()
 
     this._webclState = { inCallback: false,
                          numWorkersRunning: 0,
-                         validator: null
+                         validator: null,
+                         addonLocation: null
                        };
 
     this.__exposedProps__ =
@@ -575,6 +576,7 @@ WebCL.prototype.ensureLibraryLoaded = function ()
       if (gAddonLocation)
       {
         this._webclState.validator = new LibCLVWrapper (gAddonLocation);
+        this._webclState.addonLocation = gAddonLocation;
       }
       else
       {
