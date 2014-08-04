@@ -60,6 +60,15 @@ function Base ()
 }
 
 
+Base.prototype.toString = function ()
+{
+  if (this.classDescription && typeof(this.classDescription) == "string")
+    return "[object "+this.classDescription+"]";
+  else
+    return Object.prototype.toString.apply (this);
+};
+
+
 Base.prototype._ensureValidObject = function ()
 {
   if (this._invalid)
