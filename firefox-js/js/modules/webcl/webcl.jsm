@@ -68,6 +68,9 @@ try {
   Cu.import ("resource://nrcwebcl/modules/webclasyncworkerapi.jsm");
   Cu.import ("resource://gre/modules/ctypes.jsm");
 
+  // setTimeout and clearTimeout that are compatible with the DOM window functions
+  Cu.import("resource://gre/modules/Timer.jsm");
+
 } catch (e) { ERROR ("webcl.jsm: Failed to load modules: " + EXCEPTIONSTR(e) + "."); throw e; }
 
 try {
@@ -105,6 +108,7 @@ function WebCL ()
 
     this._webclState = { inCallback: false,
                          numWorkersRunning: 0,
+                         enableValidator: false,
                          validator: null,
                          addonLocation: null
                        };
@@ -125,6 +129,7 @@ function WebCL ()
       classDescription: "r"
     };
 
+    this.ensureValidatorLibraryLoaded ();
   }
   catch (e)
   {
@@ -165,6 +170,10 @@ WebCL.prototype.observe = function (subject, topic, data)
         {
           this.handlePrefAllowed (webclutils.getPref_allowed (true));
         }
+        else if (data == webclutils.PREF_VALIDATOR_ENABLED)
+        {
+          this.handlePrefValidatorEnabled (webclutils.getPref_validatorEnabled (true));
+        }
         break;
     }
   }
@@ -185,9 +194,11 @@ WebCL.prototype.init = function (domWindow)
   try
   {
     this.handlePrefAllowed (webclutils.getPref_allowed (true));
+    this.handlePrefValidatorEnabled (webclutils.getPref_validatorEnabled (true));
 
     webclutils.setPrefObserver_allowed (this);
     webclutils.setPrefObserver_openclLib (this);
+    webclutils.setPrefObserver_validatorEnabled (this);
 
 
     // Install onunload handler
@@ -430,9 +441,14 @@ WebCL.prototype.releaseAll = function ()
     this._releaseAllChildren ();
 
     this._clearRegistry ();
+
+    this._releaseValidatorInstance ();
   }
   catch (e)
   {
+    // Ensure validator library is released.
+    this._releaseValidatorInstance ();
+
     try { ERROR(String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
@@ -442,6 +458,27 @@ WebCL.prototype.releaseAll = function ()
 
 //------------------------------------------------------------------------------
 // Internal functions
+
+WebCL.prototype._releaseValidatorInstance = function ()
+{
+  try
+  {
+    if (this._webclState.validator)
+    {
+      var validatorInstance = this._webclState.validator;
+      if (validatorInstance)
+      {
+        setTimeout (function () { validatorInstance.release (); }, 2000);
+      }
+    }
+  }
+  catch (e)
+  {
+    try { ERROR("Failed to release validator instance: "+e+"\n"+e.stack); }catch(e){}
+  }
+
+  try { this._webclState.validator = null; } catch (e) { }
+}
 
 
 WebCL.prototype.handlePrefAllowed = function (value)
@@ -467,6 +504,21 @@ WebCL.prototype.handlePrefAllowed = function (value)
       break;
   }
 };
+
+
+WebCL.prototype.handlePrefValidatorEnabled = function (value)
+{
+  if (value)
+  {
+    this._webclState.enableValidator = true;
+    this.ensureValidatorLibraryLoaded ();
+  }
+  else
+  {
+    this._webclState.enableValidator = false;
+    this._releaseValidatorInstance ();
+  }
+}
 
 
 WebCL.prototype.showSecurityPrompt = function ()
@@ -531,6 +583,12 @@ WebCL.prototype.ensureUsePermitted = function ()
 {
   if (this && this._usePermitted)
   {
+    if (this._webclState.validator && this._webclState.enableValidator)
+    {
+      // We have validator, no need to show security dialog
+      return;
+    }
+
     if (!this._securityDialogNeeded)
     {
       // Use permitted and security dialog not needed
@@ -569,6 +627,19 @@ WebCL.prototype.ensureLibraryLoaded = function ()
     }
   }
 
+  this.ensureValidatorLibraryLoaded ();
+};
+
+
+WebCL.prototype.ensureValidatorLibraryLoaded = function ()
+{
+  if (!this._webclState.enableValidator)
+  {
+    // Validator not enabled.
+    // pref: extensions.webcl.enable-validator
+    return;
+  }
+
   if (!this._webclState.validator)
   {
     try
@@ -588,6 +659,10 @@ WebCL.prototype.ensureLibraryLoaded = function ()
     {
       ERROR ("Failed to create validator wrapper\n" + String(e) + ":\n" + e.stack);
       // TODO:
+
+      // Validator failed to load, disable it internally.
+      // If the enable-validator pref is changed, we'll automatically try again.
+      this._webclState.enableValidator = false;
     }
   }
 };

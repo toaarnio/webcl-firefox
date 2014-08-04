@@ -70,6 +70,13 @@ LibCLVWrapper.prototype.validate = function (sSource,
 };
 
 
+LibCLVWrapper.prototype.release = function ()
+{
+  if (this._lib) CLVLibraryInstance.unloadLibrary (this._lib);
+  this._lib = null;
+};
+
+
 function getLibraryName (addonLocation)
 {
   return CLVLibraryInstance.getLibraryNameForPlatform (addonLocation);

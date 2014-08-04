@@ -30,6 +30,9 @@ var PREF_WEBCL_ALLOWED__TRUE =    1;
 
 var PREF_OCLLIB = "extensions.webcl.opencllib";
 
+var PREF_VALIDATOR_ENABLED = "extensions.webcl.enable-validator";
+
+
 
 Cu.import("resource://gre/modules/Services.jsm");
 
@@ -88,7 +91,7 @@ function setPref_allowed (value)
 
 function setPrefObserver_allowed (observer)
 {
-  // NOTE: Usin weak reference
+  // NOTE: Using weak reference
   //prefs.addObserver (PREF_WEBCL_ALLOWED, observer, true);
   Services.prefs.addObserver (PREF_WEBCL_ALLOWED, observer, true);
 }
@@ -120,11 +123,42 @@ function setPrefObserver_openclLib (observer)
   var prefs = Cc["@mozilla.org/preferences-service;1"].getService (Ci.nsIPrefBranch);
   if (prefs)
   {
-    // NOTE: Usin weak reference
+    // NOTE: Using weak reference
     prefs.addObserver (PREF_OCLLIB, observer, true);
   }
 }
 
+
+function getPref_validatorEnabled (setDefaultIfNeeded)
+{
+  var rv = true;
+
+  try
+  {
+    rv = Services.prefs.getBoolPref (PREF_VALIDATOR_ENABLED);
+    if (rv === undefined) throw new Error();
+  }
+  catch (e)
+  {
+    rv = true;
+
+    if (setDefaultIfNeeded)
+    {
+      try {
+        Services.prefs.setBoolPref (PREF_VALIDATOR_ENABLED, rv);
+      } catch (e) {}
+    }
+  }
+
+  return rv;
+}
+
+
+function setPrefObserver_validatorEnabled (observer)
+{
+  // NOTE: Using weak reference
+  Services.prefs.addObserver (PREF_VALIDATOR_ENABLED, observer, true);
+}
 
 
 function wrapInternal (value, owner)
@@ -760,9 +794,13 @@ var webclutils = {
   getPref_openclLib:            getPref_openclLib,
   setPrefObserver_openclLib:    setPrefObserver_openclLib,
 
+  getPref_validatorEnabled:     getPref_validatorEnabled,
+  setPrefObserver_validatorEnabled: setPrefObserver_validatorEnabled,
+
   // Preference ids
   PREF_WEBCL_ALLOWED:           PREF_WEBCL_ALLOWED,
   PREF_OCLLIB:                  PREF_OCLLIB,
+  PREF_VALIDATOR_ENABLED:       PREF_VALIDATOR_ENABLED,
 
   // Preference values
   PREF_WEBCL_ALLOWED__NOT_SET:  PREF_WEBCL_ALLOWED__NOT_SET,
