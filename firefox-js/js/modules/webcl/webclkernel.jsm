@@ -399,7 +399,7 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
       {
         if (!webclutils.validateImage (value))
         {
-          throw new INVALID_ARG_VALUE("'value' for kernel argument " + index + " must be a WebCLBuffer; was ", value);
+          throw new INVALID_ARG_VALUE("'value' for kernel argument " + index + " must be a WebCLImage; was ", value);
         }
 
         this._internal.setArg (internalIndex, this._unwrapInternal (value));
