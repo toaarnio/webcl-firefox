@@ -71,6 +71,8 @@ try {
   // setTimeout and clearTimeout that are compatible with the DOM window functions
   Cu.import("resource://gre/modules/Timer.jsm");
 
+  Cu.import ("resource://nrcwebcl/modules/releasemanager.jsm");
+
 } catch (e) { ERROR ("webcl.jsm: Failed to load modules: " + EXCEPTIONSTR(e) + "."); throw e; }
 
 try {
@@ -107,7 +109,7 @@ function WebCL ()
     this._objectRegistry = {};
 
     this._webclState = { inCallback: false,
-                         numWorkersRunning: 0,
+                         releaseManager: new ReleaseManager,
                          enableValidator: false,
                          validator: null,
                          addonLocation: null
@@ -300,7 +302,7 @@ WebCL.prototype.createContext = function (arg0, deviceType)
   }
   catch (e)
   {
-    try { ERROR(String(e)); } catch(e) {}
+    try { ERROR(String(e)+"\n"+e.stack); } catch(e) {}
     throw webclutils.convertCLException (e);
   }
 };
@@ -368,7 +370,7 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
     if (whenFinished)
     {
       var instance = this;
-      instance._webclState.numWorkersRunning++;
+      instance._webclState.releaseManager.numWorkersRunning++;
       let asyncWorker = new WebCLAsyncWorker (null, function (err) {
 
         if (err) {
@@ -379,7 +381,7 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
           }
           finally {
             instance._webclState.inCallback = false;
-            instance._webclState.numWorkersRunning--;
+            instance._webclState.releaseManager.numWorkersRunning--;
             asyncWorker.close ();
           }
           return;
@@ -395,7 +397,7 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
           }
           finally {
             instance._webclState.inCallback = false;
-            instance._webclState.numWorkersRunning--;
+            instance._webclState.releaseManager.numWorkersRunning--;
             asyncWorker.close ();
           }
         });
@@ -434,9 +436,6 @@ WebCL.prototype.releaseAll = function ()
 
     // NOTE: No need to ensure use permitted, in fact it should NOT be done or
     //       we'll have unwanted permission prompts on page unload.
-
-    if (this._webclState.numWorkersRunning > 0)
-      throw new INVALID_OPERATION ("unable to release resources while a background Worker thread is running; please try again later");
 
     this._releaseAllChildren ();
 

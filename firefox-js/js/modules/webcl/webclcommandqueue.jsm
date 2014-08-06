@@ -884,7 +884,7 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
       // NOTE: It would be better to use more persistent async workers, and maybe a pool.
       // TODO: get OpenCL lib name
       var instance = this;
-      instance._webclState.numWorkersRunning++;
+      instance._webclState.releaseManager.numWorkersRunning++;
       let asyncWorker = new WebCLAsyncWorker (null, function (err) {
 
         if (err) {
@@ -895,7 +895,7 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
           }
           finally {
             instance._webclState.inCallback = false;
-            instance._webclState.numWorkersRunning--;
+            instance._webclState.releaseManager.numWorkersRunning--;
             asyncWorker.close ();
           }
           return;
@@ -911,7 +911,7 @@ WebCLCommandQueue.prototype.finish = function (whenFinished)
           }
           finally {
             instance._webclState.inCallback = false;
-            instance._webclState.numWorkersRunning--;
+            instance._webclState.releaseManager.numWorkersRunning--;
             asyncWorker.close ();
           }
         });
@@ -1261,9 +1261,6 @@ WebCLCommandQueue.prototype.releaseAll = function ()
 
   try
   {
-    if (this._webclState.numWorkersRunning > 0)
-      throw new INVALID_OPERATION ("unable to release resources while a background Worker thread is running; please try again later");
-
     this._releaseAllChildren ();
 
     this._clearRegistry ();

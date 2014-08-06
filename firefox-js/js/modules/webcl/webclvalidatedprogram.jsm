@@ -289,7 +289,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
 
       let instance = this;
       instance.buildInProgress = true;
-      instance._webclState.numWorkersRunning++;
+      instance._webclState.releaseManager.numWorkersRunning++;
 
       try
       {
@@ -307,7 +307,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
             }
             finally {
               instance._webclState.inCallback = false;
-              instance._webclState.numWorkersRunning--;
+              instance._webclState.releaseManager.numWorkersRunning--;
 
               validatorAsyncWorker.close ();
             }
@@ -329,7 +329,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
               }
               finally {
                 instance._webclState.inCallback = false;
-                instance._webclState.numWorkersRunning--;
+                instance._webclState.releaseManager.numWorkersRunning--;
 
                 validatorAsyncWorker.close ();
               }
@@ -357,7 +357,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
             }
             finally
             {
-              instance._webclState.numWorkersRunning--;
+              instance._webclState.releaseManager.numWorkersRunning--;
               validatorAsyncWorker.close ();
             }
           });
@@ -366,7 +366,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
       catch (e)
       {
         instance.buildInProgress = false;
-        instance._webclState.numWorkersRunning--;
+        instance._webclState.releaseManager.numWorkersRunning--;
 
         // TODO: We could fall back to sync mode here if we fail to create
         //       validator async worker:

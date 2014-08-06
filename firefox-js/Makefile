@@ -19,7 +19,7 @@ COMPONENTS = webclloader.js
 
 MODULES = logger.jsm common.jsm webclutils.jsm base.jsm webclconstructors.jsm \
   mixin.jsm webclclasses.jsm webclasyncworkerapi.jsm validatorasyncworkerapi.jsm \
-  libloader.jsm
+  libloader.jsm releasemanager.jsm
 MODULES_WEBCL = webcl.jsm webclplatform.jsm webcldevice.jsm webclcontext.jsm \
   webclcommandqueue.jsm webclevent.jsm webclmemoryobject.jsm webclprogram.jsm \
   webclvalidatedprogram.jsm webclkernel.jsm webclsampler.jsm webclimagedescriptor.jsm

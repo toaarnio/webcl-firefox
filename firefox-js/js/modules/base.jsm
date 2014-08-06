@@ -126,9 +126,6 @@ Base.prototype.release = function ()
 
   try
   {
-    if (this._webclState && this._webclState.numWorkersRunning > 0)
-      throw new INVALID_OPERATION ("unable to release resources while a background Worker thread is running; please try again later");
-
     let doUnreg = false;
     let doRelease = false;
 
@@ -163,7 +160,20 @@ Base.prototype.release = function ()
 
     if (doRelease)
     {
-      this._internal.release ();
+      // If any workers are running, postpone OpenCL resource release
+      // until they have finished. See issue #62
+      // https://github.com/toaarnio/webcl-firefox/issues/62 .
+
+      if (this._webclState && this._webclState.releaseManager
+          && this._webclState.releaseManager.numWorkersRunning > 0)
+      {
+        this._webclState.releaseManager.appendPendingRelease (this._internal);
+      }
+      else
+      {
+        this._internal.release ();
+      }
+
       this._internal = null;
       this._invalid = true;
     }

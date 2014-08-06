@@ -485,9 +485,6 @@ WebCLContext.prototype.releaseAll = function ()
   {
     webclutils.validateNumArgs(arguments.length, 0);
 
-    if (this._webclState.numWorkersRunning > 0)
-      throw new INVALID_OPERATION ("unable to release resources while a background Worker thread is running; please try again later");
-
     this._releaseAllChildren ();
 
     this._clearRegistry ();
