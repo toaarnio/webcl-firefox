@@ -280,6 +280,8 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0, 3);
+
     var args = [ devices, options, whenFinished ];
     args = this.build_prepare.apply (this, args);
 
