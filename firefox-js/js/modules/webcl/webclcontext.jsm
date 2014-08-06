@@ -295,6 +295,16 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
   }
   catch (e)
   {
+    if (e instanceof CLError)
+    {
+      switch (e.err)
+      {
+        case ocl_errors.CL_IMAGE_FORMAT_NOT_SUPPORTED:
+          e.msg = "The given combination channelOrder, channelType and memFlags is not supported by this WebCLContext."
+          break;
+      }
+    }
+
     try { ERROR(String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
