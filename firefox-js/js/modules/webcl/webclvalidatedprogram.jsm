@@ -474,6 +474,8 @@ WebCLValidatedProgram.prototype.createKernelsInProgram = function ()
 
   try
   {
+    webclutils.validateNumArgs(arguments.length, 0);
+
     if (this._internal)
     {
       let kernels = WebCLProgram.prototype.createKernelsInProgram.call (this);
