@@ -120,7 +120,7 @@ WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
 
     this._validateRegionBounds1D(srcOffset, numBytes, srcBufferByteLength, "srcBuffer");
     this._validateRegionBounds1D(dstOffset, numBytes, dstBufferByteLength, "dstBuffer");
-    this._validateBufferRegionsNotOverlapping(srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes);
+    this._validateRegionsDisjoint1D(srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes);
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
@@ -167,13 +167,22 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
     var srcSlicePitch = srcSlicePitch || (region[1] * srcRowPitch);
     var srcByteLength = srcBuffer.getInfo(ocl_info.CL_MEM_SIZE);
 
+    this._validatePitch(srcRowPitch, region[0], "srcRowPitch");
+    this._validatePitch(srcSlicePitch, region[1] * srcRowPitch, "srcSlicePitch");
     this._validateRegionBounds3D(srcOrigin, region, srcRowPitch, srcSlicePitch, srcByteLength, "srcBuffer");
 
     var dstRowPitch = dstRowPitch || region[0];
     var dstSlicePitch = dstSlicePitch || (region[1] * dstRowPitch);
     var dstByteLength = dstBuffer.getInfo(ocl_info.CL_MEM_SIZE);
 
+    this._validatePitch(dstRowPitch, region[0], "dstRowPitch");
+    this._validatePitch(dstSlicePitch, region[1] * dstRowPitch, "dstSlicePitch");
     this._validateRegionBounds3D(dstOrigin, region, dstRowPitch, dstSlicePitch, dstByteLength, "dstBuffer");
+
+    this._validateRegionsDisjoint3D(srcBuffer, dstBuffer, 
+                                    srcOrigin, dstOrigin, region,
+                                    srcRowPitch, dstRowPitch,
+                                    srcSlicePitch, dstSlicePitch);
 
     var clSrcBuffer = this._unwrapInternalOrNull (srcBuffer);
     var clDstBuffer = this._unwrapInternalOrNull (dstBuffer);
@@ -1102,6 +1111,16 @@ WebCLCommandQueue.prototype._validateArray = function(arr, length, elementValida
 };
 
 
+WebCLCommandQueue.prototype._validatePitch = function (pitch, defaultPitch, name)
+{
+  if (pitch !== 0 && pitch < defaultPitch)
+    throw new INVALID_VALUE(name + " must be zero or greater than or equal to " + defaultPitch + "; was " + pitch);
+
+  if (pitch % defaultPitch !== 0)
+    throw new INVALID_VALUE(name + " must be zero or a multiple of " + defaultPitch + "; was " + pitch);
+};
+
+
 WebCLCommandQueue.prototype._validateRegionBounds1D = function (offset, numBytes, bufferByteLength, bufferName)
 {
   var requiredSize = offset + numBytes;
@@ -1142,7 +1161,7 @@ WebCLCommandQueue.prototype._validateRegionBounds3D = function (origin, region, 
 };
 
 
-WebCLCommandQueue.prototype._validateBufferRegionsNotOverlapping = function (srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes)
+WebCLCommandQueue.prototype._validateRegionsDisjoint1D = function (srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes)
 {
   var srcParentBuffer = srcBuffer.getInfo(ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT);
   var dstParentBuffer = dstBuffer.getInfo(ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT);
@@ -1166,6 +1185,46 @@ WebCLCommandQueue.prototype._validateBufferRegionsNotOverlapping = function (src
 
     if (dstRangeFirst <= srcRangeLast && srcRangeLast <= dstRangeLast)
       throw new MEM_COPY_OVERLAP("srcOffset+numBytes-1 must not be in the range ["+dstRangeFirst+", "+dstRangeLast+"]; was "+srcRangeLast);
+  }
+
+  if (srcBuffer === dstParentBuffer) {
+    throw new INVALID_OPERATION("copying from a buffer to its own sub-buffer is not yet supported");
+  }
+
+  if (dstBuffer === srcParentBuffer) {
+    throw new INVALID_OPERATION("copying from a sub-buffer to its own parent buffer is not yet supported");
+  }
+
+  if (srcParentBuffer !== null && srcParentBuffer === dstParentBuffer) {
+    throw new INVALID_OPERATION("copying between two sub-buffers of the same parent buffer is not yet supported");
+  }
+};
+
+
+WebCLCommandQueue.prototype._validateRegionsDisjoint3D = function (srcBuffer, dstBuffer, 
+                                                                   srcOrigin, dstOrigin, region,
+                                                                   srcRowPitch, dstRowPitch,
+                                                                   srcSlicePitch, dstSlicePitch)
+{
+  var srcParentBuffer = srcBuffer.getInfo(ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT);
+  var dstParentBuffer = dstBuffer.getInfo(ocl_info.CL_MEM_ASSOCIATED_MEMOBJECT);
+  var srcParentOffset = srcBuffer.getInfo(ocl_info.CL_MEM_OFFSET);
+  var dstParentOffset = dstBuffer.getInfo(ocl_info.CL_MEM_OFFSET);
+  
+  if (srcBuffer === dstBuffer) {
+
+    var srcMin = srcOrigin;
+    var srcMax = [ srcOrigin[i] + region[i] for (i in region) ];
+    var dstMin = dstOrigin;
+    var dstMax = [ dstOrigin[i] + region[i] for (i in region) ];
+
+    var overlap = true;
+    for (let i=0; i < 3; ++i) {
+      overlap = overlap && (srcMin[i] < dstMax[i]) && (srcMax[i] > dstMin[i]);
+    }
+
+    if (overlap)
+      throw new MEM_COPY_OVERLAP("srcRegion and dstRegion must not overlap");
   }
 
   if (srcBuffer === dstParentBuffer) {
