@@ -54,9 +54,9 @@ function getLibraryNameForPlatform (addonLocation)
     }
     case "WINNT": {
       if (ctypes.intptr_t.size == 8)
-        rv = addonLocation + "\lib\win_64\clv_standalone.dll";
+        rv = addonLocation + "\\lib\\win_64\\clv_standalone.dll";
       else if (ctypes.intptr_t.size == 4)
-        rv = addonLocation + "\lib\win_32\clv_standalone.dll";
+        rv = addonLocation + "\\lib\\win_32\\clv_standalone.dll";
       break;
     }
     case "Darwin": {
