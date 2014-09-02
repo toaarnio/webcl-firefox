@@ -105,6 +105,9 @@ WebCLCommandQueue.prototype.enqueueCopyBuffer = function (srcBuffer, dstBuffer,
   try
   {
     this._ensureValidObject();
+
+    eventWaitList = webclutils.unray(eventWaitList);
+
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateBuffer(dstBuffer, "dstBuffer");
@@ -150,6 +153,12 @@ WebCLCommandQueue.prototype.enqueueCopyBufferRect = function (srcBuffer, dstBuff
   try
   {
     this._ensureValidObject();
+
+    srcOrigin = webclutils.unray(srcOrigin);
+    dstOrigin = webclutils.unray(dstOrigin);
+    region = webclutils.unray(region);
+    eventWaitList = webclutils.unray(eventWaitList);
+
     this._validateNumArgs(arguments.length, 9, 11);
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateBuffer(dstBuffer, "dstBuffer");
@@ -212,6 +221,12 @@ WebCLCommandQueue.prototype.enqueueCopyImage = function (srcImage, dstImage,
   try
   {
     this._ensureValidObject();
+
+    srcOrigin = webclutils.unray(srcOrigin);
+    dstOrigin = webclutils.unray(dstOrigin);
+    region = webclutils.unray(region);
+    eventWaitList = webclutils.unray(eventWaitList);
+
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateImage(srcImage, "srcImage");
     this._validateImage(dstImage, "dstImage");
@@ -250,6 +265,11 @@ WebCLCommandQueue.prototype.enqueueCopyImageToBuffer = function (srcImage, dstBu
   try
   {
     this._ensureValidObject();
+
+    srcOrigin = webclutils.unray(srcOrigin);
+    srcRegion = webclutils.unray(srcRegion);
+    eventWaitList = webclutils.unray(eventWaitList);
+
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateImage(srcImage, "srcImage");
     this._validateBuffer(dstBuffer, "dstBuffer");
@@ -287,6 +307,11 @@ WebCLCommandQueue.prototype.enqueueCopyBufferToImage = function (srcBuffer, dstI
   try
   {
     this._ensureValidObject();
+
+    dstOrigin = webclutils.unray(dstOrigin);
+    dstRegion = webclutils.unray(dstRegion);
+    eventWaitList = webclutils.unray(eventWaitList);
+
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(srcBuffer, "srcBuffer");
     this._validateImage(dstImage, "dstImage");
@@ -339,6 +364,8 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     if (blockingRead && this._webclState.inCallback)
       throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
 
+    eventWaitList = webclutils.unray(eventWaitList);
+
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingRead, "blockingRead");
@@ -346,6 +373,7 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     this._validatePositiveInt32(numBytes, "numBytes");
     this._validateArrayBufferView(hostPtr, "hostPtr");
     this._validateEventWaitList(eventWaitList, blockingRead);
+
     this._validateEventOut(eventOut);
 
     if (numBytes > hostPtr.byteLength)
@@ -388,6 +416,11 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
 
     if (blockingRead && this._webclState.inCallback)
       throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
+    bufferOrigin = webclutils.unray(bufferOrigin);
+    hostOrigin = webclutils.unray(hostOrigin);
+    region = webclutils.unray(region);
+    eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 10, 12);
     this._validateBuffer(buffer, "buffer");
@@ -459,6 +492,10 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
 
     if (blockingRead && this._webclState.inCallback)
       throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
+    origin = webclutils.unray(origin);
+    region = webclutils.unray(region);
+    eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 6, 8);
     this._validateImage(image, "image");
@@ -533,6 +570,8 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
     if (blockingWrite && this._webclState.inCallback)
       throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
 
+    eventWaitList = webclutils.unray(eventWaitList);
+
     this._validateNumArgs(arguments.length, 5, 7);
     this._validateBuffer(buffer, "buffer");
     this._validateBoolean(blockingWrite, "blockingWrite");
@@ -586,6 +625,11 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
 
     if (blockingWrite && this._webclState.inCallback)
       throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
+    bufferOrigin = webclutils.unray(bufferOrigin);
+    hostOrigin = webclutils.unray(hostOrigin);
+    region = webclutils.unray(region);
+    eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 10, 12);
     this._validateBuffer(buffer, "buffer");
@@ -651,6 +695,10 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
 
     if (blockingWrite && this._webclState.inCallback)
       throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
+
+    origin = webclutils.unray(origin);
+    region = webclutils.unray(region);
+    eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 6, 8);
     this._validateImage(image, "image");
@@ -751,6 +799,12 @@ WebCLCommandQueue.prototype.enqueueNDRangeKernel = function (kernel,
     */
 
     this._ensureValidObject();
+
+    globalWorkOffset = webclutils.unray(globalWorkOffset);
+    globalWorkSize = webclutils.unray(globalWorkSize);
+    localWorkSize = webclutils.unray(localWorkSize);
+    eventWaitList = webclutils.unray(eventWaitList);
+
     this._validateNumArgs(arguments.length, 4, 7);
     this._validateKernel(kernel, "kernel");
     this._validateNonNegativeInt32(workDim, "workDim");
@@ -860,6 +914,7 @@ WebCLCommandQueue.prototype.enqueueWaitForEvents = function (eventWaitList)
   {
     this._ensureValidObject();
     this._validateNumArgs(arguments.length, 1);
+    eventWaitList = webclutils.unray(eventWaitList);
     this._validateEventWaitList(eventWaitList, false, false, false);
 
     var clEventWaitList = eventWaitList.map(function(event) { return webclutils.unwrapInternal(event); });

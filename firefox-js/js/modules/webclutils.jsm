@@ -439,6 +439,22 @@ function convertCLException (e)
 }
 
 
+var gNeedToWaiveXrays = (Services.vc.compare(Services.appinfo.version, "32.0") >= 0);
+function unray (value)
+{
+  if (gNeedToWaiveXrays)
+  {
+    // waive XRay vision only for objects
+    if (value && typeof(value) == 'object' && Array.isArray(value))
+    {
+      return Cu.waiveXrays (value);
+    }
+  }
+
+  return value;
+}
+
+
 function validateNumArgs (numArgs, minArgs, maxArgs)
 {
   if (arguments.length === 2 && numArgs !== minArgs)
@@ -811,6 +827,8 @@ var webclutils = {
   unwrapInternalOrNull:         unwrapInternalOrNull,
   unwrapInternal:               unwrapInternal,
   convertCLException:           convertCLException,
+
+  unray:                        unray,
 
   getNumChannels:               getNumChannels,
   getBytesPerPixel:             getBytesPerPixel,

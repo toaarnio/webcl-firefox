@@ -182,17 +182,17 @@ WebCLProgram.prototype.build_prepare = function (devices, options, whenFinished)
     "-cl-finite-math-only",
     "-cl-fast-relaxed-math",
     "-w",
-    "-Werror",
+    "-Werror"
   ];
 
     this._ensureValidObject();
 
     webclutils.validateNumArgs(arguments.length, 0, 3);
 
-    devices = webclutils.defaultTo(devices, null);
+    devices = webclutils.defaultTo(webclutils.unray(devices), null);
     options = webclutils.defaultTo(options, null);
     whenFinished = webclutils.defaultTo(whenFinished, null);
-    
+
     if (this.kernelsAlreadyCreated === true)
       throw new INVALID_OPERATION("cannot build a WebCLProgram that has kernels already attached to it");
 
@@ -212,12 +212,14 @@ WebCLProgram.prototype.build_prepare = function (devices, options, whenFinished)
       throw new TypeError("'whenFinished' must be null or a WebCLCallback function; was " + whenFinished);
 
     var programDevices = this.getInfo(ocl_info.CL_PROGRAM_DEVICES);
+    var programDeviceIds = programDevices.map (function(v){ return v._identity; });
 
     for (let i=0; devices !== null && i < devices.length; i++) {
       if (!webclutils.validateDevice(devices[i]))
         throw new INVALID_DEVICE("'devices' must only contain instances of WebCLDevice; devices["+i+"] = ", devices[i]);
 
-      if (programDevices.indexOf(devices[i]) === -1)
+      // Ensure all devices are associated with this WebCLProgram
+      if (programDeviceIds.indexOf(devices[i]._identity) === -1)
         throw new INVALID_DEVICE("'devices' must all be associated with this WebCLProgram; devices["+i+"] was not");
     }
 

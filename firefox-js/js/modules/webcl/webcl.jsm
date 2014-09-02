@@ -88,7 +88,6 @@ AddonManager.getAddonByID("webcl@webcl.nokiaresearch.com", function(addon)
 });
 
 
-
 function WebCL ()
 {
   TRACE (this, "WebCL", arguments);
@@ -282,7 +281,7 @@ WebCL.prototype.createContext = function (arg0, deviceType)
       
       if (webclutils.validatePlatform(arguments[0]))
         return createContextFromPlatform.call(this, arguments[0], ocl_const.CL_DEVICE_TYPE_DEFAULT);
-      
+
       if (Array.isArray(arguments[0]))
         return createContextFromDeviceArray.call(this, arguments[0]);
 
@@ -352,6 +351,8 @@ WebCL.prototype.waitForEvents = function (eventWaitList, whenFinished)
 
   try
   {
+    eventWaitList = webclutils.unray (eventWaitList);
+
     this.ensureInitialized ();
     this.ensureUsePermitted ();
     this.ensureLibraryLoaded ();
@@ -741,6 +742,8 @@ function createContextFromDevice(device)
 
 function createContextFromDeviceArray(devices)
 {
+  devices = webclutils.unray(devices);
+
   TRACE (this, "createContextFromDeviceArray", arguments);
 
   if (devices.length === 0)

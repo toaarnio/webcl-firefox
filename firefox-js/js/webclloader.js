@@ -30,6 +30,7 @@ Cu.import("resource://nrcwebcl/modules/webcl/webclimagedescriptor.jsm");
 
 
 INFO ("WebCL Loader");
+INFO ("Firefox version: " + Services.appinfo.version);
 
 
 
