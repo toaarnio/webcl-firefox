@@ -185,10 +185,6 @@ WebCLProgram.prototype.build_prepare = function (devices, options, whenFinished)
     "-Werror"
   ];
 
-    this._ensureValidObject();
-
-    webclutils.validateNumArgs(arguments.length, 0, 3);
-
     devices = webclutils.defaultTo(webclutils.unray(devices), null);
     options = webclutils.defaultTo(options, null);
     whenFinished = webclutils.defaultTo(whenFinished, null);
@@ -352,6 +348,10 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
 
   try
   {
+    this._ensureValidObject();
+
+    webclutils.validateNumArgs(arguments.length, 0, 3);
+
     var args = [ devices, options, whenFinished ];
     args = this.build_prepare.apply (this, args);
     this.build_execute.apply (this, args);
