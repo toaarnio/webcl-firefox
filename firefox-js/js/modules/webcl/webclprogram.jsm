@@ -231,12 +231,14 @@ WebCLProgram.prototype.build_prepare = function (devices, options, whenFinished)
 
     var supportsCL12 = true;
     var supportsVerboseMode = true;
-    clDevices.forEach(function(device) {    // must use internal getters to get unmasked values
+    for (let i = 0; i < clDevices.length; ++i) {
+      let device = clDevices[i];
+      // must use internal getters to get unmasked values
       var deviceVersion = device.getInfo(ocl_info.CL_DEVICE_VERSION);
       var deviceExtensions = device.getInfo(ocl_info.CL_DEVICE_EXTENSIONS);
       supportsCL12 = supportsCL12 && (deviceVersion.indexOf("OpenCL 1.2") >= 0);
       supportsVerboseMode = supportsVerboseMode && (deviceExtensions.indexOf("NV_compiler_options") >= 0);
-    });
+    };
 
     if (supportsCL12 === true) {
       options += " -cl-kernel-arg-info";
@@ -356,7 +358,7 @@ WebCLProgram.prototype.build = function (devices, options, whenFinished)
   }
   catch (e)
   {
-    try { ERROR(String(e)); }catch(e){}
+    try { ERROR(String(e)+"\n"+e.stack); }catch(e){}
     throw webclutils.convertCLException (e);
   }
 };

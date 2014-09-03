@@ -364,6 +364,7 @@ WebCLCommandQueue.prototype.enqueueReadBuffer = function (buffer, blockingRead,
     if (blockingRead && this._webclState.inCallback)
       throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
 
+    hostPtr = webclutils.unray(hostPtr);
     eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 5, 7);
@@ -420,6 +421,7 @@ WebCLCommandQueue.prototype.enqueueReadBufferRect = function (buffer, blockingRe
     bufferOrigin = webclutils.unray(bufferOrigin);
     hostOrigin = webclutils.unray(hostOrigin);
     region = webclutils.unray(region);
+    hostPtr = webclutils.unray(hostPtr);
     eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 10, 12);
@@ -495,6 +497,7 @@ WebCLCommandQueue.prototype.enqueueReadImage = function (image, blockingRead,
 
     origin = webclutils.unray(origin);
     region = webclutils.unray(region);
+    hostPtr = webclutils.unray(hostPtr);
     eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 6, 8);
@@ -570,6 +573,7 @@ WebCLCommandQueue.prototype.enqueueWriteBuffer = function (buffer,         // We
     if (blockingWrite && this._webclState.inCallback)
       throw new INVALID_OPERATION ("this function cannot be called from a WebCLCallback");
 
+    hostPtr = webclutils.unray(hostPtr);
     eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 5, 7);
@@ -629,6 +633,7 @@ WebCLCommandQueue.prototype.enqueueWriteBufferRect = function (buffer,
     bufferOrigin = webclutils.unray(bufferOrigin);
     hostOrigin = webclutils.unray(hostOrigin);
     region = webclutils.unray(region);
+    hostPtr = webclutils.unray(hostPtr);
     eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 10, 12);
@@ -698,6 +703,7 @@ WebCLCommandQueue.prototype.enqueueWriteImage = function (image,
 
     origin = webclutils.unray(origin);
     region = webclutils.unray(region);
+    hostPtr = webclutils.unray(hostPtr);
     eventWaitList = webclutils.unray(eventWaitList);
 
     this._validateNumArgs(arguments.length, 6, 8);

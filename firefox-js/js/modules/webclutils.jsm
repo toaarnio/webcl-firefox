@@ -445,7 +445,7 @@ function unray (value)
   if (gNeedToWaiveXrays)
   {
     // waive XRay vision only for objects
-    if (value && typeof(value) == 'object' && Array.isArray(value))
+    if (value && typeof(value) == 'object')
     {
       return Cu.waiveXrays (value);
     }
@@ -646,9 +646,13 @@ function validateArrayLength (arr, lengthValidator)
 
 function validateArrayBufferView (arr) // TODO more robust type validation
 {
-  var hasBuffer = validateObject(arr) && validateObject(arr.buffer);
-  var hasLength = hasBuffer && validateNumber(arr.length) && validateNumber(arr.buffer.byteLength);
+  arr = unray(arr);
+  let buffer = arr.buffer ? unray(arr.buffer) : arr.buffer;
+
+  var hasBuffer = validateObject(arr) && validateObject(buffer);
+  var hasLength = hasBuffer && validateNumber(arr.length) && validateNumber(buffer.byteLength);
   var hasAttribs = hasBuffer && validateNumber(arr.BYTES_PER_ELEMENT) && validateNumber(arr.byteOffset);
+
   return hasLength && hasAttribs;
 }
 

@@ -292,6 +292,8 @@ WebCLKernel.prototype.setArg = function (index, value)
     if (index >= (numArgs = this.getInfo(ocl_info.CL_KERNEL_NUM_ARGS)))
       throw new INVALID_ARG_INDEX("'index' must be at most "+(numArgs-1)+" for this kernel; was ", index);
 
+    value = webclutils.unray(value);
+
     if (this._validatorProgram)
     {
       this.setArg_validator (index, value);
@@ -353,7 +355,6 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
   // cumulatively offset by +1 for internal indexing.
   let internalIndex = +index;
   if (this._argIndexMapping) internalIndex = +(this._argIndexMapping[index]);
-
 
   var addressQual = this._validatorProgram.getKernelArgAddressQual (this._kernelIndex, index);
   if (addressQual == ocl_const.CL_KERNEL_ARG_ADDRESS_LOCAL)

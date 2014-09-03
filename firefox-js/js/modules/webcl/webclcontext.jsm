@@ -98,7 +98,7 @@ WebCLContext.prototype.createBuffer = function (memFlags, sizeInBytes, hostPtr)
 
     webclutils.validateNumArgs(arguments.length, 2, 3);
 
-    hostPtr = webclutils.defaultTo(hostPtr, null);
+    hostPtr = webclutils.unray(webclutils.defaultTo(hostPtr, null));
 
     if (!webclutils.validateInteger(memFlags) || !webclutils.validateMemFlags(memFlags))
       throw new INVALID_VALUE("memFlags must be a valid CLenum; was ", memFlags);
@@ -222,7 +222,7 @@ WebCLContext.prototype.createImage = function (memFlags, descriptor, hostPtr)
     descriptor.channelOrder = webclutils.defaultTo(descriptor.channelOrder, ocl_const.CL_RGBA);
     descriptor.channelType = webclutils.defaultTo(descriptor.channelType, ocl_const.CL_UNORM_INT8);
     descriptor.rowPitch = webclutils.defaultTo(descriptor.rowPitch, 0);
-    hostPtr = webclutils.defaultTo(hostPtr, null);
+    hostPtr = webclutils.unray(webclutils.defaultTo(hostPtr, null));
 
     // Validate channelOrder and channelType (TODO: validate against what's actually supported)
 
