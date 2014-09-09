@@ -647,6 +647,8 @@ function validateArrayLength (arr, lengthValidator)
 function validateArrayBufferView (arr) // TODO more robust type validation
 {
   arr = unray(arr);
+  if (arr === undefined || arr === null) return false;
+
   let buffer = arr.buffer ? unray(arr.buffer) : arr.buffer;
 
   var hasBuffer = validateObject(arr) && validateObject(buffer);
