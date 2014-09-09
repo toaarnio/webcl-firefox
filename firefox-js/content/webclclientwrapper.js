@@ -54,6 +54,7 @@
   window.WebCLEvent = _Event;
   window.WebCLUserEvent = _UserEvent;
   window.WebCLImageDescriptor = _ImageDescriptor;
+  window.WebCLKernelArgInfo = _KernelArgInfo;
   window.WebCLException = _WebCLException;
 
 
@@ -322,6 +323,17 @@
 
 
 
+  // == WebCLKernelArgInfo =====================================================
+  function _KernelArgInfo (internal)
+  {
+    this.name =             internal ? internal.name || null : null;
+    this.typeName =         internal ? internal.typeName || null : null;
+    this.addressQualifier = internal ? internal.addressQualifier || null : null;
+    this.accessQualifier =  internal ? internal.accessQualifier || null : null;
+  }
+
+
+
   // == WebCLException ===========================================================
   function _WebCLException (name, message, ctx) {
     this.name = name || "WEBCL_IMPLEMENTATION_FAILURE";
@@ -365,6 +377,7 @@
         case "WebCLEvent":           return _createInstance (WebCLEvent, obj);
         case "WebCLUserEvent":       return _createInstance (WebCLUserEvent, obj);
         case "WebCLImageDescriptor": return _createInstance (WebCLImageDescriptor, obj);
+        case "WebCLKernelArgInfo":   return _createInstance (WebCLKernelArgInfo, obj);
         }
       }
     }
@@ -455,6 +468,7 @@
       if (obj instanceof _Event) return obj._internal;
       if (obj instanceof _UserEvent) return obj._internal;
       if (obj instanceof _ImageDescriptor) return obj;  // NOTE: no unwrapping
+      if (obj instanceof _KernelArgInfo) return obj;    // NOTE: no unwrapping
 
       // NOTE: We may get objects that contain _Base instances as properties,
       //       that would need unwrapping. Simple object cloning won't do since
@@ -495,6 +509,7 @@
       else if (obj instanceof _Event) err = "INVALID_EVENT";
       else if (obj instanceof _UserEvent) err = "INVALID_EVENT";
       else if (obj instanceof _ImageDescriptor) err = "INVALID_IMAGE_FORMAT_DESCRIPTOR";
+      // else if (obj instanceof _KernelArgInfo) ; // NOTE: We don't expect to handle WebCLKernelArgInfo.
       else err = "WEBCL_IMPLEMENTATION_FAILURE";
 
       throw new WebCLException (err, "Invalid internal object: " + obj, "_validateInternal");

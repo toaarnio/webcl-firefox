@@ -35,6 +35,28 @@ Cu.import ("resource://nrcwebcl/modules/lib_ocl/ocl_exception.jsm");
 Cu.import ("resource://nrcwebcl/modules/webclclasses.jsm");
 
 
+
+function WebCLKernelArgInfo (values)
+{
+  this.classDescription = "WebCLKernelArgInfo";
+
+  // Expose relevant properties to unprivileged context
+  this.__exposedProps__ = {
+                            classDescription: "r",
+                            name:             "r",
+                            typeName:         "r",
+                            addressQualifier: "r",
+                            accessQualifier:  "r"
+                          };
+
+  this.name =             values ? String(values.name) : "";
+  this.typeName =         values ? String(values.typeName) : "";
+  this.addressQualifier = values ? String(values.addressQual) : "";
+  this.accessQualifier =  values ? String(values.accessQual) : "";
+}
+
+
+
 function WebCLKernel ()
 {
   TRACE (this, "WebCLKernel", arguments);
@@ -254,20 +276,12 @@ WebCLKernel.prototype.getArgInfo = function (index)
     // DOMString typeName;         // 'char', 'float', 'uint4', 'image2d_t', 'sampler_t', etc.
     let typeName = this._validatorProgram.getKernelArgType (this._kernelIndex, index);
 
-    return {
-      name:             name,
-      typeName:         typeName,
-      addressQualifier: addressQual,
-      accessQualifier:  accessQual,
-
-      // Expose relevant properties to unprivileged context
-      __exposedProps__: {
-        name:             "r",
-        typeName:         "r",
-        addressQualifier: "r",
-        accessQualifier:  "r"
-      }
-    };
+    return new WebCLKernelArgInfo ({
+                                    name:             name,
+                                    typeName:         typeName,
+                                    addressQualifier: addressQual,
+                                    accessQualifier:  accessQual,
+                                  });
   }
   catch (e)
   {
