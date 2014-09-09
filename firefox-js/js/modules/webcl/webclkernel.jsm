@@ -332,7 +332,11 @@ WebCLKernel.prototype.updateArgIndexMapping = function ()
     {
       if (this._validatorProgram.kernelArgIsPointer (this._kernelIndex, i))
       {
-        ++kernelIdx;
+        // offset index only for buffers
+        if (!this._validatorProgram.kernelArgIsImage (this._kernelIndex, i))
+        {
+          ++kernelIdx;
+        }
       }
     }
     catch (e)
