@@ -237,8 +237,8 @@ CLVProgram.prototype.getProgramLogMessageSourceOffset = function (n)
   if (this._refCnt <= 0) return;
 
   var rv = this._lib.clvGetProgramLogMessageSourceOffset (this._internal, +n);
-  // TODO: Clipping 64-bit value
-  return ctypes.UInt64.lo (rv);
+  // TODO: Should rv be treated as a 64-bit value?  return ctypes.UInt64.lo (rv);
+  return rv;
 };
 
 
@@ -252,14 +252,14 @@ CLVProgram.prototype.getProgramLogMessageSourceLen = function (n)
   if (this._refCnt <= 0) return;
 
   var rv = this._lib.clvGetProgramLogMessageSourceLen (this._internal, +n);
-  // TODO: Clipping 64-bit value
+  // TODO: Clip 64-bit value
   return ctypes.UInt64.lo (rv);
 };
 
 
 // n: Number
-// offset: Number
-// len: Number
+// offset: Number [OPTIONAL]
+// len: Number    [OPTIONAL]
 // RETURNS: String
 CLVProgram.prototype.getProgramLogMessageSourceText = function (n, offset, len)
 {
@@ -267,6 +267,18 @@ CLVProgram.prototype.getProgramLogMessageSourceText = function (n, offset, len)
   DEBUG ("  refcnt="+this._refCnt);
 
   if (this._refCnt <= 0) return;
+
+  if (!this.programLogMessageHasSource (n)) return "";
+
+  if (offset === undefined || offset === null)
+  {
+    offset = this.getProgramLogMessageSourceOffset (n);
+  }
+
+  if (len === undefined || len === null)
+  {
+    len = this.getProgramLogMessageSourceLen (n);
+  }
 
   try
   {
@@ -282,6 +294,7 @@ CLVProgram.prototype.getProgramLogMessageSourceText = function (n, offset, len)
     }
     throw e;
   }
+
   return rv;
 };
 

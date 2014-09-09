@@ -37,6 +37,33 @@ function LibCLVWrapper (addonLocation)
   this._lib = CLVLibraryInstance.loadLibrary (addonLocation);
 }
 
+
+// Enums / clv_program_status:
+LibCLVWrapper.CLV_PROGRAM_VALIDATING = 0;
+LibCLVWrapper.prototype.CLV_PROGRAM_VALIDATING = LibCLVWrapper.CLV_PROGRAM_VALIDATING;
+
+LibCLVWrapper.CLV_PROGRAM_ILLEGAL = 1;
+LibCLVWrapper.prototype.CLV_PROGRAM_ILLEGAL = LibCLVWrapper.CLV_PROGRAM_ILLEGAL;
+
+LibCLVWrapper.CLV_PROGRAM_ACCEPTED_WITH_WARNINGS = 2;
+LibCLVWrapper.prototype.CLV_PROGRAM_ACCEPTED_WITH_WARNINGS = LibCLVWrapper.CLV_PROGRAM_ACCEPTED_WITH_WARNINGS;
+
+LibCLVWrapper.CLV_PROGRAM_ACCEPTED = 3;
+LibCLVWrapper.prototype.CLV_PROGRAM_ACCEPTED = LibCLVWrapper.CLV_PROGRAM_ACCEPTED;
+
+
+// Enums / clv_program_log_level:
+LibCLVWrapper.CLV_LOG_MESSAGE_NOTE = 0;
+LibCLVWrapper.prototype.CLV_LOG_MESSAGE_NOTE = LibCLVWrapper.CLV_LOG_MESSAGE_NOTE;
+
+LibCLVWrapper.CLV_LOG_MESSAGE_WARNING = 1;
+LibCLVWrapper.prototype.CLV_LOG_MESSAGE_WARNING = LibCLVWrapper.CLV_LOG_MESSAGE_WARNING;
+
+LibCLVWrapper.CLV_LOG_MESSAGE_ERROR = 2;
+LibCLVWrapper.prototype.CLV_LOG_MESSAGE_ERROR = LibCLVWrapper.CLV_LOG_MESSAGE_ERROR;
+
+
+
 LibCLVWrapper.prototype.validate = function (sSource,
                                              asExtensions,
                                              asUserDefines,

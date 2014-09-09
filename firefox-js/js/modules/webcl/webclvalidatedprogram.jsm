@@ -65,6 +65,10 @@ function WebCLValidatedProgram ()
     // to an actual WebCLProgram.
     this._interimOwner = null;
 
+    // The options are stored in _interimOptions while the instance hasn't been
+    // promoted to an actual WebCLProgram.
+    this._interimOptions = null;
+
     // Reference to the XPConnect wrapper object.
     this._wrapperInstance = null;
 
@@ -166,6 +170,7 @@ WebCLValidatedProgram.prototype.promoteToWebCLProgram = function (internal, // l
 
     // Clear unneeded propreties
     this._interimOwner = null;
+    this._interimOptions = null;
     this._wrapperInstance = null;
   }
   catch (e)
@@ -182,43 +187,41 @@ WebCLValidatedProgram.prototype.getInfo = function (name)
 
   try
   {
-    if (this._internal)
-    {
-      // Return original source as program source
-      if (name == ocl_info.CL_PROGRAM_SOURCE)
-      {
-        return this._originalSource;
-      }
-      else
-      {
-        return WebCLProgram.prototype.getInfo.call (this, name);
-      }
-    }
-    else
-    {
-      webclutils.validateNumArgs(arguments.length, 1);
+    webclutils.validateNumArgs(arguments.length, 1);
 
-      if (!webclutils.validateInteger(name))
-        throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
-      // Return synthetic infos
-      switch (name)
-      {
-        case ocl_info.CL_PROGRAM_NUM_DEVICES:
+    switch (name)
+    {
+      case ocl_info.CL_PROGRAM_NUM_DEVICES:
+        if (this._internal)
+          return WebCLProgram.prototype.getInfo.call (this, name);
+        else
           return (this._interimOwner ? this._interimOwner.getInfo(ocl_info.CL_CONTEXT_NUM_DEVICES) : null);
+        break;
 
-        case ocl_info.CL_PROGRAM_SOURCE:
-          return this._originalSource;
+      case ocl_info.CL_PROGRAM_SOURCE:
+        // NOTE: Override WebCLProgram functionality!
+        return this._originalSource;
+        break;
 
-        case ocl_info.CL_PROGRAM_CONTEXT:
+      case ocl_info.CL_PROGRAM_CONTEXT:
+        if (this._internal)
+          return WebCLProgram.prototype.getInfo.call (this, name);
+        else
           return this._interimOwner;
+        break;
 
-        case ocl_info.CL_PROGRAM_DEVICES:
+      case ocl_info.CL_PROGRAM_DEVICES:
+        if (this._internal)
+          return WebCLProgram.prototype.getInfo.call (this, name);
+        else
           return (this._interimOwner ? this._interimOwner.getInfo(ocl_info.CL_CONTEXT_DEVICES) : null);
+        break;
 
-        default:
-          throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
-      }
+      default:
+        throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)
@@ -229,41 +232,125 @@ WebCLValidatedProgram.prototype.getInfo = function (name)
 };
 
 
+function validatorBuildStatusToWebCLBuildStatus (v)
+{
+  switch (v)
+  {
+    case LibCLVWrapper.CLV_PROGRAM_VALIDATING:
+      return ocl_const.CL_BUILD_IN_PROGRESS;
+
+    case LibCLVWrapper.CLV_PROGRAM_ILLEGAL:
+      return ocl_const.CL_BUILD_ERROR;
+
+    case LibCLVWrapper.CLV_PROGRAM_ACCEPTED_WITH_WARNINGS:
+      // NOTE: treating warnings as success!
+    case LibCLVWrapper.CLV_PROGRAM_ACCEPTED:
+      return ocl_const.CL_BUILD_SUCCESS;
+
+    default:
+      // Unexpected to end up in here!
+      ERROR ("Unexpected validator status " + v + " in WebCLValidatedProgram.getBuildInfo!");
+      return ocl_const.CL_BUILD_NONE;
+  }
+}
+
+
 WebCLValidatedProgram.prototype.getBuildInfo = function (device, name)
 {
   TRACE (this, "getBuildInfo", arguments);
 
   try
   {
-    if (this._internal)
+    webclutils.validateNumArgs(arguments.length, 2);
+
+    if (!webclutils.validateDevice(device))
+      throw new INVALID_DEVICE("'device' must be a valid WebCLDevice; was ", device);
+
+    if (!webclutils.validateInteger(name))
+      throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
+
+    switch (name)
     {
-      return WebCLProgram.prototype.getBuildInfo.call (this, device, name);
-    }
-    else
-    {
-      webclutils.validateNumArgs(arguments.length, 2);
+      case ocl_info.CL_PROGRAM_BUILD_OPTIONS:
+        if (this._internal)
+          return WebCLProgram.prototype.getBuildInfo.call (this, device, name);
+        else
+          return this._interimOptions || "";
+        break;
 
-      if (!webclutils.validateDevice(device))
-        throw new INVALID_DEVICE("'device' must be a valid WebCLDevice; was ", device);
+      case ocl_info.CL_PROGRAM_BUILD_STATUS:
+        if (this._internal)
+        {
+          return WebCLProgram.prototype.getBuildInfo.call (this, device, name);
+        }
+        else
+        {
+          if (this.buildInProgress)
+          {
+            // If we know that build is in progress, always return BUILD_IN_PROGRESS.
+            // The validator might be running in async mode as a worker.
+            return ocl_const.CL_BUILD_IN_PROGRESS;
+          }
+          else if (this._validatorProgram)
+          {
+            // We have the validator, query its state and generate compatible
+            // build status.
+            var v = this._validatorProgram.getProgramStatus ();
+            return validatorBuildStatusToWebCLBuildStatus (v);
+          }
+          else
+          {
+            return ocl_const.CL_BUILD_NONE;
+          }
+        }
+        break;
 
-      if (!webclutils.validateInteger(name))
-        throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
+      case ocl_info.CL_PROGRAM_BUILD_LOG:
+        if (this._internal)
+        {
+          return WebCLProgram.prototype.getBuildInfo.call (this, device, name);
+        }
+        else if (this._validatorProgram)
+        {
+          let n = this._validatorProgram.getProgramLogMessageCount ();
+          let msg = "";
 
-      // Return synthetic build infos
-      switch (name)
-      {
-        case ocl_info.CL_PROGRAM_BUILD_OPTIONS:
+          for (let i = 0; i < n; ++i)
+          {
+            let level = this._validatorProgram.getProgramLogMessageLevel (n);
+            switch (level)
+            {
+              case LibCLVWrapper.CLV_LOG_MESSAGE_NOTE:
+                msg += "note: ";
+                break;
+              case LibCLVWrapper.CLV_LOG_MESSAGE_WARNING:
+                msg += "warning: ";
+                break;
+              case LibCLVWrapper.CLV_LOG_MESSAGE_ERROR:
+                msg += "error: ";
+                break;
+            }
+
+            msg += this._validatorProgram.getProgramLogMessageText (i);
+
+            if (this._validatorProgram.programLogMessageHasSource (i))
+            {
+              msg += "\n" + this._validatorProgram.getProgramLogMessageSourceText(i);
+            }
+
+            msg += "\n";
+          }
+
+          return msg;
+        }
+        else
+        {
           return "";
+        }
+        break;
 
-        case ocl_info.CL_PROGRAM_BUILD_STATUS:
-          return ocl_const.CL_BUILD_NONE;
-
-        case ocl_info.CL_PROGRAM_BUILD_LOG:
-          return "";
-
-        default:
-          throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
-      }
+      default:
+        throw new INVALID_VALUE("'name' must be one of the accepted CLenums; was ", name);
     }
   }
   catch (e)
@@ -284,6 +371,8 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
 
     var args = [ devices, options, whenFinished ];
     args = this.build_prepare.apply (this, args);
+
+    this._interimOptions = options;
 
     if (whenFinished)
     {
@@ -336,14 +425,23 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
                 validatorAsyncWorker.close ();
               }
 
-              throw data.err;
-              // TODO: proper error handling!
+              // Validation failed, data.err should be CL_INVALID_VALUE.
+              throw new CLError (data.err, null, "Program.buildProgram");
             }
 
             instance._validatorProgram = new CLVProgram (data.program,
                                                          instance._webclState.validator._lib);
 
             instance.buildInProgress = false;
+
+
+            // Validation was successful but the program illegal: throw BUILD_PROGRAM_FAILURE
+            let validationStatus = instance._validatorProgram.getProgramStatus ();
+            if (validationStatus == LibCLVWrapper.CLV_PROGRAM_ILLEGAL)
+            {
+              throw new BUILD_PROGRAM_FAILURE("Validation failed");
+            }
+
 
             if (instance._interimOwner)
             {
@@ -390,9 +488,13 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
                                                                       null,  // userDefines
                                                                       null); // notify
 
-        var validationStatus = this._validatorProgram.getProgramStatus ();
-        // TODO: check validationStatus. NOTE: continue on OK or WARNINGS
-        // INFO("VALIDATION STATUS: " + validationStatus + ": " + this._validatorProgram.programStatusToString(validationStatus));
+        // Validation was successful but the program illegal: throw BUILD_PROGRAM_FAILURE
+        let validationStatus = this._validatorProgram.getProgramStatus ();
+        if (validationStatus == LibCLVWrapper.CLV_PROGRAM_ILLEGAL)
+        {
+          throw new BUILD_PROGRAM_FAILURE("Validation failed");
+        }
+
         source = this._validatorProgram.getProgramValidatedSource();
       }
       else
