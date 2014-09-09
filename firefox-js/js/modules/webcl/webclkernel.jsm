@@ -692,13 +692,15 @@ WebCLKernel.prototype.setArg_no_validator = function (index, value)
     if (this.getInfo(ocl_info.CL_KERNEL_CONTEXT) !== value.getInfo(ocl_info.CL_MEM_CONTEXT))
       throw new INVALID_MEM_OBJECT("the given WebCLMemoryObject and this WebCLKernel must have the same WebCLContext");
 
-  if (webclutils.validateArrayBufferView(value) &&
+  let isArrayBufferView = webclutils.validateArrayBufferView(value);
+
+  if (isArrayBufferView &&
       (value.length === 0 || (value.length > 4 && value.length !== 6 && value.length !== 8 && value.length !== 16 && value.length !== 32)))
     throw new INVALID_ARG_SIZE("the given ArrayBufferView must have a length of 1, 2, 3, 4, 6, 8, 16, or 32; was ", value.length);
 
   if (!webclutils.validateMemObject(value) &&
       !webclutils.validateSampler(value) &&
-      !webclutils.validateArrayBufferView(value))
+      !isArrayBufferView)
     throw new INVALID_ARG_VALUE("'value' must be a Buffer, Image, Sampler or ArrayBufferView; was ", value);
 
 
@@ -725,6 +727,34 @@ WebCLKernel.prototype.setArg_no_validator = function (index, value)
       }
     }
   } catch(e) {}
+
+
+  // Mangle value if its type is vector3: the data size must actually be
+  // equal to vector4 (see cl_platform.h).
+  if (isArrayBufferView && value.length == 3 || value.length == 6)
+  {
+    let multiElemFactor = (value.length == 6 ? 2 : 1);
+
+    // Build a vector with vector3 element padded to vector4, supporting
+    // values with multiple array elements.
+    let vec = [];
+    let p = 0;
+    for (let i = 0; i <= 3; ++i)
+    {
+      for (let k = 0; k < multiElemFactor; ++k)
+      {
+        let val = 0;
+        if (i < 3)
+        {
+          val = value[p];
+        }
+        vec.push (val);
+        ++p;
+      }
+    }
+    value = value.constructor.call(null, vec);
+  }
+
 
   this._internal.setArg (index, this._unwrapInternal (value));
 };
