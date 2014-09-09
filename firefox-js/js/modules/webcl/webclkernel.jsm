@@ -376,7 +376,7 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
 
     if (value[0] == 0)
     {
-      throw new INVALID_ARG_VALUE ("Cannot set local memory size to zero.");
+      throw new INVALID_ARG_SIZE ("Cannot set local memory size to zero.");
     }
 
     this._internal.setArg (internalIndex, value[0]);
@@ -634,7 +634,7 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
       // (or is 1 for non-vector type).
       if (value.length != (argVectorDims * multiElemFactor))
       {
-        throw new INVALID_ARG_VALUE("argument at index " + index + " requires an ArrayBufferView with length of " + argVectorDims + "; was ", value.length);
+        throw new INVALID_ARG_SIZE("argument at index " + index + " requires an ArrayBufferView with length of " + argVectorDims + "; was ", value.length);
       }
 
 
@@ -680,7 +680,7 @@ WebCLKernel.prototype.setArg_no_validator = function (index, value)
 
   if (webclutils.validateArrayBufferView(value) &&
       (value.length === 0 || (value.length > 4 && value.length !== 6 && value.length !== 8 && value.length !== 16 && value.length !== 32)))
-    throw new INVALID_ARG_VALUE("the given ArrayBufferView must have a length of 1, 2, 3, 4, 6, 8, 16, or 32; was ", value.length);
+    throw new INVALID_ARG_SIZE("the given ArrayBufferView must have a length of 1, 2, 3, 4, 6, 8, 16, or 32; was ", value.length);
 
   if (!webclutils.validateMemObject(value) &&
       !webclutils.validateSampler(value) &&
