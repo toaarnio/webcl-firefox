@@ -332,6 +332,11 @@
     this.accessQualifier =  internal ? internal.accessQualifier || null : null;
   }
 
+  _KernelArgInfo.prototype.name = null;
+  _KernelArgInfo.prototype.typeName = null;
+  _KernelArgInfo.prototype.addressQualifier = null;
+  _KernelArgInfo.prototype.accessQualifier = null;
+
 
 
   // == WebCLException ===========================================================
