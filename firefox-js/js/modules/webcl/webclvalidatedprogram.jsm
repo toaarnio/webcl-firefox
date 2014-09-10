@@ -438,10 +438,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
             // Validation was successful but the program illegal: throw BUILD_PROGRAM_FAILURE
             let validationStatus = instance._validatorProgram.getProgramStatus ();
             if (validationStatus == LibCLVWrapper.CLV_PROGRAM_ILLEGAL)
-            {
-              throw new BUILD_PROGRAM_FAILURE("Validation failed");
-            }
-
+              throw new BUILD_PROGRAM_FAILURE("WebCL Validator: Illegal kernel program.");
 
             if (instance._interimOwner)
             {
@@ -491,9 +488,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
         // Validation was successful but the program illegal: throw BUILD_PROGRAM_FAILURE
         let validationStatus = this._validatorProgram.getProgramStatus ();
         if (validationStatus == LibCLVWrapper.CLV_PROGRAM_ILLEGAL)
-        {
-          throw new BUILD_PROGRAM_FAILURE("Validation failed");
-        }
+          throw new BUILD_PROGRAM_FAILURE("WebCL Validator: Illegal kernel program.");
 
         source = this._validatorProgram.getProgramValidatedSource();
       }
