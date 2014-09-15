@@ -708,10 +708,9 @@ function validateMemFlags (memFlags)
 function validateBuildOptions (options, validOptions)
 {
   // First validate (and strip off) options of the form "-D foo=bar" and "-D foo".
-  // TODO: Modify the regexp to accept options of the form "-D x", where x is any
-  // single letter.
+  // TODO: Standardize the rules for acceptable -D options. Numeric values only?
   //
-  var regex = /-D [A-Za-z]\w*=?\w*[\.]?\w+/g;
+  var regex = /-D [A-Za-z]\w*(=[+\-]?\w*[\.]?\w+([+\-]?\d+[f]?)?)?/g;
   options = options.replace(regex, "", "g");
 
   // Then validate the remaining options against the given list of valid options.
