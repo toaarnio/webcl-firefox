@@ -223,17 +223,17 @@ WebCLKernel.prototype.getArgInfo = function (index)
   {
     this._ensureValidObject();
 
-    if (!this._validatorProgram)
-    {
-      throw new KERNEL_ARG_INFO_NOT_AVAILABLE();
-    }
+    webclutils.validateNumArgs(arguments.length, 1);
 
-    // Validate index
-    let cnt = this._validatorProgram.getKernelArgCount (this._kernelIndex);
-    if (index < 0 || index >= cnt)
-    {
-      throw new INVALID_ARG_INDEX();
-    }
+    if (!this._validatorProgram)
+      throw new KERNEL_ARG_INFO_NOT_AVAILABLE();
+
+    if (!webclutils.validateNonNegativeInt32(index))
+      throw new INVALID_ARG_INDEX("'index' must be a non-negative integer; was ", index);
+
+    let numArgs = this._validatorProgram.getKernelArgCount(this._kernelIndex);
+    if (index >= numArgs)
+      throw new INVALID_ARG_INDEX("'index' must be at most "+(numArgs-1)+" for this kernel; was ", index);
 
     // Get kernel argument address qualifier
     // DOMString addressQualifier; // 'global', 'local', 'constant', or 'private'
@@ -303,10 +303,18 @@ WebCLKernel.prototype.setArg = function (index, value)
     if (!webclutils.validateNonNegativeInt32(index))
       throw new INVALID_ARG_INDEX("'index' must be a non-negative integer; was ", index);
 
-    if (index >= (numArgs = this.getInfo(ocl_info.CL_KERNEL_NUM_ARGS)))
+    let numArgs = this.getInfo(ocl_info.CL_KERNEL_NUM_ARGS);
+    if (index >= numArgs)
       throw new INVALID_ARG_INDEX("'index' must be at most "+(numArgs-1)+" for this kernel; was ", index);
 
     value = webclutils.unray(value);
+
+    if (!webclutils.validateMemObject(value) && !webclutils.validateSampler(value) && !webclutils.validateArrayBufferView(value))
+      throw new TypeError("'value' must be a Buffer, Image, Sampler or ArrayBufferView; was " + value + " [typeof " + typeof(value) + "]");
+
+    if (webclutils.validateMemObject(value))
+      if (this.getInfo(ocl_info.CL_KERNEL_CONTEXT) !== value.getInfo(ocl_info.CL_MEM_CONTEXT))
+        throw new INVALID_MEM_OBJECT("the given WebCLMemoryObject and this WebCLKernel must have the same WebCLContext");
 
     if (this._validatorProgram)
     {
@@ -368,8 +376,7 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
 {
   TRACE (this, "setArg_validator", arguments);
 
-
-  // Mangle index: any argument index coming after a memory object must be
+  // Mangle index: any argument index coming after a buffer object must be
   // cumulatively offset by +1 for internal indexing.
   let internalIndex = +index;
   if (this._argIndexMapping) internalIndex = +(this._argIndexMapping[index]);
@@ -385,13 +392,12 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
         || re[1] != "Uint32Array"
         || value.length != 1)
     {
-      throw new INVALID_ARG_VALUE ("Kernel argument at index " + index + " has the 'local' address space qualifier but 'value' is not a Uint32Array of length 1; was ", value);
+      throw new INVALID_ARG_VALUE ("kernel argument at index " + index + " has the 'local' " +
+                                   "address space qualifier but 'value' is not a Uint32Array of length 1; was ", value);
     }
 
     if (value[0] == 0)
-    {
-      throw new INVALID_ARG_SIZE ("Cannot set local memory size to zero.");
-    }
+      throw new INVALID_ARG_SIZE ("cannot set local memory size to zero (kernel argument at index " + index + ")");
 
     this._internal.setArg (internalIndex, value[0]);
   }
@@ -401,25 +407,11 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
 
     if (this._validatorProgram.kernelArgIsPointer (this._kernelIndex, index))
     {
-      // Memory object
-
-      if (!webclutils.validateMemObject(value))
-      {
-        throw new INVALID_ARG_VALUE("'value' for kernel argument " + index + " must be a WebCLMemoryObject; was ", value);
-      }
-
-      if (this.getInfo(ocl_info.CL_KERNEL_CONTEXT) !== value.getInfo(ocl_info.CL_MEM_CONTEXT))
-      {
-        throw new INVALID_MEM_OBJECT("the given WebCLMemoryObject and this WebCLKernel must have the same WebCLContext");
-      }
-
       // Image
       if (this._validatorProgram.kernelArgIsImage (this._kernelIndex, index))
       {
         if (!webclutils.validateImage (value))
-        {
-          throw new INVALID_ARG_VALUE("'value' for kernel argument " + index + " must be a WebCLImage; was ", value);
-        }
+          throw new INVALID_MEM_OBJECT("'value' for kernel argument " + index + " must be a WebCLImage; was ", value);
 
         this._internal.setArg (internalIndex, this._unwrapInternal (value));
       }
@@ -427,9 +419,7 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
       else
       {
         if (!webclutils.validateBuffer (value))
-        {
-          throw new INVALID_ARG_VALUE("'value' for kernel argument " + index + " must be a WebCLBuffer; was ", value);
-        }
+          throw new INVALID_MEM_OBJECT("'value' for kernel argument " + index + " must be a WebCLBuffer; was ", value);
 
         this._internal.setArg (internalIndex, this._unwrapInternal (value));
 
@@ -441,9 +431,7 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
     {
       // Sampler
       if (!webclutils.validateSampler(value))
-      {
         throw new INVALID_SAMPLER("'value' for kernel argument " + index + " must be a WebCLSampler; was ", value);
-      }
 
       this._internal.setArg (internalIndex, this._unwrapInternal (value));
     }
@@ -452,9 +440,7 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
       // Scalar or vector values
 
       if (!webclutils.validateArrayBufferView(value))
-      {
         throw new INVALID_ARG_VALUE("'value' for kernel argument " + index + " must be an ArrayBufferView; was ", value);
-      }
 
       let bufTypeName = (/\[object (\w*)\]/.exec(Object.prototype.toString.call(value)))[1];
 
@@ -478,179 +464,190 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
 
       switch (argTypeBaseName)
       {
-        case "bool":
-          switch (bufTypeName)
-          {
-            case "Int8Array":
-            case "Uint8Array":
-            case "Uint8ClampedArray":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have unit size of 1 byte.");
-          }
+      case "bool":
+        switch (bufTypeName)
+        {
+        case "Int8Array":
+        case "Uint8Array":
+        case "Uint8ClampedArray":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be a Uint8Array, Uint8ClampedArray, or Int8Array; was ", value);
+        }
+        break;
 
         // signed 8 bit types
-        case "char":
-          switch (bufTypeName)
-          {
-            case "Int8Array":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an integer unit size of 1 byte.");
-          }
+      case "char":
+        switch (bufTypeName)
+        {
+        case "Int8Array":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be an Int8Array; was ", value);
+        }
+        break;
 
         // unsigned 8 bit types
-        case "unsigned char":
-        case "uchar":
-          switch (bufTypeName)
-          {
-            case "Uint8Array":
-            case "Uint8ClampedArray":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an unsigned integer unit size of 1 byte.");
-          }
+      case "unsigned char":
+      case "uchar":
+        switch (bufTypeName)
+        {
+        case "Uint8Array":
+        case "Uint8ClampedArray":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be a Uint8Array or Uint8ClampedArray; was ", value);
+        }
+        break;
 
         // signed 16 bit types
-        case "short":
-          switch (bufTypeName)
-          {
-            case "Int16Array":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an integer unit size of 2 bytes.");
-          }
+      case "short":
+        switch (bufTypeName)
+        {
+        case "Int16Array":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be an Int16Array; was ", value);
+        }
+        break;
 
         // unsigned 16 bit types
-        case "unsigned short":
-        case "ushort":
-          switch (bufTypeName)
-          {
-            case "Uint16Array":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an unsigned integer unit size of 2 bytes.");
-          }
+      case "unsigned short":
+      case "ushort":
+        switch (bufTypeName)
+        {
+        case "Uint16Array":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be a Uint16Array; was ", value);
+        }
+        break;
 
         // signed 32 bit types
-        case "int":
-          switch (bufTypeName)
-          {
-            case "Int32Array":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an integer unit size of 4 bytes.");
-          }
+      case "int":
+        switch (bufTypeName)
+        {
+        case "Int32Array":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be an Int32Array; was ", value);
+        }
+        break;
 
         // unsigned 32 bit types
-        case "unsigned int":
-        case "uint":
-          switch (bufTypeName)
-          {
-            case "Uint32Array":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an unsigned integer unit size of 4 bytes.");
-          }
+      case "unsigned int":
+      case "uint":
+        switch (bufTypeName)
+        {
+        case "Uint32Array":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be a Uint32Array; was ", value);
+        }
+        break;
 
         // signed 64 bit types
-        case "long":
-          switch (bufTypeName)
-          {
-            case "Int32Array":
-            case "Uint32Array":
-              // Set multiElemFactor to 2 to indicate that we expect 2 elements per value.
-              multiElemFactor = 2;
+      case "long":
+        switch (bufTypeName)
+        {
+        case "Int32Array":
+        case "Uint32Array":
+          // Set multiElemFactor to 2 to indicate that we expect 2 elements per value.
+          multiElemFactor = 2;
 
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an integer unit size of 4 bytes.");
-          }
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be an Int32Array or Uint32Array; was ", value);
+        }
+        break;
 
         // unsigned 64 bit types
-        case "unsigned long":
-        case "ulong":
-          switch (bufTypeName)
-          {
-            case "Uint32Array":
-              // Set multiElemFactor to 2 to indicate that we expect 2 elements per value.
-              multiElemFactor = 2;
+      case "unsigned long":
+      case "ulong":
+        switch (bufTypeName)
+        {
+        case "Uint32Array":
+          // Set multiElemFactor to 2 to indicate that we expect 2 elements per value.
+          multiElemFactor = 2;
 
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an unsigned integer unit size of 4 bytes.");
-          }
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be a Uint32Array; was ", value);
+        }
+        break;
 
         // 16 bit floating point types
-        case "half":
-          //TODO: Half values not supported!
-          throw new INVALID_ARG_VALUE("Unsupported argument type 'half' at index "+index+".");
-          break;
+      case "half":
+        //TODO: Half values not supported!
+        throw new INVALID_ARG_VALUE("Unsupported argument type 'half' at index "+index+".");
+        break;
 
         // 32 bit floating point types
-        case "float":
-          switch (bufTypeName)
-          {
-            case "Float32Array":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have a floating point unit size of 4 bytes.");
-          }
+      case "float":
+        switch (bufTypeName)
+        {
+        case "Float32Array":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be a Float32Array; was ", value);
+        }
+        break;
 
         // 64 bit floating point types
-        case "double":
-          switch (bufTypeName)
-          {
-            case "Float64Array":
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have a floating point unit size of 8 bytes.");
-          }
+      case "double":
+        switch (bufTypeName)
+        {
+        case "Float64Array":
           break;
+        default:
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be a Float64Array; was ", value);
+        }
+        break;
 
         // address size specific types
-        case "size_t":
-        case "ptrdiff_t":
-        case "intptr_t":
-        case "uintptr_t":
-          switch (bufTypeName)
+      case "size_t":
+      case "ptrdiff_t":
+      case "intptr_t":
+      case "uintptr_t":
+        switch (bufTypeName)
+        {
+        case "Int32Array":
+        case "Uint32Array":
+          if (value.length == 2)
           {
-            case "Int32Array":
-            case "Uint32Array":
-              if (value.length == 2)
-              {
-                // TODO: handle 64-bit case properly?
-                multiElemFactor = 2;
-              }
-              break;
-            default:
-              throw new INVALID_ARG_VALUE ("the given ArrayBufferView must have an integer unit size of 4 bytes.");
+            // TODO: handle 64-bit case properly?
+            multiElemFactor = 2;
           }
           break;
-
-        case "void":
         default:
-          // TODO: use correct exception!
-          throw new INVALID_ARG_VALUE ("Internal error, unknown internal type name '" + argTypeName + "'.");
+          throw new INVALID_ARG_VALUE ("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                       ") must be an Int32Array or Uint32Array; was ", value);
+        }
+        break;
+
+      case "void":
+      default:
+        // TODO: use correct exception!
+        throw new INVALID_ARG_VALUE ("Internal error, unknown internal type name '" + argTypeName + "'.");
       }
 
       // Ensure array buffer view element count equals vector type dimension
       // (or is 1 for non-vector type).
       if (value.length != (argVectorDims * multiElemFactor))
-      {
-        throw new INVALID_ARG_SIZE("argument at index " + index + " requires an ArrayBufferView with length of " + argVectorDims + "; was ", value.length);
-      }
-
+        throw new INVALID_ARG_SIZE("'value' for kernel argument " + index + " (type: " + argTypeBaseName + 
+                                   ") must be an ArrayBufferView of length " + (argVectorDims*multiElemFactor) + 
+                                   "; was " + value.length);
 
       // Mangle value if its type is vector3: the data size must actually be
       // equal to vector4 (see cl_platform.h).
@@ -688,21 +685,11 @@ WebCLKernel.prototype.setArg_no_validator = function (index, value)
 {
   TRACE (this, "setArg_no_validator", arguments);
 
-  if (webclutils.validateMemObject(value))
-    if (this.getInfo(ocl_info.CL_KERNEL_CONTEXT) !== value.getInfo(ocl_info.CL_MEM_CONTEXT))
-      throw new INVALID_MEM_OBJECT("the given WebCLMemoryObject and this WebCLKernel must have the same WebCLContext");
-
   let isArrayBufferView = webclutils.validateArrayBufferView(value);
 
   if (isArrayBufferView &&
       (value.length === 0 || (value.length > 4 && value.length !== 6 && value.length !== 8 && value.length !== 16 && value.length !== 32)))
     throw new INVALID_ARG_SIZE("the given ArrayBufferView must have a length of 1, 2, 3, 4, 6, 8, 16, or 32; was ", value.length);
-
-  if (!webclutils.validateMemObject(value) &&
-      !webclutils.validateSampler(value) &&
-      !isArrayBufferView)
-    throw new INVALID_ARG_VALUE("'value' must be a Buffer, Image, Sampler or ArrayBufferView; was ", value);
-
 
   // Handle arguments with local address space qualifier.
   // The number of bytes allocated is set using Uint32Array of length 1.
@@ -727,7 +714,6 @@ WebCLKernel.prototype.setArg_no_validator = function (index, value)
       }
     }
   } catch(e) {}
-
 
   // Mangle value if its type is vector3: the data size must actually be
   // equal to vector4 (see cl_platform.h).
@@ -754,7 +740,6 @@ WebCLKernel.prototype.setArg_no_validator = function (index, value)
     }
     value = value.constructor.call(null, vec);
   }
-
 
   this._internal.setArg (index, this._unwrapInternal (value));
 };

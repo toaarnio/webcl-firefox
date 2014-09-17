@@ -533,7 +533,7 @@ function getBytesPerPixel(descriptor)
 {
   var numChannels = getNumChannels(descriptor);
 
-  if (numChannels === undefined) 
+  if (numChannels === undefined)
     return undefined;
 
   switch (descriptor.channelType)
@@ -707,11 +707,10 @@ function validateMemFlags (memFlags)
 
 function validateBuildOptions (options, validOptions)
 {
-  // First validate (and strip off) options of the form "-D foo=bar" and "-D foo".  
-  // TODO: Modify the regexp to accept options of the form "-D x", where x is any
-  // single letter.
+  // First validate (and strip off) options of the form "-D foo=bar" and "-D foo".
+  // TODO: Standardize the rules for acceptable -D options. Numeric values only?
   //
-  var regex = /-D [A-Za-z]\w*=?\w*[\.]?\w+/g;
+  var regex = /-D [A-Za-z]\w*(=[+\-]?\w*[\.]?\w+([+\-]?\d+[f]?)?)?/g;
   options = options.replace(regex, "", "g");
 
   // Then validate the remaining options against the given list of valid options.
@@ -728,7 +727,7 @@ function validateBuildOptions (options, validOptions)
 
 function validateImageFormat (descriptor)
 {
-  return validateImageChannelOrder(descriptor) && 
+  return validateImageChannelOrder(descriptor) &&
     validateImageChannelType(descriptor) &&
     (function() {
       switch (descriptor.channelType) {
@@ -780,27 +779,29 @@ function validateEventWaitList (eventWaitList, isBlocking, allowNullArray, allow
       throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain valid events; eventWaitList["+i+"] was already released");
 
     if (!webclutils.validateEventPopulated(event))
-      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; eventWaitList["+i+"] was still empty");
-    
-    var execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS);
-    
-    if (event instanceof WEBCLCLASSES.WebCLUserEvent && execStatus < 0)
-      throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must not contain user events with negative execution status; " +
-                                                          "eventWaitList["+i+"] had the status "+execStatus);
+      throw new INVALID_EVENT_WAIT_LIST("eventWaitList must only contain populated events; " +
+                                        "eventWaitList["+i+"] was still empty");
+
+    let isUserEvent = event instanceof WEBCLCLASSES.WebCLUserEvent;
+    let execStatus = event.getInfo(ocl_info.CL_EVENT_COMMAND_EXECUTION_STATUS);
+    var ctx = (i===0) ? event.getInfo(ocl_info.CL_EVENT_CONTEXT) : ctx;
+
+    if (isBlocking && isUserEvent)
+      throw new INVALID_EVENT_WAIT_LIST("on a blocking call, eventWaitList must not contain user events; " +
+                                        "eventWaitList["+i+"] was a user event");
 
     if (isBlocking && execStatus < 0)
       throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("on a blocking call, all events in eventWaitList must have non-negative " +
-                                                          "execution status; eventWaitList["+i+"] had the status "+execStatus);
+                                                          "execution status; eventWaitList["+i+"] had the status " + execStatus);
 
-    if (isBlocking && event instanceof WEBCLCLASSES.WebCLUserEvent)
-      throw new INVALID_EVENT_WAIT_LIST("on a blocking call, eventWaitList must not contain user events; eventWaitList["+i+"] was a user event");
+    if (isUserEvent && execStatus < 0)
+      throw new EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST("eventWaitList must not contain user events with negative execution status; " +
+                                                          "eventWaitList["+i+"] had the status " + execStatus);
 
-    if (queueContext && event.getInfo(ocl_info.CL_EVENT_CONTEXT) !== queueContext)
+    if (queueContext && ctx !== queueContext)
       throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as this WebCLCommandQueue");
 
-    var ctx = (i===0) ? event.getInfo(ocl_info.CL_EVENT_CONTEXT) : ctx;
-
-    if (!queueContext && event.getInfo(ocl_info.CL_EVENT_CONTEXT) !== ctx)
+    if (!queueContext && ctx !== event.getInfo(ocl_info.CL_EVENT_CONTEXT))
       throw new INVALID_CONTEXT("eventWaitList["+i+"] did not have the same Context as eventWaitList[0]");
 
   });
