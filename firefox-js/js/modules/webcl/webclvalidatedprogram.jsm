@@ -56,6 +56,10 @@ function WebCLValidatedProgram ()
     this.wrappedJSObject = this;
     this.validatorAvailable = false;
 
+    // Set to true when the object is promoted to a full WebCLProgram.
+    // Never reset after that.
+    this._promoted = false;
+
     this._originalSource = "";
     this._internal = null;  // already set in Base, here for clarity!
 
@@ -91,7 +95,7 @@ WebCLValidatedProgram.prototype.setOriginalSource = function (source)
 
   try
   {
-    if (this._internal) throw new Error ("Can't set original source after promotion.");
+    if (this._promoted) throw new Error ("Can't set original source after promotion.");
 
     this._originalSource = source;
   }
@@ -125,10 +129,12 @@ WebCLValidatedProgram.prototype.getValidatedSource = function ()
 
   try
   {
-    if (this._internal)
+    if (this._promoted)
     {
       return WebCLProgram.prototype.getInfo.call (this, ocl_info.CL_PROGRAM_SOURCE);
     }
+    
+    return "";
   }
   catch (e)
   {
@@ -151,6 +157,11 @@ WebCLValidatedProgram.prototype.promoteToWebCLProgram = function (internal, // l
                        String(internal) + ".");
     }
 
+    if (this._promoted)
+    {
+      ERROR ("WARNING: WebCLValidatedProgram.promoteToWebCLProgram: Trying to promote an already promoted object.");
+    }
+
     if (this._internal)
     {
       ERROR ("WARNING: WebCLValidatedProgram.promoteToWebCLProgram: Trying to promote an object that already has internal.");
@@ -168,10 +179,12 @@ WebCLValidatedProgram.prototype.promoteToWebCLProgram = function (internal, // l
     // Set the real owner now that we have true internal and identity
     this._interimOwner._registerObject (this._wrapperInstance);
 
-    // Clear unneeded propreties
+    // Clear unneeded properties
     this._interimOwner = null;
     this._interimOptions = null;
     this._wrapperInstance = null;
+    
+    this._promoted = true;
   }
   catch (e)
   {
@@ -187,6 +200,8 @@ WebCLValidatedProgram.prototype.getInfo = function (name)
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 1);
 
     if (!webclutils.validateInteger(name))
@@ -195,7 +210,7 @@ WebCLValidatedProgram.prototype.getInfo = function (name)
     switch (name)
     {
       case ocl_info.CL_PROGRAM_NUM_DEVICES:
-        if (this._internal)
+        if (this._promoted)
           return WebCLProgram.prototype.getInfo.call (this, name);
         else
           return (this._interimOwner ? this._interimOwner.getInfo(ocl_info.CL_CONTEXT_NUM_DEVICES) : null);
@@ -207,14 +222,14 @@ WebCLValidatedProgram.prototype.getInfo = function (name)
         break;
 
       case ocl_info.CL_PROGRAM_CONTEXT:
-        if (this._internal)
+        if (this._promoted)
           return WebCLProgram.prototype.getInfo.call (this, name);
         else
           return this._interimOwner;
         break;
 
       case ocl_info.CL_PROGRAM_DEVICES:
-        if (this._internal)
+        if (this._promoted)
           return WebCLProgram.prototype.getInfo.call (this, name);
         else
           return (this._interimOwner ? this._interimOwner.getInfo(ocl_info.CL_CONTEXT_DEVICES) : null);
@@ -261,6 +276,8 @@ WebCLValidatedProgram.prototype.getBuildInfo = function (device, name)
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 2);
 
     if (!webclutils.validateDevice(device))
@@ -272,14 +289,14 @@ WebCLValidatedProgram.prototype.getBuildInfo = function (device, name)
     switch (name)
     {
       case ocl_info.CL_PROGRAM_BUILD_OPTIONS:
-        if (this._internal)
+        if (this._promoted)
           return WebCLProgram.prototype.getBuildInfo.call (this, device, name);
         else
           return this._interimOptions || "";
         break;
 
       case ocl_info.CL_PROGRAM_BUILD_STATUS:
-        if (this._internal)
+        if (this._promoted)
         {
           return WebCLProgram.prototype.getBuildInfo.call (this, device, name);
         }
@@ -306,7 +323,7 @@ WebCLValidatedProgram.prototype.getBuildInfo = function (device, name)
         break;
 
       case ocl_info.CL_PROGRAM_BUILD_LOG:
-        if (this._internal)
+        if (this._promoted)
         {
           return WebCLProgram.prototype.getBuildInfo.call (this, device, name);
         }
@@ -367,6 +384,8 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0, 3);
 
     var args = [ devices, options, whenFinished ];
@@ -523,6 +542,8 @@ WebCLValidatedProgram.prototype.createKernel = function (kernelName)
 
   try
   {
+    this._ensureValidObject();
+
     if (!this.isBuilt || (!this._internal && this._interimOwner))
       throw new INVALID_PROGRAM_EXECUTABLE("cannot create Kernel: the most recent build of this Program was not successful");
 
@@ -573,9 +594,11 @@ WebCLValidatedProgram.prototype.createKernelsInProgram = function ()
 
   try
   {
+    this._ensureValidObject();
+
     webclutils.validateNumArgs(arguments.length, 0);
 
-    if (this._internal)
+    if (this._promoted)
     {
       let kernels = WebCLProgram.prototype.createKernelsInProgram.call (this);
 
@@ -609,21 +632,15 @@ WebCLValidatedProgram.prototype.releaseAll = function ()
 
   try
   {
-    if (this._internal)
-    {
-      WebCLProgram.prototype.releaseAll.call (this);
-    }
-    else
-    {
-      // Ensure releaseAll works as specified even if we don't have an actual program.
-      this._invalid = true;
-      this._internal = true;
-      // NOTE: Using dummy value for _internal: enable control to flow to WebCLProgram
-      //       where _invalid=true causes _ensureValidObject to fail.
+    if (this._invalid) return;
 
-      this._interimOwner = null;
-      this._wrapperInstance = null;
+    if (!this._promoted)
+    {
+      // Enable control to flow to WebCLProgram
+      this._promoted = true;
     }
+
+    WebCLProgram.prototype.releaseAll.call (this);
   }
   catch (e)
   {
@@ -641,6 +658,9 @@ WebCLValidatedProgram.prototype.release = function ()
     this._validatorProgram._unref ();
     this._validatorProgram = null;
   }
+
+  this._interimOwner = null;
+  this._wrapperInstance = null;
 
   WebCLProgram.prototype.release.apply (this);
 };
