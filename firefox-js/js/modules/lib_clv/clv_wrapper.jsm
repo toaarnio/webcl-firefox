@@ -73,20 +73,55 @@ LibCLVWrapper.prototype.validate = function (sSource,
   var clv_program = new CLVTypes.clv_program ();
 
   var clv_extensions = null;
+  var clv_extensions_addr = null;
+
+  // Temporary variable to store c-strings
+  var c_extensions = [];
+
   if (asExtensions && Array.isArray(asExtensions) && asExtensions.length)
   {
-    clv_extensions = ctypes.char.ptr.array()(asExtensions).address();
+    for (let i = 0; i < asExtensions.length; ++i)
+    {
+      c_extensions.push (ctypes.char.array()(asExtensions[i]));
+    }
+    // Reserve space for strings + null terminator
+    clv_extensions = ctypes.char.ptr.array()(c_extensions.length + 1);
+    for (let i = 0; i < c_extensions.length; ++i)
+    {
+      clv_extensions[i] = ctypes.cast(c_extensions[i].address(), ctypes.char.ptr);
+    }
+    clv_extensions[c_extensions.length] = null;  // terminator
+    
+    clv_extensions_addr = ctypes.cast (clv_extensions.address (), ctypes.char.ptr.ptr);
   }
+  
   var clv_userDefines = null;
+  var clv_userDefines_addr = null;
+
+  // Temporary variable to store c-strings
+  var c_userDefines = [];
+
   if (asUserDefines && Array.isArray(asUserDefines) && asUserDefines.length)
   {
-    clv_userDefines = ctypes.char.ptr.array()(asUserDefines).address();
+    for (let i = 0; i < asUserDefines.length; ++i)
+    {
+      c_userDefines.push (ctypes.char.array()(asUserDefines[i]));
+    }
+    // Reserve space for strings + null terminator
+    clv_userDefines = ctypes.char.ptr.array()(c_userDefines.length + 1);
+    for (let i = 0; i < c_userDefines.length; ++i)
+    {
+      clv_userDefines[i] = ctypes.cast(c_userDefines[i].address(), ctypes.char.ptr);
+    }
+    clv_userDefines[c_userDefines.length] = null;  // terminator
+    
+    clv_userDefines_addr = ctypes.cast (clv_userDefines.address(), ctypes.char.ptr.ptr);
   }
 
 
   clv_program.value = this._lib.clvValidate (sSource,
-                                             clv_extensions,
-                                             clv_userDefines,
+                                             clv_extensions_addr,
+                                             clv_userDefines_addr,
                                              fnNotify || null,
                                              null, // notify_data
                                              clErr.address());
