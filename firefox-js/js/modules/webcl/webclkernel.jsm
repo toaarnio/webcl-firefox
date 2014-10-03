@@ -423,7 +423,7 @@ WebCLKernel.prototype.setArg_validator = function (index, value)
 
         this._internal.setArg (internalIndex, this._unwrapInternal (value));
 
-        let bufByteSize = Int32Array([0, value.byteLength]);
+        let bufByteSize = Uint32Array([value.getInfo(ocl_info.CL_MEM_SIZE), 0]);
         this._internal.setArg (internalIndex+1, bufByteSize);
       }
     }
