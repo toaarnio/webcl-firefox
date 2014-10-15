@@ -47,6 +47,10 @@ function WebCLDevice ()
 
     this.exceptionType = INVALID_DEVICE;
 
+    // Note: Initial value should be undefined, not false so we can later detect
+    //       if we've checked the support status with the device.
+    this._ext_KHR_fp64_enabled = undefined;
+
     this.__exposedProps__ =
     {
       getExternalIdentity: "r",
@@ -85,6 +89,17 @@ WebCLDevice.prototype.getInfo = function (name)
     if (!webclutils.validateInteger(name))
       throw new INVALID_VALUE("'name' must be a valid CLenum; was ", name);
 
+    if (this._ext_KHR_fp64_enabled)
+    {
+      switch (name)
+      {
+        case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:
+        case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:
+          return this._wrapInternal (this._internal.getInfo (name));
+          break;
+      }
+    }
+
     switch (name)
     {
       case ocl_info.CL_DEVICE_TYPE:                               break;
@@ -98,8 +113,6 @@ WebCLDevice.prototype.getInfo = function (name)
       case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT:         break;
       case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG:        break;
       case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT:       break;
-      //case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:      throw new CLError(ocl_errors.CL_INVALID_VALUE);
-      //case ocl_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:        throw new CLError(ocl_errors.CL_INVALID_VALUE);
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR:           break;
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT:          break;
       case ocl_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_INT:            break;
@@ -172,8 +185,10 @@ WebCLDevice.prototype.getSupportedExtensions = function ()
 
     webclutils.validateNumArgs(arguments.length, 0);
 
-    // TODO getSupportedExtensions
-    return [];
+    var supportedExtensions = [];
+    if (this._check_KHR_fp64_support()) supportedExtensions.push ("KHR_fp64");
+
+    return supportedExtensions;
   }
   catch (e)
   {
@@ -193,14 +208,42 @@ WebCLDevice.prototype.enableExtension = function (extensionName)
 
     webclutils.validateNumArgs(arguments.length, 1);
 
-    // TODO enableExtension
-    return false;
+    switch (extensionName)
+    {
+      case "KHR_fp64":
+        return this._check_KHR_fp64_support ();
+
+      default:
+        return false;
+    }
   }
   catch (e)
   {
     try { ERROR(String(e)); }catch(e){}
     throw webclutils.convertCLException (e);
   }
+};
+
+
+WebCLDevice.prototype._check_KHR_fp64_support = function ()
+{
+  if (this._ext_KHR_fp64_enabled !== undefined) {
+    // We already know the support status for this device.
+    return this._ext_KHR_fp64_enabled;
+  }
+
+  let deviceExtensions = this._internal.getInfo (ocl_info.CL_DEVICE_EXTENSIONS);
+  if (deviceExtensions) {
+    deviceExtensions = deviceExtensions.split(" ");
+    if (deviceExtensions.indexOf ("cl_khr_fp64") != -1)
+    {
+      // The device supports cl_khr_fp64.
+      return (this._ext_KHR_fp64_enabled = true);
+    }
+  }
+
+  // The device does not support cl_khr_fp64.
+  return (this._ext_KHR_fp64_enabled = false);
 };
 
 
