@@ -426,7 +426,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
           }
 
           validatorAsyncWorker.validate (instance._originalSource,
-                                         null, // extensions
+                                         [ "cl_khr_fp64" ], // extensions
                                          null, // userDefines
                                          function (data)
           {
@@ -500,7 +500,7 @@ WebCLValidatedProgram.prototype.build = function (devices, options, whenFinished
       if (this._webclState.validator)
       {
         this._validatorProgram = this._webclState.validator.validate (this._originalSource,
-                                                                      null,  // extensions
+                                                                      [ "cl_khr_fp64" ],  // extensions
                                                                       null,  // userDefines
                                                                       null); // notify
 
