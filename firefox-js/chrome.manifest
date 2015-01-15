@@ -1,6 +1,5 @@
-component {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2} components/webclloader.js
-contract @webcl.nokiaresearch.com/WebCLLoader;1 {f2e0f66e-615a-4b86-b0ea-2fd3c8729ac2}
-category profile-after-change WebCLLoader @webcl.nokiaresearch.com/WebCLLoader;1
-
 content nrcwebcl content/
-resource nrcwebcl resources/
+
+component {b5336780-9367-4891-bdc9-255821383d9f} components/webclinit.js
+contract @webcl.nokiaresearch.com/WebCLInit;1 {b5336780-9367-4891-bdc9-255821383d9f}
+category profile-after-change WebCLInit @webcl.nokiaresearch.com/WebCLInit;1

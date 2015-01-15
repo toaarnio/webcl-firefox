@@ -12,80 +12,83 @@ ifeq ($(SRC_PACKAGE),)
 endif
 
 
-all: dist dist-src
+COMPONENTS = webclinit.js
 
+FRAMESCRIPT = main.js
 
-COMPONENTS = webclloader.js
+PAGESCRIPT = clientwrapper.js
 
-MODULES = logger.jsm common.jsm webclutils.jsm base.jsm webclconstructors.jsm \
-  mixin.jsm webclclasses.jsm webclasyncworkerapi.jsm validatorasyncworkerapi.jsm \
-  libloader.jsm releasemanager.jsm
+MODULES = logger.jsm common.jsm webclutils.jsm \
+   base.jsm mixin.jsm libloader.jsm releasemanager.jsm webclclasses.jsm \
+   webclconstructors.jsm \
+   webclasyncworkerapi.jsm validatorasyncworkerapi.jsm webclcallbackworkerapi.jsm
+
 MODULES_WEBCL = webcl.jsm webclplatform.jsm webcldevice.jsm webclcontext.jsm \
   webclcommandqueue.jsm webclevent.jsm webclmemoryobject.jsm webclprogram.jsm \
   webclvalidatedprogram.jsm webclkernel.jsm webclsampler.jsm webclimagedescriptor.jsm
+
 MODULES_OCL = ocl_constants.jsm ocl_symbols.jsm ocl_types.jsm ocl_getinfo.jsm \
   ocl_exception.jsm ocl_libloader.jsm ocl_common.jsm \
   wrapper.jsm platform.jsm device.jsm commandqueue.jsm context.jsm event.jsm \
   kernel.jsm memoryobject.jsm program.jsm sampler.jsm
+
 MODULES_CLV = clv_symbols.jsm clv_libloader.jsm clv_wrapper.jsm clv_program.jsm
+
+MODULES_FRAMESCRIPT = webcl.jsm webclplatform.jsm webcldevice.jsm webclcontext.jsm \
+  webclcommandqueue.jsm webclevent.jsm webclmemoryobject.jsm webclprogram.jsm \
+  webclkernel.jsm webclsampler.jsm \
+  enums.jsm misc.jsm
 
 MIXINS = owner.jsm
 
-WORKERS = webclasyncworker.js validatorasyncworker.js
+WORKERS = webclasyncworker.js validatorasyncworker.js webclcallbackworker.js
 
-SOURCE_FILES = $(COMPONENTS:%=js/%) $(MODULES:%=js/modules/%) $(MODULES_WEBCL:%=js/modules/webcl/%) $(MODULES_OCL:%=js/modules/lib_ocl/%) $(MODULES_CLV:%=js/modules/lib_clv/%) $(MIXINS:%=js/modules/mixins/%) $(WORKERS:%=js/workers/%)
 
-dist: xpi
+SOURCE_FILES = $(COMPONENTS:%=components/%) \
+  $(FRAMESCRIPT:%=content/framescript/%) \
+  $(PAGESCRIPT:%=content/page/%) \
+  $(MODULES:%=content/modules/%) \
+  $(MODULES_WEBCL:%=content/modules/webcl/%) \
+  $(MODULES_OCL:%=content/modules/lib_ocl/%) \
+  $(MODULES_CLV:%=content/modules/lib_clv/%) \
+  $(MODULES_FRAMESCRIPT:%=content/modules/framescript/%) \
+  $(MIXINS:%=content/modules/mixins/%) \
+  $(WORKERS:%=content/workers/%) \
+  content/webclversion.jsm
 
-package: xpi
+
+PREF_FILES = defaults/preferences/webclprefs.js
+
+
+all: dist dist-src
 
 xpi: $(PACKAGE)
 
-$(PACKAGE): install.rdf chrome.manifest $(SOURCE_FILES) COPYING $(wildcard defaults/preferences/*.js) $(wildcard content/*.js)
-	@rm -f $(PACKAGE)
-	@mkdir -p dist/components
-	@cp $(COMPONENTS:%=js/%) dist/components/
-	@mkdir -p dist/resources/modules
-	@cp $(MODULES:%=js/modules/%) dist/resources/modules/
-	@mkdir -p dist/resources/modules/webcl
-	@cp $(MODULES_WEBCL:%=js/modules/webcl/%) dist/resources/modules/webcl/
-	@mkdir -p dist/resources/modules/lib_ocl
-	@cp $(MODULES_OCL:%=js/modules/lib_ocl/%) dist/resources/modules/lib_ocl/
-	@mkdir -p dist/resources/modules/lib_clv
-	@cp $(MODULES_CLV:%=js/modules/lib_clv/%) dist/resources/modules/lib_clv/
-	@mkdir -p dist/resources/modules/mixins
-	@cp $(MIXINS:%=js/modules/mixins/%) dist/resources/modules/mixins/
-	@mkdir -p dist/resources/workers
-	@cp $(WORKERS:%=js/workers/%) dist/resources/workers
-	@mkdir -p dist/defaults/preferences
-	@cp defaults/preferences/*.js dist/defaults/preferences/
-	@cp -r lib dist/
-	@cp -r content dist/
-	@(cd dist/content; sed -i'.bak' 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' webclclientwrapper.js; rm webclclientwrapper.js.bak)
-	@cp install.rdf chrome.manifest COPYING dist/
-	@(cd dist; sed -i'.bak' 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' install.rdf; rm install.rdf.bak)
-	@cd dist && zip -r ../$@ install.rdf chrome.manifest \
-	    components content resources defaults lib COPYING -x@../zipexclude.lst
-
+dist: $(PACKAGE)
 
 dist-src: $(SRC_PACKAGE)
 
-$(SRC_PACKAGE): Makefile install.rdf chrome.manifest $(SOURCE_FILES) COPYING zipexclude.lst
-	@rm -f $(SRC_PACKAGE)
-	zip -r $@ $^ content defaults -x@zipexclude.lst
+
+content/webclversion.jsm: content/webclversion.jsm.in
+	@cp content/webclversion.jsm.in content/webclversion.jsm
+	@sed -i 's/YYYY-MM-DD/$(BUILD_DATE)\.$(GIT_LATEST_COMMIT)/' content/webclversion.jsm;
+
+$(PACKAGE): install.rdf chrome.manifest COPYING $(SOURCE_FILES) $(PREF_FILES)
+	@rm -f $(PACKAGE)
+	@zip -r $@ install.rdf chrome.manifest COPYING $(SOURCE_FILES) $(PREF_FILES) lib
 
 
-docs:
+$(SRC_PACKAGE):
+	@zip -r $@ chrome.manifest install.rdf Makefile COPYING content defaults components lib
 
 
 clean:
-	@rm -rf dist
 	@rm -f $(PACKAGE)
 	@rm -f $(SRC_PACKAGE)
-
+	@rm -f content/webclversion.jsm
 
 ultra-clean: clean
 	@find . -name "*~" -exec rm -f "{}" \;
 
 
-.PHONY: all dist package xpi dist-src docs clean ultra-clean
+.PHONY: all dist dist-src xpi clean ultra-clean
