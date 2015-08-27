@@ -168,9 +168,13 @@ function framescript_attach (ctx)
       // WebCL framescript connector root object
       var nrcWebCL = Cu.createObjectIn (ctx.unsafeWindow);
 
+      // FIXME: For some reason, the window proxy does not accept
+      // non-configurable properties. I don't know how to fix this properly, so
+      // for now, we just make it configurable (and hope the user does not break
+      // it)
       Object.defineProperty (ctx.unsafeWindow, "NRCWebCL",
                              {
-                               configurable: false,
+                               configurable: true,
                                writable: false,
                                enumerable: false,
                                value: nrcWebCL
@@ -183,12 +187,12 @@ function framescript_attach (ctx)
       // that not to be the case. This is OK, the window probably wasn't very
       // interesting anyway.
 
-      /*
+      reportError(e);
       dump ("Failed to attach WebCL on page '" + ctx.document.location + "', " +
             "extensible: "+Object.isExtensible(ctx.window) + ", frozen: " +
             Object.isFrozen(ctx.window) + ", sealed: " +
             Object.isSealed(ctx.window) + "\n");
-      */
+
       return;
     }
 
@@ -207,7 +211,7 @@ function framescript_attach (ctx)
           return;
         }
         ctx.webclIdentity = rv.id;
-      } catch(e) { reportError(e); }
+      } catch(e) { INFO("registerWebCLFrameScript"); reportError(e); }
     }
 
     // TODO: Sometimes sendSyncMessage fails with NS_ERROR_ILLEGAL_VALUE.
@@ -217,7 +221,9 @@ function framescript_attach (ctx)
 
     // Version property
     let version;
-    try { version = webclVersion } catch(e) {};
+    try { version = webclVersion } catch(e) {
+       reportError(e);
+    };
     Object.defineProperty (nrcWebCL, "version",
                            {
                              configurable: false,
@@ -434,5 +440,3 @@ addMessageListener ("webcl@nokia.com:callback", function (message)
 
   cb.fn.apply (null, args);
 });
-
-
