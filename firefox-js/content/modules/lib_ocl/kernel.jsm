@@ -20,6 +20,7 @@ try {
 const Cu = Components.utils;
 
 Cu.import ("chrome://nrcwebcl/content/modules/logger.jsm");
+Cu.import ("chrome://nrcwebcl/content/modules/common.jsm");
 Cu.import ("resource://gre/modules/ctypes.jsm");
 Cu.import ("chrome://nrcwebcl/content/modules/lib_ocl/ocl_types.jsm");
 Cu.import ("chrome://nrcwebcl/content/modules/lib_ocl/ocl_symbols.jsm");
@@ -204,25 +205,13 @@ Kernel.prototype.setArg = function (index, value)
     ptr = value._internal.address();
     size = T.cl_sampler.size;
   }
-  else switch(className) {
-  case "Int8Array":
-  case "Uint8Array":
-  case "Uint8ClampedArray":
-  case "Int16Array":
-  case "Uint16Array":
-  case "Int32Array":
-  case "Uint32Array":
-  case "Float32Array":
-  case "Float64Array":
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.byteLength;
-    break;
-  default:
-    throw new CLInvalidArgument ("value", null, "Kernel.setArg");
+  else {
+    let tmp = typedArrayToCTypesPtr(value);
+    ptr = tmp.ptr;
+    size = tmp.size;
   }
-
-  var err = this._lib.clSetKernelArg (this._internal, +index, size,
-                                      ctypes.cast(ptr, ctypes.voidptr_t));
+  
+  var err = this._lib.clSetKernelArg (this._internal, +index, size,  ptr);
   if (err) throw new CLError (err, null, "Kernel.setArg");
 };
 

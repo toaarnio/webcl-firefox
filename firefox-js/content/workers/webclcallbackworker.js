@@ -15,8 +15,8 @@
 try {
 
 
-  var ENABLE_DEBUG = false;
-  var ENABLE_CONSOLE = false;
+  var ENABLE_DEBUG = true;
+  var ENABLE_CONSOLE = true;
 
 
   var puts = null;
@@ -39,6 +39,8 @@ try {
 
   var libHandle = null;
   var clCallSetEventCallback = null;
+  var clWaitForEvents = null;
+
   var T_clEventCallback = ctypes.FunctionType(ctypes.default_abi,
                                               ctypes.void_t,
                                               [ ctypes.voidptr_t,
@@ -60,6 +62,12 @@ try {
                                                 ctypes.int32_t,
                                                 ctypes.voidptr_t, ctypes.int32_t,
                                                 T_clEventCallback.ptr, ctypes.voidptr_t);
+
+    clWaitForEvents = libHandle.declare ("clWaitForEvents",
+                                          ctypes.default_abi,
+                                          ctypes.int32_t,
+                                          ctypes.uint32_t, ctypes.voidptr_t);
+
   }
 
 
@@ -69,24 +77,39 @@ try {
     libHandle = null;
   }
 
-
-  function notifyCallback (event, execStatus, userData)
+  function notifyCallback(event, execStatus, userData)
   {
+    DEBUG('notifyCallback pre');
+
     let id = String(ctypes.cast(userData, ctypes.uint32_t).value);
     postMessage ({ cmd: "callback",
                    execStatus: execStatus,
                    id: id });
+    DEBUG('notifyCallback post');
+
   }
 
   function callSetEventCallback (event, commandExecCallbackType, intUserData)
   {
+    DEBUG('callSetEventCallback: event: ' + event + ' commandExecCallbackType: ' + commandExecCallbackType + ' intUserData: ' + intUserData);
     try {
-      let clEvent = ctypes.cast(ctypes.intptr_t(event), ctypes.voidptr_t),
-          clCallbackType = ctypes.int32_t(+commandExecCallbackType),
-          clNotify = T_clEventCallback.ptr(notifyCallback),
-          clUserData = ctypes.cast(ctypes.intptr_t(+intUserData), ctypes.voidptr_t);
+      let clEvent = ctypes.cast(ctypes.intptr_t(event), ctypes.voidptr_t);
+      let clCallbackType = ctypes.int32_t(+commandExecCallbackType);
 
-      return clCallSetEventCallback (clEvent, clCallbackType, clNotify, clUserData);
+      DEBUG('T_clEventCallback.ptr(notifyCallback) pre');
+      //FIXME: crashes here with JS_AbortIfWrongThread
+      //make this a void pointer just to test
+      let clNotify = T_clEventCallback.ptr(notifyCallback);
+      DEBUG('T_clEventCallback.ptr(notifyCallback) post');
+
+      let clUserData = ctypes.cast(ctypes.intptr_t(+intUserData), ctypes.voidptr_t);
+
+      DEBUG('clCallSetEventCallback pre');
+
+      var ret = clCallSetEventCallback (clEvent, clCallbackType, clNotify, clUserData);
+      DEBUG('clCallSetEventCallback post');
+
+      return ret;
     }
     catch (e) {
       let s = (e&&e.stack ? "\n"+e.stack : "");
@@ -105,6 +128,7 @@ try {
         ERROR ("onmessage: Untrusted event received! data="+event.data);
         return;
       }
+
 
       switch (event.data.cmd)
       {
@@ -129,15 +153,36 @@ try {
         case "setEventCallback":
           try
           {
-            let rv = callSetEventCallback (event.data.event,
-                                           event.data.callbackType,
-                                           event.data.callbackId);
+            DEBUG('callSetEventCallback pre');
 
-            event.data.rv = rv;
+            // let rv = callSetEventCallback (event.data.event,
+            //                                event.data.callbackType,
+            //                                event.data.callbackId);
+            DEBUG('callSetEventCallback post');
+
+            event.data.rv = 0;//rv;
             postMessage (event.data);
+
+            let clNumEvents = 1;
+            let clEventArray = ctypes.voidptr_t.array(clNumEvents)();
+            let clEvent = ctypes.cast(ctypes.intptr_t(event.data.event), ctypes.voidptr_t);
+            clEventArray[0] = clEvent;
+            let clEventArrayPtr = ctypes.cast (clEventArray.address(), ctypes.voidptr_t);
+            let ret = clWaitForEvents(clNumEvents, clEventArrayPtr);
+
+            //TODO: call callback if event status matches
+
+            if(true) // execStatus == event.data.callbackType;
+            {
+              let clUserData = ctypes.cast(ctypes.intptr_t(+event.data.callbackId), ctypes.voidptr_t);
+              notifyCallback(event, event.data.callbackType, clUserData);
+              DEBUG('callSetEventCallback after');
+            }
           }
           catch (e)
           {
+            ERROR (e+"\n"+e.stack);
+
             event.data.err = e;
             postMessage (event.data);
           }
@@ -152,7 +197,7 @@ try {
     }
     catch (e)
     {
-      ERROR (e);
+      ERROR (e+"\n"+e.stack);
       event.data.err = String(e);
       postMessage (event.data);
     }
@@ -161,4 +206,3 @@ try {
 
 
 } catch(e) { ERROR (e+"\n"+e.stack); }
-
