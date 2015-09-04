@@ -32,6 +32,9 @@ Cu.import ("chrome://nrcwebcl/content/modules/lib_ocl/ocl_exception.jsm");
 Cu.import ("resource://gre/modules/ctypes.jsm");
 
 
+var console = Cu.import("resource://gre/modules/devtools/Console.jsm", {}).console;
+
+
 function getRuntimeABI ()
 {
   var xulRuntime = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
@@ -49,7 +52,7 @@ function getRuntimeOS ()
 function typedArrayToCTypesPtr (value)
 {
   var ptr = null, size = 0;
-
+  
   if (value.wrappedJSObject) value = value.wrappedJSObject;
 
   // NOTE: instanceof doesn't work when the object originates from different
@@ -63,80 +66,23 @@ function typedArrayToCTypesPtr (value)
     className = className.substring(0, className.lastIndexOf("]"));
   }
 
-  //if (value instanceof Int8Array)
-  if (className == "Int8Array")
-  {
-    //ptr = ctypes.int8_t.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Uint8Array)
-  else if (className == "Uint8Array")
-  {
-    //ptr = ctypes.uint8_t.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Uint8ClampedArray)
-  else if (className == "Uint8ClampedArray")
-  {
-    //ptr = ctypes.uint8_t.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Int16Array)
-  else if (className == "Int16Array")
-  {
-    //ptr = ctypes.int16_t.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Uint16Array)
-  else if (className == "Uint16Array")
-  {
-    //ptr = ctypes.uint16_t.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Int32Array)
-  else if (className == "Int32Array")
-  {
-    //ptr = ctypes.int32_t.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Uint32Array)
-  else if (className == "Uint32Array")
-  {
-    //ptr = ctypes.uint32_t.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Float32Array)
-  else if (className == "Float32Array")
-  {
-    //ptr = ctypes.float.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof Float64Array)
-  else if (className == "Float64Array")
-  {
-    //ptr = ctypes.double.ptr (value);
-    ptr = ctypes.voidptr_t (value.buffer);
-    size = value.length * value.BYTES_PER_ELEMENT;
-  }
-  //else if (value instanceof ArrayBuffer)
-  else if (className == "ArrayBuffer")
-  {
-    ptr = T.voidptr_t (value);
-    size = value.byteLength;
-  }
-  else
-  {
-    throw new CLInvalidArgument ("");
+  switch(className) {
+    case "Int8Array":
+    case "Uint8Array":
+    case "Uint8ClampedArray":
+    case "Int16Array":
+    case "Uint16Array":
+    case "Int32Array":
+    case "Uint32Array":
+    case "Float32Array":
+    case "Float64Array":
+    case "ArrayBuffer":
+      ptr = value;
+      size = value.byteLength;
+      break;
+  default:
+    throw new CLInvalidArgument ("value", null, "Kernel.setArg");
   }
 
   return { ptr: ptr, size: size };
 }
-
