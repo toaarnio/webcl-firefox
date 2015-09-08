@@ -201,6 +201,8 @@
   _CommandQueue.prototype.release = _createDefaultFunctionWrapper ("release");
 
 
+
+
   //
   function create_commandQueue_readBuffer_preproc (hostBufferArgIdx)
   {
@@ -261,7 +263,8 @@
 
             // Get compatible view to target buffer and set its contents from
             // the transient data.
-            (new Uint8Array(procCtx.targetBuf.buffer)).set(data);
+            //(new Uint8Array(procCtx.targetBuf.buffer)).set(data);
+            procCtx.targetBuf.set(data);
 
             if (okToRelease) ev.release ();
           });
@@ -283,12 +286,12 @@
 
       if (procCtx.sync)
       {
+        console.log(rv);
         if (!rv.error)
         {
           try{
-            let tmp = new Uint8Array(rv.value.x);
             let target = procCtx.originalArguments[hostBufferArgIdx];
-            (new Uint8Array(target.buffer)).set(tmp);
+            target.set(rv.value.x);
           }
           catch(e){
             console.error("[clientwrapper.js] create_commandQueue_readBuffer_postproc"+
