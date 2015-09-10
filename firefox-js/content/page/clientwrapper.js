@@ -260,11 +260,9 @@
           ev.setCallback (WebCL.COMPLETE, function ()
           {
             var data = window.NRCWebCL.WebCL._getTransient (procCtx.transientObjectId);
-
             // Get compatible view to target buffer and set its contents from
             // the transient data.
-            //(new Uint8Array(procCtx.targetBuf.buffer)).set(data);
-            procCtx.targetBuf.set(data);
+            (new Uint8Array(procCtx.targetBuf.buffer)).set(data);
 
             if (okToRelease) ev.release ();
           });
