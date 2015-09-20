@@ -90,7 +90,7 @@ try
     obj._getTransient = createFnWrapper (ctx, className, "_getTransient");
 
     obj._getUUID = function () {
-      uuidGenerator.generateUUID().toString().slice(1,-1).replace("-", "", "g");
+      return uuidGenerator.generateUUID().toString().slice(1,-1).replace("-", "", "g");
     }
 
 //     Object.defineProperty (obj, "dumpTree",

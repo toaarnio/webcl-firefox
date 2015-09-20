@@ -210,8 +210,8 @@ Kernel.prototype.setArg = function (index, value)
     ptr = tmp.ptr;
     size = tmp.size;
   }
-  
-  var err = this._lib.clSetKernelArg (this._internal, +index, size,  ptr);
+
+  var err = this._lib.clSetKernelArg (this._internal, +index, size, ptr);
   if (err) throw new CLError (err, null, "Kernel.setArg");
 };
 
