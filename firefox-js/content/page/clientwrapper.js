@@ -221,8 +221,8 @@
   _CommandQueue.prototype.enqueueBarrier = _createDefaultFunctionWrapper ("enqueueBarrier");
   _CommandQueue.prototype.enqueueWaitForEvents = _createDefaultFunctionWrapper ("enqueueWaitForEvents");
   _CommandQueue.prototype.finish = _createDefaultFunctionWrapper ("finish", commandQueue_finish_preproc, commandQueue_finish_postproc);
-  _CommandQueue.prototype.flush = _createDefaultFunctionWrapper ("flush");
-  _CommandQueue.prototype.release = _createDefaultFunctionWrapper ("release");
+  _CommandQueue.prototype.flush = _createDefaultFunctionWrapper ("flush", commandQueue_flush_preproc);
+  _CommandQueue.prototype.release = _createDefaultFunctionWrapper ("release", commandQueue_flush_preproc);
 
 
 function event_interceptor(argIndex){
@@ -267,6 +267,11 @@ function commandQueue_finish_postproc(rv, args, procCtx)
     return rv;
 }
 
+function commandQueue_flush_preproc(args, procCtx)
+{
+  this.__queuedEvents__ = [];
+  return args;
+}
 
   //
   function create_commandQueue_readBuffer_preproc (hostBufferArgIdx)
