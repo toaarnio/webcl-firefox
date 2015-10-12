@@ -52,7 +52,7 @@ function getRuntimeOS ()
 function typedArrayToCTypesPtr (value)
 {
   var ptr = null, size = 0;
-  
+
   if (value.wrappedJSObject) value = value.wrappedJSObject;
 
   // NOTE: instanceof doesn't work when the object originates from different
@@ -76,6 +76,9 @@ function typedArrayToCTypesPtr (value)
     case "Uint32Array":
     case "Float32Array":
     case "Float64Array":
+      // ptr = value.buffer;
+      // size = value.byteLength;
+      // break;
     case "ArrayBuffer":
       ptr = value;
       size = value.byteLength;

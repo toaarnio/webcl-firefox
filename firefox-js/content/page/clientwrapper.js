@@ -26,8 +26,30 @@
   _WebCL.prototype.createContext = _createDefaultFunctionWrapper ("createContext");
   _WebCL.prototype.getSupportedExtensions = _createDefaultFunctionWrapper ("getSupportedExtensions");
   _WebCL.prototype.enableExtension = _createDefaultFunctionWrapper ("enableExtension");
-  _WebCL.prototype.waitForEvents = _createDefaultFunctionWrapper ("waitForEvents");
+  _WebCL.prototype.waitForEvents = _createDefaultFunctionWrapper ("waitForEvents", waitforevents_preproc, waitforevents_postproc);
   _WebCL.prototype.releaseAll = _createDefaultFunctionWrapper ("releaseAll");
+
+  function waitforevents_preproc(args, procCtx)
+  {
+    var whenFinished = procCtx.originalArguments[1];
+    procCtx.sync = !(whenFinished && typeof(whenFinished) === "function")
+
+    if(!procCtx.sync){
+      args[1] = function(){
+        _runeventcallbacks(procCtx.originalArguments[0]);
+        whenFinished();
+      }
+    }
+    return args;
+  }
+
+  function waitforevents_postproc(rv, args, procCtx)
+  {
+      if(procCtx.sync){
+        _runeventcallbacks(procCtx.originalArguments[0]);
+      }
+      return rv;
+  }
 
   // Add WebCL enums
   for (let name in window.NRCWebCL.enums)
@@ -169,14 +191,16 @@
 
     this._connector = window.NRCWebCL.WebCLCommandQueue;
     this._name = "WebCLCommandQueue";
+
+    this.__queuedEvents__ = [];
   }
   _CommandQueue.prototype = Object.create (_Base.prototype);
 
-  _CommandQueue.prototype.enqueueCopyBuffer = _createDefaultFunctionWrapper ("enqueueCopyBuffer");
-  _CommandQueue.prototype.enqueueCopyBufferRect = _createDefaultFunctionWrapper ("enqueueCopyBufferRect");
-  _CommandQueue.prototype.enqueueCopyImage = _createDefaultFunctionWrapper ("enqueueCopyImage");
-  _CommandQueue.prototype.enqueueCopyImageToBuffer = _createDefaultFunctionWrapper ("enqueueCopyImageToBuffer");
-  _CommandQueue.prototype.enqueueCopyBufferToImage = _createDefaultFunctionWrapper ("enqueueCopyBufferToImage");
+  _CommandQueue.prototype.enqueueCopyBuffer = _createDefaultFunctionWrapper ("enqueueCopyBuffer", event_interceptor(6));
+  _CommandQueue.prototype.enqueueCopyBufferRect = _createDefaultFunctionWrapper ("enqueueCopyBufferRect", event_interceptor(10));
+  _CommandQueue.prototype.enqueueCopyImage = _createDefaultFunctionWrapper ("enqueueCopyImage", event_interceptor(6));
+  _CommandQueue.prototype.enqueueCopyImageToBuffer = _createDefaultFunctionWrapper ("enqueueCopyImageToBuffer", event_interceptor(6));
+  _CommandQueue.prototype.enqueueCopyBufferToImage = _createDefaultFunctionWrapper ("enqueueCopyBufferToImage", event_interceptor(6));
 
   _CommandQueue.prototype.enqueueReadBuffer = _createDefaultFunctionWrapper ("enqueueReadBuffer",
     create_commandQueue_readBuffer_preproc(4),
@@ -188,18 +212,66 @@
     create_commandQueue_readBuffer_preproc(5),
     create_commandQueue_readBuffer_postproc(5));
 
-  _CommandQueue.prototype.enqueueWriteBuffer = _createDefaultFunctionWrapper ("enqueueWriteBuffer");
-  _CommandQueue.prototype.enqueueWriteBufferRect = _createDefaultFunctionWrapper ("enqueueWriteBufferRect");
-  _CommandQueue.prototype.enqueueWriteImage = _createDefaultFunctionWrapper ("enqueueWriteImage");
+  _CommandQueue.prototype.enqueueWriteBuffer = _createDefaultFunctionWrapper ("enqueueWriteBuffer", event_interceptor(6));
+  _CommandQueue.prototype.enqueueWriteBufferRect = _createDefaultFunctionWrapper ("enqueueWriteBufferRect", event_interceptor(11));
+  _CommandQueue.prototype.enqueueWriteImage = _createDefaultFunctionWrapper ("enqueueWriteImage", event_interceptor(7));
 
-  _CommandQueue.prototype.enqueueNDRangeKernel = _createDefaultFunctionWrapper ("enqueueNDRangeKernel");
-  _CommandQueue.prototype.enqueueMarker = _createDefaultFunctionWrapper ("enqueueMarker");
+  _CommandQueue.prototype.enqueueNDRangeKernel = _createDefaultFunctionWrapper ("enqueueNDRangeKernel", event_interceptor(6));
+  _CommandQueue.prototype.enqueueMarker = _createDefaultFunctionWrapper ("enqueueMarker", event_interceptor(0));
   _CommandQueue.prototype.enqueueBarrier = _createDefaultFunctionWrapper ("enqueueBarrier");
   _CommandQueue.prototype.enqueueWaitForEvents = _createDefaultFunctionWrapper ("enqueueWaitForEvents");
-  _CommandQueue.prototype.finish = _createDefaultFunctionWrapper ("finish");
-  _CommandQueue.prototype.flush = _createDefaultFunctionWrapper ("flush");
-  _CommandQueue.prototype.release = _createDefaultFunctionWrapper ("release");
+  _CommandQueue.prototype.finish = _createDefaultFunctionWrapper ("finish", commandQueue_finish_preproc, commandQueue_finish_postproc);
+  _CommandQueue.prototype.flush = _createDefaultFunctionWrapper ("flush", commandQueue_flush_preproc);
+  _CommandQueue.prototype.release = _createDefaultFunctionWrapper ("release", commandQueue_flush_preproc);
 
+
+function event_interceptor(argIndex){
+  return function(args, procCtx){
+    var ev = procCtx.originalArguments[argIndex];
+    if (ev){
+      if(ev instanceof window.WebCLEvent) {
+        this.__queuedEvents__.push(ev);
+      }
+    }
+    return args;
+  };
+}
+
+function _runeventcallbacks(eventlist){
+  for(var i = 0; i < eventlist.length; i++){
+    eventlist[i].__runCallbacksSync__();
+  }
+}
+
+function commandQueue_finish_preproc(args, procCtx)
+{
+  var whenFinished = procCtx.originalArguments[1];
+  procCtx.sync = !(whenFinished && typeof(whenFinished) === "function")
+
+  if(!procCtx.sync){
+    args[1] = function(){
+      _runeventcallbacks(this.__queuedEvents__);
+      this.__queuedEvents__ = [];
+      whenFinished();
+    }
+  }
+  return args;
+}
+
+function commandQueue_finish_postproc(rv, args, procCtx)
+{
+    if(procCtx.sync){
+      _runeventcallbacks(this.__queuedEvents__);
+      this.__queuedEvents__ = [];
+    }
+    return rv;
+}
+
+function commandQueue_flush_preproc(args, procCtx)
+{
+  this.__queuedEvents__ = [];
+  return args;
+}
 
   //
   function create_commandQueue_readBuffer_preproc (hostBufferArgIdx)
@@ -255,18 +327,21 @@
           // Hook to COMPLETE event. Then get the transient data containing
           // the actual result ArrayBuffer content from the frame script.
           // Finally, write new data to original argument TypedArray.
-          ev.setCallback (WebCL.COMPLETE, function ()
-          {
+          //
+          ev.setCallback (WebCL.COMPLETE, function() {
             var data = window.NRCWebCL.WebCL._getTransient (procCtx.transientObjectId);
-
             // Get compatible view to target buffer and set its contents from
             // the transient data.
             (new Uint8Array(procCtx.targetBuf.buffer)).set(data);
-
+            //procCtx.targetBuf.set(data);
+            //
             if (okToRelease) ev.release ();
           });
+
+          this.__queuedEvents__.push(ev);
         }
         catch (e) {
+          console.error(e);
           // Failed to mangle args, maybe the typed array wasn't a typed array.
           procCtx.failure = true;
           args[hostBufferArgIdx] = procCtx.originalArguments[hostBufferArgIdx];
@@ -283,12 +358,12 @@
 
       if (procCtx.sync)
       {
+        console.log(rv);
         if (!rv.error)
         {
           try{
-            let tmp = new Uint8Array(rv.value.x);
             let target = procCtx.originalArguments[hostBufferArgIdx];
-            (new Uint8Array(target.buffer)).set(tmp);
+            target.set(rv.value.x);
           }
           catch(e){
             console.error("[clientwrapper.js] create_commandQueue_readBuffer_postproc"+
@@ -376,14 +451,51 @@
 
     this._connector = window.NRCWebCL.WebCLEvent;
     this._name = "WebCLEvent";
+
+    this.__callbacks__ = [];
+
   }
   _Event.prototype = Object.create (_Base.prototype);
 
   _Event.prototype.getProfilingInfo = _createDefaultFunctionWrapper ("getProfilingInfo");
-  _Event.prototype.setCallback = _createDefaultFunctionWrapper ("setCallback");
+  _Event.prototype.setCallback = _createDefaultFunctionWrapper ("setCallback", event_set_callback_preproc, event_set_callback_postproc);
   _Event.prototype.release = _createDefaultFunctionWrapper ("release");
 
+function event_set_callback_preproc(args, procCtx)
+{
+    var notify = procCtx.originalArguments[1];
+    var callbackfn = function(){
+      if(callbackfn.__finished__){
+        return;
+      }
+      try {
+        notify.apply(null, arguments)
+      }
+      finally{
+        callbackfn.__finished__ = true;
+      }
+    }
+    callbackfn.__finished__ = false;
 
+    args[1] = callbackfn;
+
+    this.__callbacks__.push({ type: args[0], fn: args[1] });
+    return args;
+}
+
+function event_set_callback_postproc(rv, args, procCtx)
+{
+    return rv;
+}
+
+
+
+  _Event.prototype.__runCallbacksSync__ = function(){
+    for (var i = 0; i < this.__callbacks__.length; i++) {
+      //TODO: run callback conditionally for the given status
+      this.__callbacks__[i].fn.call(null);
+    }
+  }
 
   // == UserEvent ================================================================
   function _UserEvent (identity) {
@@ -576,7 +688,7 @@
 
         if (preProcFn && typeof(preProcFn) == "function")
         {
-          args = preProcFn (args, procCtx);
+          args = preProcFn.call(this, args, procCtx);
         }
 
 
@@ -605,7 +717,7 @@
 
         if (postProcFn && typeof(postProcFn) == "function")
         {
-          rv = postProcFn (rv, args, procCtx);
+          rv = postProcFn.call(this, rv, args, procCtx);
         }
 
         rv = _wrap_rv (rv);
