@@ -358,12 +358,14 @@ function commandQueue_flush_preproc(args, procCtx)
 
       if (procCtx.sync)
       {
-        console.log(rv);
+        //console.log(rv);
         if (!rv.error)
         {
           try{
             let target = procCtx.originalArguments[hostBufferArgIdx];
-            target.set(rv.value.x);
+            // to support target other than Uint8
+            let targetview = new Uint8Array(target.buffer, target.byteOffset, target.byteLength);
+            targetview.set(rv.value.x);
           }
           catch(e){
             console.error("[clientwrapper.js] create_commandQueue_readBuffer_postproc"+
