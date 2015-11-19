@@ -403,7 +403,7 @@ function handle_profileAfterChange (ctx)
 
           args[ctx.hostBufferArgIdx] = tmpBuf;
 
-          setTransientObject (instance, tmp.transiendId, tmpBuf, function () {
+          setTransientObject (instance, tmp.transientId, tmpBuf, function () {
             return Array.prototype.slice.call(tmpBuf);
           });
         }
