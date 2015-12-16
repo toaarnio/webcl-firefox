@@ -1,16 +1,12 @@
-*~
-*.diff
-*.zip
-*.xpi
-*.pyc
-firefox/src/.build
-firefox/src/.deps
-firefox/public/*.h
-firefox/public/*.xpt
-firefox/install.rdf
-firefox/src/libwebcl.so
-firefox/src/libwebcl.dylib
-firefox-js/dist
-firefox-js/external/xpidllex.py
-firefox-js/external/xpidlyacc.py
-*-swp
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
