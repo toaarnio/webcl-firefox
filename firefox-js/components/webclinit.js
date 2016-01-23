@@ -403,7 +403,7 @@ function handle_profileAfterChange (ctx)
 
           args[ctx.hostBufferArgIdx] = tmpBuf;
 
-          setTransientObject (instance, tmp.transiendId, tmpBuf, function () {
+          setTransientObject (instance, tmp.transientId, tmpBuf, function () {
             return Array.prototype.slice.call(tmpBuf);
           });
         }
@@ -412,7 +412,7 @@ function handle_profileAfterChange (ctx)
       function readBufferPostFn (ctx, rv, args) {
         if (ctx.sync) {
           // Make an 8-bit view that's sure to work
-          let tmp = new Uint8Array(args[ctx.hostBufferArgIdx]);
+          let tmp = new Uint8Array(args[ctx.hostBufferArgIdx].buffer);
           // Convert data to array
           let value = Array.prototype.slice.call(tmp);
           rv = { x: value };
